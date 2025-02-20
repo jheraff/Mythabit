@@ -16,6 +16,7 @@ export default function HomeScreen(props) {
     const userID = props.extraData.id;
     const entityRef = collection(db, 'entities');
 
+    /* comment */
     useEffect(() => {
         setLoading(true); 
         const q = query(
