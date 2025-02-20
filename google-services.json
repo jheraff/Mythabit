@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "501249558932",
+    "project_id": "mythabit-1ff5e",
+    "storage_bucket": "mythabit-1ff5e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501249558932:android:3821febbb70460fff9a781",
+        "android_client_info": {
+          "package_name": "mythabit.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgVLaor2FqRj3_ekLpWK2YCO2oelRTdEs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TextInput, TouchableOpacity, View,
+    StyleSheet, 
+    SafeAreaView, 
+    KeyboardAvoidingView,
+    Pressable
+ } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './styles';
 import { auth, db } from '../../firebase/config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import LoadingModal from '../../utils/LoadingModal';  
+import LoadingModal from '../../utils/LoadingModal';
+import { MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import Entypo from '@expo/vector-icons/Entypo';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
-export default function RegistrationScreen({navigation}) {
-    const [fullName, setFullName] = useState('');
+export default function RegistrationScreen({ navigation }) {
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,97 +25,157 @@ export default function RegistrationScreen({navigation}) {
 
     const onFooterLinkPress = () => {
         navigation.navigate('Login');
-    }
+    };
 
     const onRegisterPress = async () => {
-        if (password !== confirmPassword) {
-            alert("Passwords don't match.");
+        if (!email || !password || !username) {
+            alert("Please fill in all fields.");
             return;
         }
-    
+
         setIsLoading(true);
         try {
+            // Create user in Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
-            const data = {
+
+            // Create user document in Firestore with additional properties
+            const userData = {
                 id: uid,
+                username,
                 email,
-                fullName,
+                xp: 0,
+                level: 1,
+                stats: {
+                    strength: 1,
+                    intellect: 1,
+                    agility: 1,
+                    arcane: 1,
+                    focus: 1,
+                },
+                inventory: [],
+                tasks: [],
+                currency: 0,
+                customizationComplete: false,
+                personalSetupComplete: false,
+                createdAt: Date.now(),
             };
             
-            await setDoc(doc(db, 'users', uid), data);
-            navigation.navigate('Home', {user: data});
+
+            await setDoc(doc(db, 'users', uid), userData);
+
+            // Navigate to Home screen or customization flow
+            navigation.navigate('Home', { user: userData });
+
         } catch (error) {
+            console.error("Registration error:", error);
             alert(error.message);
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     return (
-        <View style={styles.container}>
-            <KeyboardAwareScrollView
-                style={{ flex: 1, width: '100%' }}
-                keyboardShouldPersistTaps="always">
-                {/* App logo */}
-                <Image
-                    style={styles.logo}
-                    source={require('../../../assets/icon.png')}
-                />
-                {/* Full name input field */}
-                <TextInput
-                    style={styles.input}
-                    placeholder='Full Name'
-                    placeholderTextColor="#aaaaaa"
-                    onChangeText={(text) => setFullName(text)}
-                    value={fullName}
-                    underlineColorAndroid="transparent"
-                    autoCapitalize="none"
-                />
-                {/* Email input field */}
-                <TextInput
-                    style={styles.input}
-                    placeholder='E-mail'
-                    placeholderTextColor="#aaaaaa"
-                    onChangeText={(text) => setEmail(text)}
-                    value={email}
-                    underlineColorAndroid="transparent"
-                    autoCapitalize="none"
-                />
-                {/* Password input field */}
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="#aaaaaa"
-                    secureTextEntry
-                    placeholder='Password'
-                    onChangeText={(text) => setPassword(text)}
-                    value={password}
-                    underlineColorAndroid="transparent"
-                    autoCapitalize="none"
-                />
-                {/* Confirm password input field */}
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="#aaaaaa"
-                    secureTextEntry
-                    placeholder='Confirm Password'
-                    onChangeText={(text) => setConfirmPassword(text)}
-                    value={confirmPassword}
-                    underlineColorAndroid="transparent"
-                    autoCapitalize="none"
-                />
-                {/* Register button */}
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={onRegisterPress}>
-                    <Text style={styles.buttonTitle}>Create account</Text>
-                </TouchableOpacity>
-                {/* Footer link to navigate to the login screen */}
-                <View style={styles.footerView}>
-                    <Text style={styles.footerText}>Already got an account? <Text onPress={onFooterLinkPress} style={styles.footerLink}>Log in</Text></Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}>
+            <KeyboardAvoidingView>
+
+                {/* Main Container for form and title */}
+                <View style={styles.boxContainer}>
+
+                    {/* Application Title */}
+                    <View style={{ alignItems: "center", marginBottom: 20 }}>
+                        <Text style={styles.appTitle}>Productivity App</Text>
+                    </View>
+
+                    {/* Register Title */}
+                    <View style={{ alignItems: "center" }}>
+                        <Text style={{ fontSize: 16, fontWeight: "600", marginTop: 20 }}>
+                            Register your account
+                        </Text>
+                    </View>
+
+                    <View style={{ marginTop: 40 }}>
+
+                        {/* Username Input Field */}
+                        <View style={styles.inputContainer}>
+                            <Ionicons style={styles.iconStyle} name="person" size={24} color="gray" />
+                            <TextInput
+                                value={username}
+                                onChangeText={(text) => setUsername(text)}
+                                style={styles.textInput}
+                                placeholder="Username"
+                            />
+                        </View>
+
+                        {/* Email Input Field */}
+                        <View style={styles.inputContainer}>
+                            <MaterialIcons style={styles.iconStyle} name="email" size={24} color="gray" />
+                            <TextInput
+                                value={email}
+                                onChangeText={(text) => setEmail(text)}
+                                style={styles.textInput}
+                                placeholder="Enter your email"
+                            />
+                        </View>
+
+                        {/* Password Input Field */}
+                        <View style={styles.inputContainer}>
+                            <AntDesign style={styles.iconStyle} name="lock1" size={24} color="gray" />
+                            <TextInput
+                                value={password}
+                                onChangeText={(text) => setPassword(text)}
+                                style={styles.textInput}
+                                placeholder="Enter your password"
+                            />
+                        </View>
+
+                        {/* Register Button */}
+                        <View style={{ marginTop: 20, alignItems: 'center' }}>
+                            <Pressable
+                                onPress={onRegisterPress}
+                                style={styles.registerButton}
+                            >
+                                <Text style={styles.registerButtonText}>
+                                    Register
+                                </Text>
+                            </Pressable>
+                        </View>
+
+                        {/* Social Media Registration Buttons */}
+                        <View style={styles.socialContainer}>
+                            <Pressable 
+                                /*onPress={signInWithGoogle}*/
+                                style={styles.circleButton}
+                            >
+                                <AntDesign name="google" size={24} color="black" />
+                            </Pressable>
+
+                            <Pressable style={styles.circleButton}>
+                                <Entypo name="facebook-with-circle" size={24} color="black" />
+                            </Pressable>
+
+                            <Pressable style={styles.circleButton}>
+                                <FontAwesome6 name="x-twitter" size={24} color="black" />
+                            </Pressable>
+                        </View>
+
+                        {/* Link to Login Screen */}
+                        <View style={styles.footerView}>
+                    <Text style={styles.footerText}>
+                        Already have an account?{' '}
+                        <Text onPress={onFooterLinkPress} style={styles.footerLink}>
+                            Log in
+                        </Text>
+                    </Text>
                 </View>
-            </KeyboardAwareScrollView>
-            <LoadingModal isVisible={isLoading} />
-        </View>
+
+                    </View>
+
+                </View>
+                <LoadingModal visible={isLoading} />
+
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 }
+

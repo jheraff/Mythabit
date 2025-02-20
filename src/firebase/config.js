@@ -1,26 +1,56 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAnalytics, isSupported } from "firebase/analytics";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  initializeAuth, 
+  getReactNativePersistence 
+} from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyAOWHBpPhKoNhcGFKHH_Q_0AtL2gV-imgQ',
-  authDomain: 'production-a9404.firebaseapp.com',
-  databaseURL: 'https://production-a9404.firebaseio.com',
-  projectId: 'production-a9404',
-  storageBucket: 'production-a9404.appspot.com',
-  messagingSenderId: '525472070731',
-  appId: '1:525472070731:web:ee873bd62c0deb7eba61ce',
+  apiKey: "AIzaSyCh6YkKO_FBWY-gjbL28dHDUKJjodUP4y4",
+  authDomain: "mythabit-1ff5e.firebaseapp.com",
+  projectId: "mythabit-1ff5e",
+  storageBucket: "mythabit-1ff5e.firebasestorage.app",
+  messagingSenderId: "501249558932",
+  appId: "1:501249558932:web:11a565ded0d5dd3cf9a781",
+  measurementId: "G-9LPBSNXDEV"
 };
 
-// Initialize Firebase
+// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth with AsyncStorage persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
+// Ensure auth persistence using React Native AsyncStorage
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
-const db = getFirestore(app);
+// Set up analytics
+isSupported().then((isAnalyticsSupported) => {
+  if (isAnalyticsSupported) {
+    const analytics = getAnalytics(app);
+  }
+});
 
-export { app, auth, db };
+// Set up authentication providers and Firestore
+export const googleProvider = new GoogleAuthProvider();
+export const db = getFirestore(app);
+
+export default app;
+
+// Function to fetch avatar data for a given userId
+export const getAvatarFromFirebase = async (userId) => {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    return userSnap.data().avatar;
+  } else {
+    console.log("No avatar data found");
+    return null;
+  }
+};
