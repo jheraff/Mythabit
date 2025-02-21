@@ -1,0 +1,34 @@
+{
+    "defaultTasks": [
+      {
+        "taskName": "Morning Run",
+        "difficulty": "medium",
+        "duration": 30,
+        "statType": "endurance",
+        "status": "available",
+        "taskAmount": 1,
+        "taskType": "exercise",
+        "xpReward": 100
+      },
+      {
+        "taskName": "Read a Book",
+        "difficulty": "Easy",
+        "duration": 20,
+        "statType": "wisdom",
+        "status": "available",
+        "taskAmount": 1,
+        "taskType": "learning",
+        "xpReward": 50
+      },
+      {
+        "taskName": "Touch Grass",
+        "difficulty": "Easy",
+        "duration": 30,
+        "statType": "fitness",
+        "status": "available",
+        "taskAmount": 1,
+        "taskType": "fitness",
+        "xpReward": 250
+      }
+    ]
+  }

@@ -3,10 +3,10 @@ import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
-import { auth, db } from '../../firebase/config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import LoadingModal from '../../utils/LoadingModal';  
+import { auth, db, initializeUserTasks } from '../../firebase/config';
 
 export default function LoginScreen({navigation}) {
     const [email, setEmail] = useState('')
@@ -30,8 +30,18 @@ export default function LoginScreen({navigation}) {
                 return;
             }
             const userData = userDoc.data();
-            await AsyncStorage.setItem('user', JSON.stringify(userData));  // Save user data
-            navigation.navigate('Home', {user: userData});
+            
+            // Initialize tasks for the user
+            await initializeUserTasks(uid);
+            
+            // Save user data to AsyncStorage
+            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            
+            // Instead of navigating to 'Home', navigate to 'MainApp'
+            // The auth state change will handle the actual navigation
+            setEmail('');
+            setPassword('');
+            
         } catch (error) {
             alert(error.message);
         } finally {
@@ -44,12 +54,10 @@ export default function LoginScreen({navigation}) {
             <KeyboardAwareScrollView
                 style={{ flex: 1, width: '100%' }}
                 keyboardShouldPersistTaps="always">
-                {/* App logo */}
                 <Image
                     style={styles.logo}
                     source={require('../../../assets/icon.png')}
                 />
-                {/* Email input field */}
                 <TextInput
                     style={styles.input}
                     placeholder='E-mail'
@@ -59,7 +67,6 @@ export default function LoginScreen({navigation}) {
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
                 />
-                {/* Password input field */}
                 <TextInput
                     style={styles.input}
                     placeholderTextColor="#aaaaaa"
@@ -70,13 +77,11 @@ export default function LoginScreen({navigation}) {
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
                 />
-                {/* Login button */}
                 <TouchableOpacity
                     style={styles.button}
                     onPress={onLoginPress}>
                     <Text style={styles.buttonTitle}>Log in</Text>
                 </TouchableOpacity>
-                {/* Footer link to navigate to the registration screen */}
                 <View style={styles.footerView}>
                     <Text style={styles.footerText}>Don't have an account? <Text onPress={onFooterLinkPress} style={styles.footerLink}>Sign up</Text></Text>
                 </View>
@@ -85,31 +90,3 @@ export default function LoginScreen({navigation}) {
         </View>
     );
 }
-
-// Namespace SDK
-// const onLoginPress = () => {
-//     firebase
-//         .auth()
-//         .signInWithEmailAndPassword(email, password)
-//         .then((response) => {
-//             const uid = response.user.uid
-//             const usersRef = firebase.firestore().collection('users')
-//             usersRef
-//                 .doc(uid)
-//                 .get()
-//                 .then(firestoreDocument => {
-//                     if (!firestoreDocument.exists) {
-//                         alert("User does not exist anymore.")
-//                         return;
-//                     }
-//                     const user = firestoreDocument.data()
-//                     navigation.navigate('Home', {user})
-//                 })
-//                 .catch(error => {
-//                     alert(error)
-//                 });
-//         })
-//         .catch(error => {
-//             alert(error)
-//         })
-// }

@@ -7,7 +7,6 @@ import { Image, Text, TextInput, TouchableOpacity, View,
  } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styles from './styles';
-import { auth, db } from '../../firebase/config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import LoadingModal from '../../utils/LoadingModal';
@@ -15,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { auth, db, initializeUserTasks } from '../../firebase/config';
 
 export default function RegistrationScreen({ navigation }) {
     const [username, setUsername] = useState('');
@@ -32,13 +32,13 @@ export default function RegistrationScreen({ navigation }) {
             alert("Please fill in all fields.");
             return;
         }
-
+    
         setIsLoading(true);
         try {
             // Create user in Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
-
+    
             // Create user document in Firestore with additional properties
             const userData = {
                 id: uid,
@@ -61,12 +61,14 @@ export default function RegistrationScreen({ navigation }) {
                 createdAt: Date.now(),
             };
             
-
             await setDoc(doc(db, 'users', uid), userData);
-
+    
+            // Initialize tasks for the new user
+            await initializeUserTasks(uid);
+    
             // Navigate to Home screen or customization flow
             navigation.navigate('Home', { user: userData });
-
+    
         } catch (error) {
             console.error("Registration error:", error);
             alert(error.message);
