@@ -1,4 +1,3 @@
-// src/config/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import {
@@ -15,9 +14,21 @@ import {
   query, 
   where,
   addDoc,
-  getDocs 
+  getDocs,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove
 } from "firebase/firestore";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+
+// Import task data
+import fitnessTasks from '../data/fitness_tasks.json';
+import careerTasks from '../data/career_tasks.json';
+import healthTasks from '../data/health_tasks.json';
+import creativityTasks from '../data/creativity_tasks.json';
+import choresTasks from '../data/chores_tasks.json';
+import mindTasks from '../data/mind_tasks.json';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCh6YkKO_FBWY-gjbL28dHDUKJjodUP4y4",
@@ -61,34 +72,143 @@ export const getAvatarFromFirebase = async (userId) => {
   }
 };
 
-// New function to initialize tasks for a user
-export const initializeUserTasks = async (userId) => {
+// Function to search users by username
+export const searchUsers = async (searchQuery, currentUserId) => {
   try {
-    const tasksRef = collection(db, 'tasks');
-    
-    // Check if user already has tasks
-    const existingTasks = await getDocs(
-      query(tasksRef, where('userId', '==', userId))
+    const usersRef = collection(db, 'users');
+    const q = query(
+      usersRef,
+      where('username', '>=', searchQuery),
+      where('username', '<=', searchQuery + '\uf8ff')
     );
-    
-    if (existingTasks.empty) {
-      // Import tasks dynamically
-      const defaultTasks = require('../data/tasks.json');
-      
-      // Add tasks for new user
-      const taskPromises = defaultTasks.defaultTasks.map(task => {
-        return addDoc(tasksRef, {
-          ...task,
-          userId,
-          createdAt: new Date(),
+
+    const querySnapshot = await getDocs(q);
+    const users = [];
+    querySnapshot.forEach((doc) => {
+      // Don't include current user in search results
+      if (doc.id !== currentUserId) {
+        users.push({
+          id: doc.id,
+          ...doc.data()
         });
-      });
-      
-      await Promise.all(taskPromises);
-      console.log('Tasks initialized for user:', userId);
+      }
+    });
+    return users;
+  } catch (error) {
+    console.error('Error searching users:', error);
+    throw error;
+  }
+};
+
+// Function to follow a user
+export const followUser = async (currentUserId, userToFollowId) => {
+  try {
+    const currentUserRef = doc(db, 'users', currentUserId);
+    const userToFollowRef = doc(db, 'users', userToFollowId);
+
+    await updateDoc(currentUserRef, {
+      following: arrayUnion(userToFollowId)
+    });
+
+    await updateDoc(userToFollowRef, {
+      followers: arrayUnion(currentUserId)
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error following user:', error);
+    throw error;
+  }
+};
+
+// Function to unfollow a user
+export const unfollowUser = async (currentUserId, userToUnfollowId) => {
+  try {
+    const currentUserRef = doc(db, 'users', currentUserId);
+    const userToUnfollowRef = doc(db, 'users', userToUnfollowId);
+
+    await updateDoc(currentUserRef, {
+      following: arrayRemove(userToUnfollowId)
+    });
+
+    await updateDoc(userToUnfollowRef, {
+      followers: arrayRemove(currentUserId)
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error unfollowing user:', error);
+    throw error;
+  }
+};
+
+// Function to get user profile data
+export const getUserProfile = async (userId) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      return {
+        id: userSnap.id,
+        ...userSnap.data()
+      };
+    } else {
+      console.log("No user found");
+      return null;
     }
   } catch (error) {
-    console.error('Error initializing tasks:', error);
+    console.error('Error getting user profile:', error);
+    throw error;
+  }
+};
+
+export const initializeUserTasks = async (userId) => {
+  try {
+      // Get all available tasks
+      const allTasks = [
+          ...fitnessTasks.tasks,
+          ...careerTasks.tasks,
+          ...healthTasks.tasks,
+          ...creativityTasks.tasks,
+          ...choresTasks.tasks,
+          ...mindTasks.tasks
+      ];
+
+      // Create a reference to the user's tasks collection
+      const userTasksRef = doc(db, 'userTasks', userId);
+      
+      // Initialize user tasks with all available tasks
+      await setDoc(userTasksRef, {
+          availableTasks: allTasks,
+          createdAt: new Date().toISOString(),
+          lastUpdated: new Date().toISOString()
+      });
+      
+      console.log('Tasks initialized for user:', userId);
+      return true;
+  } catch (error) {
+      console.error('Error initializing tasks:', error);
+      throw error;
+  }
+};
+
+// Function to initialize a new user profile
+export const initializeUserProfile = async (userId, username) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, {
+      username,
+      level: 1,
+      following: [],
+      followers: [],
+      createdAt: new Date(),
+      avatar: null // You can set a default avatar here if needed
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error initializing user profile:', error);
     throw error;
   }
 };

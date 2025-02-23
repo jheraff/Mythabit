@@ -1,0 +1,44 @@
+{
+    "tasks": [
+      {
+        "taskName": "Morning Run",
+        "difficulty": "medium",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "fitness",
+        "xpReward": 100
+      },
+      {
+        "taskName": "Night Run",
+        "difficulty": "medium",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "fitness",
+        "xpReward": 100
+      },
+      {
+        "taskName": "Afternoon Run",
+        "difficulty": "medium",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "fitness",
+        "xpReward": 100
+      },
+      {
+        "taskName": "Push Up",
+        "difficulty": "Easy",
+        "duration": 15,
+        "statType": "strength",
+        "status": "pending",
+        "taskAmount": 10,
+        "taskType": "fitness",
+        "xpReward": 250
+      }
+    ]
+  }

@@ -1,0 +1,44 @@
+{
+    "tasks": [
+      {
+        "taskName": "Count to 10 in Chinese",
+        "difficulty": "Easy",
+        "duration": 30,
+        "statType": "focus",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "mind",
+        "xpReward": 250
+      },
+      {
+        "taskName": "Don't Scroll TikTok",
+        "difficulty": "Easy",
+        "duration": 30,
+        "statType": "focus",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "mind",
+        "xpReward": 250
+      },
+      {
+        "taskName": "Touch Grass",
+        "difficulty": "Easy",
+        "duration": 30,
+        "statType": "focus",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "mind",
+        "xpReward": 250
+      },
+      {
+        "taskName": "Meditate",
+        "difficulty": "Easy",
+        "duration": 30,
+        "statType": "focus",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "mind",
+        "xpReward": 250
+      }
+    ]
+  }

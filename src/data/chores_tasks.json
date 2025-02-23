@@ -1,0 +1,54 @@
+{
+    "tasks": [
+      {
+        "taskName": "Clean Room",
+        "difficulty": "easy",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "chores",
+        "xpReward": 100
+      },
+      {
+        "taskName": "Laundry",
+        "difficulty": "easy",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "chores",
+        "xpReward": 100
+      },
+      {
+        "taskName": "Vacuum Room",
+        "difficulty": "easy",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "chores",
+        "xpReward": 100
+      },
+      {
+        "taskName": "Wash Dishes",
+        "difficulty": "easy",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "chores",
+        "xpReward": 50
+      },
+      {
+        "taskName": "Walk Dog",
+        "difficulty": "easy",
+        "duration": 30,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "chores",
+        "xpReward": 50
+      }
+    ]
+  }

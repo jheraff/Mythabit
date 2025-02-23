@@ -1,0 +1,34 @@
+{
+    "tasks": [
+      {
+        "taskName": "Read a Book",
+        "difficulty": "Easy",
+        "duration": 1,
+        "statType": "intellect",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "career",
+        "xpReward": 10
+      },
+      {
+        "taskName": "Finish Essay",
+        "difficulty": "Medium",
+        "duration": 15,
+        "statType": "intellect",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "career",
+        "xpReward": 20
+      },
+      {
+        "taskName": "Replace Rooftop",
+        "difficulty": "Easy",
+        "duration": 1,
+        "statType": "strength",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "career",
+        "xpReward": 250
+      }
+    ]
+  }

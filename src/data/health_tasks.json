@@ -1,0 +1,34 @@
+{
+    "tasks": [
+      {
+        "taskName": "Eat Food",
+        "difficulty": "Easy",
+        "duration": 1,
+        "statType": "arcane",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "health",
+        "xpReward": 15
+      },
+      {
+        "taskName": "Eat Apple",
+        "difficulty": "Easy",
+        "duration": 1,
+        "statType": "arcane",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "health",
+        "xpReward": 15
+      },
+      {
+        "taskName": "Eat Food",
+        "difficulty": "Easy",
+        "duration": 1,
+        "statType": "arcane",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "health",
+        "xpReward": 15
+      }
+    ]
+  }
