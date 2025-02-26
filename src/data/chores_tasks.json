@@ -49,6 +49,16 @@
         "taskAmount": 1,
         "taskType": "chores",
         "xpReward": 50
+      },
+      {
+        "taskName": "Walk Goldfish",
+        "difficulty": "easy",
+        "duration": 2880,
+        "statType": "agility",
+        "status": "pending",
+        "taskAmount": 1,
+        "taskType": "chores",
+        "xpReward": 500
       }
     ]
   }

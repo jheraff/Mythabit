@@ -4,10 +4,12 @@ import {
     Text,
     TouchableOpacity,
     ScrollView,
-    StyleSheet
+    StyleSheet,
+    Alert
 } from 'react-native';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase/config';
+import LoadingModal from '../../utils/LoadingModal';
 
 import fitnessTasks from '../../data/fitness_tasks.json';
 import careerTasks from '../../data/career_tasks.json';
@@ -16,9 +18,11 @@ import creativityTasks from '../../data/creativity_tasks.json';
 import choresTasks from '../../data/chores_tasks.json';
 import mindTasks from '../../data/mind_tasks.json';
 
-const TaskCustomizationRegisterScreen = ({ navigation }) => {
+const TaskCustomizationRegisterScreen = ({ navigation, route }) => {
     const [selectedTypes, setSelectedTypes] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const taskTypes = ['fitness', 'career', 'health', 'creativity', 'chores', 'mind'];
+    const { userId } = route.params || { userId: auth.currentUser?.uid };
 
     const taskTypeData = {
         fitness: fitnessTasks.tasks,
@@ -68,41 +72,85 @@ const TaskCustomizationRegisterScreen = ({ navigation }) => {
         }, []);
     };
 
+    // Update customization status function
+    const updateCustomizationStatus = async (userId, field, value) => {
+        try {
+            const userRef = doc(db, 'users', userId);
+            await updateDoc(userRef, {
+                [field]: value,
+                lastUpdated: new Date().toISOString()
+            });
+            console.log(`${field} updated for user:`, userId);
+            return true;
+        } catch (error) {
+            console.error(`Error updating ${field}:`, error);
+            throw error;
+        }
+    };
+
     const savePreferences = async () => {
         if (selectedTypes.length === 0) {
-            alert('Please select at least one task type');
+            Alert.alert('Selection Required', 'Please select at least one task type');
             return;
         }
 
+        setIsLoading(true);
+
         try {
-            const userId = auth.currentUser.uid;
+            const currentUserId = userId || auth.currentUser.uid;
+            
+            if (!currentUserId) {
+                throw new Error('No user ID available');
+            }
+            
+            console.log('Saving preferences for user ID:', currentUserId);
             const selectedTasks = getSelectedTasks();
 
             // Initialize tasks first
-            await initializeUserTasks(userId);
+            await initializeUserTasks(currentUserId);
+            console.log('User tasks initialized');
 
             // Save preferences
-            await setDoc(doc(db, 'userPreferences', userId), {
+            await setDoc(doc(db, 'userPreferences', currentUserId), {
                 taskTypes: selectedTypes,
                 setupCompleted: true,
                 availableTasks: selectedTasks,
                 lastUpdated: new Date().toISOString()
             });
+            console.log('User preferences saved');
 
-            // Mark customization as complete in user document
-            await setDoc(doc(db, 'users', userId), {
-                customizationComplete: true,
+            // Mark task customization as complete
+            await updateCustomizationStatus(currentUserId, 'taskCustomizationComplete', true);
+            console.log('Task customization marked as complete');
+
+            // Update selected task types
+            await updateDoc(doc(db, 'users', currentUserId), {
                 selectedTaskTypes: selectedTypes,
-                lastUpdated: new Date().toISOString()
-            }, { merge: true });
+            });
+            console.log('Selected task types updated');
 
-            // Let App.js handle the navigation by updating the user state
-            // Don't try to navigate manually
-            return;
+            Alert.alert(
+                'Setup Complete',
+                'Your preferences have been saved!',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            // Navigate home or wait for App.js to handle navigation
+                            // Refresh the auth state by setting a temporary flag
+                            auth.currentUser.getIdToken(true).then(() => {
+                                console.log('User token refreshed, waiting for auth state change');
+                            });
+                        }
+                    }
+                ]
+            );
 
         } catch (error) {
             console.error('Error saving preferences:', error);
-            alert('Error saving preferences');
+            Alert.alert('Error', 'Failed to save preferences. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -127,7 +175,10 @@ const TaskCustomizationRegisterScreen = ({ navigation }) => {
                                 selectedTypes.includes(type) && styles.selectedTypeText
                             ]}>
                                 {type.charAt(0).toUpperCase() + type.slice(1)}
-                                <Text style={styles.taskCount}>
+                                <Text style={[
+                                    styles.taskCount,
+                                    selectedTypes.includes(type) && styles.selectedTaskCount
+                                ]}>
                                     {` (${taskTypeData[type].length} tasks)`}
                                 </Text>
                             </Text>
@@ -146,6 +197,7 @@ const TaskCustomizationRegisterScreen = ({ navigation }) => {
                     <Text style={styles.continueText}>Start Your Journey</Text>
                 </TouchableOpacity>
             </ScrollView>
+            <LoadingModal visible={isLoading} />
         </View>
     );
 };
@@ -177,18 +229,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 10,
+        justifyContent: 'space-between',
     },
     typeButton: {
         padding: 15,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: '#ddd',
-        minWidth: '45%',
+        width: '48%',
         alignItems: 'center',
+        marginBottom: 10,
     },
     selectedType: {
-        backgroundColor: '#007AFF',
-        borderColor: '#007AFF',
+        backgroundColor: '#F67B7B',
+        borderColor: '#F67B7B',
     },
     typeText: {
         fontSize: 16,
@@ -201,12 +255,16 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
     },
+    selectedTaskCount: {
+        color: '#fff',
+    },
     continueButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#F67B7B',
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',
         marginTop: 30,
+        marginBottom: 20,
     },
     disabledButton: {
         backgroundColor: '#ccc',
