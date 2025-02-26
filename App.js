@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -22,8 +23,14 @@ import ShopScreen from './src/screens/ActionScreen/ShopScreen';
 import ProfileScreen from './src/screens/ProfileScreen/ProfileScreen';
 import UserProfileScreen from './src/screens/ProfileScreen/UserProfileScreen';
 import FollowListScreen from './src/screens/ProfileScreen/FollowListScreen';
+import AvatarCustomizationRegisterScreen from './src/screens/AvatarScreen/AvatarCustomizationRegisterScreen';
+import AvatarCustomizationSettingsScreen from './src/screens/AvatarScreen/AvatarCustomizationSettingsScreen';
 import TaskCustomizationRegisterScreen from './src/screens/tasks/TaskCustomizationRegisterScreen';
 import TaskCustomizationSettingsScreen from './src/screens/tasks/TaskCustomizationSettingsScreen';
+import AboutScreen from './src/screens/SettingsScreen/AboutScreen';
+import NotificationsScreen from './src/screens/SettingsScreen/NotificationsScreen';
+import PreferencesScreen from './src/screens/SettingsScreen/PreferencesScreen';
+import PrivacyScreen from './src/screens/SettingsScreen/PrivacyScreen';
 
 // Base-64 polyfill
 if (!global.btoa) { global.btoa = encode }
@@ -36,6 +43,7 @@ const HomeStack = createStackNavigator();
 const ActionStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 const TaskStack = createStackNavigator();
+const OnboardingStack = createStackNavigator();
 
 // Firebase setup
 const auth = getAuth();
@@ -76,12 +84,32 @@ const SettingsStackNavigator = ({ extraData }) => (
       {props => <SettingsScreen {...props} extraData={extraData} />}
     </SettingsStack.Screen>
     <SettingsStack.Screen
+      name="AvatarCustomizationSettings"
+      component={AvatarCustomizationSettingsScreen}
+    />
+    <SettingsStack.Screen
       name="TaskCustomizationSettings"
       component={TaskCustomizationSettingsScreen}
     />
     <SettingsStack.Screen
       name="ProfileSettings"
       component={ProfileSettings}
+    />
+    <SettingsStack.Screen
+      name="About"
+      component={AboutScreen}
+    />
+    <SettingsStack.Screen
+      name="Notifications"
+      component={NotificationsScreen}
+    />
+    <SettingsStack.Screen
+      name="Preferences"
+      component={PreferencesScreen}
+    />
+    <SettingsStack.Screen
+      name="Privacy"
+      component={PrivacyScreen}
     />
   </SettingsStack.Navigator>
 );
@@ -92,6 +120,22 @@ const TaskStackNavigator = ({ extraData }) => (
       {props => <TasksScreen {...props} extraData={extraData} />}
     </TaskStack.Screen>
   </TaskStack.Navigator>
+);
+
+// Onboarding Stack for first-time user flow
+const OnboardingStackNavigator = ({ userId }) => (
+  <OnboardingStack.Navigator screenOptions={{ headerShown: false, gestureEnabled: false }}>
+    <OnboardingStack.Screen 
+      name="AvatarCustomizationRegister" 
+      component={AvatarCustomizationRegisterScreen}
+      initialParams={{ userId }}
+    />
+    <OnboardingStack.Screen 
+      name="TaskCustomizationRegister" 
+      component={TaskCustomizationRegisterScreen}
+      initialParams={{ userId }}
+    />
+  </OnboardingStack.Navigator>
 );
 
 // Tab Navigator
@@ -170,11 +214,21 @@ const TabNavigator = ({ extraData }) => (
   </Tab.Navigator>
 );
 
+// Loading Component
+const LoadingScreen = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+    <ActivityIndicator size="large" color="#F67B7B" />
+    <Text style={{ marginTop: 20, fontSize: 16, color: '#666' }}>Loading...</Text>
+  </View>
+);
+
 // Main App Component
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [needsAvatarSetup, setNeedsAvatarSetup] = useState(false);
+  const [needsTaskSetup, setNeedsTaskSetup] = useState(false);
 
   // In your App.js useEffect:
   useEffect(() => {
@@ -186,11 +240,25 @@ export default function App() {
           // Set up a real-time listener for the user document
           const unsubscribeDoc = onSnapshot(userDoc, (docSnapshot) => {
             if (docSnapshot.exists()) {
-              const userData = docSnapshot.data();
-              const isFirstTimer = userData.customizationComplete === false;
+              const userData = { ...docSnapshot.data(), id: user.uid };
+              
+              // Check customization status
+              const avatarComplete = userData.avatarCustomizationComplete === true;
+              const taskComplete = userData.taskCustomizationComplete === true;
+              
+              // Determine if this is a first-time user
+              const isFirstTimer = !avatarComplete || !taskComplete;
+              
+              console.log('Avatar complete:', avatarComplete);
+              console.log('Task complete:', taskComplete);
+              console.log('Is first timer:', isFirstTimer);
+              
+              setNeedsAvatarSetup(!avatarComplete);
+              setNeedsTaskSetup(!taskComplete);
               setIsFirstTimeUser(isFirstTimer);
               setUser(userData);
             } else {
+              console.log('No user document found');
               setUser(null);
             }
             setLoading(false);
@@ -203,8 +271,11 @@ export default function App() {
           setLoading(false);
         }
       } else {
+        console.log('No authenticated user');
         setUser(null);
         setIsFirstTimeUser(false);
+        setNeedsAvatarSetup(false);
+        setNeedsTaskSetup(false);
         setLoading(false);
       }
     });
@@ -212,21 +283,29 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           isFirstTimeUser ? (
-            <Stack.Screen
-              name="TaskCustomizationRegister"
-              component={TaskCustomizationRegisterScreen}
-            />
+            // First-time user flow - use a dedicated onboarding stack
+            <Stack.Screen 
+              name="Onboarding" 
+              options={{ gestureEnabled: false }}>
+              {props => <OnboardingStackNavigator {...props} userId={user.id} />}
+            </Stack.Screen>
           ) : (
+            // Regular user flow
             <Stack.Screen name="MainTab">
               {props => <TabNavigator {...props} extraData={user} />}
             </Stack.Screen>
           )
         ) : (
+          // Authentication flow
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Registration" component={RegistrationScreen} />
