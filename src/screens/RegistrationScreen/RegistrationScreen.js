@@ -6,7 +6,8 @@ import {
     View,
     SafeAreaView,
     KeyboardAvoidingView,
-    Pressable
+    Pressable,
+    Alert
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AntDesign, Ionicons } from "@expo/vector-icons";
@@ -15,7 +16,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import LoadingModal from '../../utils/LoadingModal';
-import { auth, db, initializeUserTasks } from '../../firebase/config';
+import { auth, db, initializeUserTasks, initializeUserProfile } from '../../firebase/config';
 
 const styles = StyleSheet.create({
     boxContainer: {
@@ -117,7 +118,17 @@ export default function RegistrationScreen({ navigation }) {
 
     const onRegisterPress = async () => {
         if (!email || !password || !username) {
-            alert("Please fill in all fields.");
+            Alert.alert("Error", "Please fill in all fields.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            Alert.alert("Error", "Passwords don't match.");
+            return;
+        }
+
+        if (password.length < 6) {
+            Alert.alert("Error", "Password should be at least 6 characters.");
             return;
         }
 
@@ -130,37 +141,17 @@ export default function RegistrationScreen({ navigation }) {
             const uid = userCredential.user.uid;
             console.log("User created with ID:", uid);
 
-            // Create user document in Firestore with additional properties
-            const userData = {
-                id: uid,
-                username,
-                email,
-                xp: 0,
-                level: 1,
-                stats: {
-                    strength: 1,
-                    intellect: 1,
-                    agility: 1,
-                    arcane: 1,
-                    focus: 1,
-                },
-                inventory: [],
-                tasks: [],
-                currency: 0,
-                customizationComplete: false,
-                personalSetupComplete: false,
-                following: [],
-                followers: [],
-                createdAt: new Date().toISOString(),
-                lastUpdated: new Date().toISOString()
-            };
+            // Initialize user profile with username (adding the rest later)
+            await initializeUserProfile(uid, username);
+            console.log("User profile initialized");
 
-            console.log("Creating user document...");
-            await setDoc(doc(db, 'users', uid), userData);
-            console.log("User document created");
+            // Initialize user tasks
+            console.log("Starting task initialization...");
+            await initializeUserTasks(uid);
+            console.log("Tasks initialized");
 
-            console.log("Initializing user preferences...");
             // Initialize user preferences
+            console.log("Initializing user preferences...");
             await setDoc(doc(db, 'userPreferences', uid), {
                 setupCompleted: false,
                 taskTypes: [],
@@ -169,20 +160,18 @@ export default function RegistrationScreen({ navigation }) {
             });
             console.log("User preferences initialized");
 
-            // Initialize user tasks
-            console.log("Starting task initialization...");
-            await initializeUserTasks(uid);
-            console.log("Tasks initialized");
-
-            // Clear form
+            // Clear form fields
             setUsername('');
             setEmail('');
             setPassword('');
             setConfirmPassword('');
 
+            // Navigate to avatar customization screen
+            navigation.navigate('AvatarCustomizationRegister', { userId: uid });
+
         } catch (error) {
             console.error("Registration error:", error);
-            alert(error.message);
+            Alert.alert("Registration Failed", error.message);
         } finally {
             setIsLoading(false);
         }

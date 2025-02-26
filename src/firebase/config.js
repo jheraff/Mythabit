@@ -72,6 +72,22 @@ export const getAvatarFromFirebase = async (userId) => {
   }
 };
 
+// Function to update avatar data
+export const updateUserAvatar = async (userId, avatarData) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      avatar: avatarData,
+      lastUpdated: new Date().toISOString()
+    });
+    console.log('Avatar updated for user:', userId);
+    return true;
+  } catch (error) {
+    console.error('Error updating avatar:', error);
+    throw error;
+  }
+};
+
 // Function to search users by username
 export const searchUsers = async (searchQuery, currentUserId) => {
   try {
@@ -85,7 +101,6 @@ export const searchUsers = async (searchQuery, currentUserId) => {
     const querySnapshot = await getDocs(q);
     const users = [];
     querySnapshot.forEach((doc) => {
-      // Don't include current user in search results
       if (doc.id !== currentUserId) {
         users.push({
           id: doc.id,
@@ -165,7 +180,6 @@ export const getUserProfile = async (userId) => {
 
 export const initializeUserTasks = async (userId) => {
   try {
-      // Get all available tasks
       const allTasks = [
           ...fitnessTasks.tasks,
           ...careerTasks.tasks,
@@ -203,12 +217,47 @@ export const initializeUserProfile = async (userId, username) => {
       following: [],
       followers: [],
       createdAt: new Date(),
-      avatar: null // You can set a default avatar here if needed
+      avatar: {
+        hair: 1,
+        face: 1,
+        outfit: 1,
+        accessory: 0
+      },
+      xp: 0,
+      stats: {
+        strength: 1,
+        intellect: 1,
+        agility: 1,
+        arcane: 1,
+        focus: 1,
+      },
+      inventory: [],
+      tasks: [],
+      currency: 0,
+      avatarCustomizationComplete: false,
+      taskCustomizationComplete: false,
+      lastUpdated: new Date().toISOString()
     });
     
     return true;
   } catch (error) {
     console.error('Error initializing user profile:', error);
+    throw error;
+  }
+};
+
+// Function to update user customization status
+export const updateCustomizationStatus = async (userId, field, value) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      [field]: value,
+      lastUpdated: new Date().toISOString()
+    });
+    
+    return true;
+  } catch (error) {
+    console.error(`Error updating ${field}:`, error);
     throw error;
   }
 };
