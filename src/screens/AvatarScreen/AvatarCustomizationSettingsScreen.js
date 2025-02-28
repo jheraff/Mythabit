@@ -55,14 +55,14 @@ const AvatarCustomizationSettingsScreen = () => {
   const [selectedHair, setSelectedHair] = useState(1);
   const [selectedFace, setSelectedFace] = useState(1);
   const [selectedOutfit, setSelectedOutfit] = useState(1);
-  const [selectedAccessory, setSelectedAccessory] = useState(0); // 0 means no accessory
+  const [selectedAccessory, setSelectedAccessory] = useState(0);
   const [originalAvatarState, setOriginalAvatarState] = useState({});
   
   // Sample avatar options (you'll need your actual assets)
   const hairStyles = [1, 2, 3, 4, 5];
   const faceStyles = [1, 2, 3, 4];
   const outfitStyles = [1, 2, 3, 4, 5, 6];
-  const accessoryStyles = [0, 1, 2, 3]; // 0 is no accessory
+  const accessoryStyles = [0, 1, 2, 3];
   
   // Load saved avatar settings on component mount
   useEffect(() => {
@@ -129,7 +129,6 @@ const AvatarCustomizationSettingsScreen = () => {
       
       Alert.alert('Success', 'Your avatar has been updated!');
       
-      // Navigate back
       navigation.goBack();
     } catch (error) {
       console.error('Error saving avatar changes:', error);

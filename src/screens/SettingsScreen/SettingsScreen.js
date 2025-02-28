@@ -138,7 +138,6 @@ const SettingsScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         
-        {/* Extra space at the bottom for better scrolling */}
         <View style={styles.bottomSpace} />
       </ScrollView>
     </SafeAreaView>
@@ -151,7 +150,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 16,
     paddingBottom: 16,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -168,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   scrollContent: {
-    paddingBottom: 30, // Extra padding at the bottom
+    paddingBottom: 30,
   },
   section: {
     marginBottom: 24,

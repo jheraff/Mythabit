@@ -1,0 +1,17 @@
+{
+    "mythic_weapons": [
+        {
+            "id": "really_cool_stick",
+            "name": "Really Cool Stick",
+            "rarity": "mythic",
+            "slot": "weapon",
+            "stats": {
+                "strength": 10
+            },
+            "description": "Found on a morning hike",
+            "image": "really_cool_stick.png",
+            "cost": 1000000,
+            "sellValue": 1
+        }
+    ]
+}

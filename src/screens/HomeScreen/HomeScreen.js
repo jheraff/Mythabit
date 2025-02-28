@@ -19,19 +19,21 @@ const HomeScreen = () => {
       agility: 1,
       arcane: 1,
       focus: 1
+    },
+    inventory: {
+      helmet: null,
+      chestplate: null,
+      leggings: null,
+      boots: null,
+      weapon: null,
+      gear: null
     }
   });
-
-  // Add this improved useEffect to your HomeScreen.js
-  // Replace the existing useEffect that sets up the user stats listener
 
   useEffect(() => {
     const userId = auth.currentUser?.uid;
     if (!userId) return;
 
-    console.log("🏠 Setting up user stats listener in HomeScreen");
-
-    // Set up a real-time listener with improved error handling
     const unsubscribeUserStats = onSnapshot(
       doc(db, 'users', userId),
       (docSnapshot) => {
@@ -51,23 +53,27 @@ const HomeScreen = () => {
               agility: userData.stats?.agility || 1,
               arcane: userData.stats?.arcane || 1,
               focus: userData.stats?.focus || 1
+            },
+            inventory: {
+              helmet: userData.inventory?.helmet || null,
+              chestplate: userData.inventory?.chestplate || null,
+              leggings: userData.inventory?.leggings || null,
+              boots: userData.inventory?.boots || null,
+              weapon: userData.inventory?.weapon || null,
+              gear: userData.inventory?.gear || null
             }
           };
-
-          console.log("🏠 Setting userStats state with:", completeUserStats);
           setUserStats(completeUserStats);
         } else {
-          console.log("🏠 No user document found, initializing new user");
           initializeNewUser(userId);
         }
       },
       (error) => {
-        console.error("🏠 Error listening to user stats:", error);
+        console.error(error);
       }
     );
 
     return () => {
-      console.log("🏠 Cleaning up user stats listener");
       unsubscribeUserStats();
     };
   }, []);
@@ -86,6 +92,14 @@ const HomeScreen = () => {
         agility: 1,
         arcane: 1,
         focus: 1
+      },
+      inventory: {
+        helmet: null,
+        chestplate: null,
+        leggings: null,
+        boots: null,
+        weapon: null,
+        gear: null
       },
       lastUpdated: new Date().toISOString()
     };
@@ -114,9 +128,7 @@ const HomeScreen = () => {
       let updatedStats = { ...currentStats };
       let totalXpGained = 0;
 
-      // Process each completed task
       completedTasks.forEach(task => {
-        // Add XP
         totalXpGained += task.xpReward || 0;
 
         // Increase the corresponding stat based on statType
@@ -134,13 +146,11 @@ const HomeScreen = () => {
         updatedStats.xp = updatedStats.xp % 1000;
       }
 
-      // Update user document
       await setDoc(userDocRef, {
         ...updatedStats,
         lastUpdated: new Date().toISOString()
       });
 
-      // Mark tasks as processed
       const activeTasksDoc = await getDoc(activeTasksRef);
       if (!activeTasksDoc.exists()) return;
 
@@ -151,8 +161,6 @@ const HomeScreen = () => {
       }));
 
       await setDoc(activeTasksRef, { tasks: updatedTasks });
-
-      // The onSnapshot listener will update the userStats state automatically
 
     } catch (error) {
       console.error('Error processing completed tasks:', error);
@@ -181,7 +189,6 @@ const HomeScreen = () => {
   // Function to render the avatar based on the customization options
   const renderAvatar = () => {
     if (!userStats.avatar) {
-      // Default placeholder when no avatar is set
       return (
         <View style={styles.avatarPlaceholder}>
           <Ionicons name="person" size={80} color="#666" />
@@ -189,7 +196,6 @@ const HomeScreen = () => {
       );
     }
 
-    // If there's avatar data, render just the avatar image
     return (
       <Image
         source={require('../../../assets/avatars/placeholder.png')}
@@ -197,6 +203,53 @@ const HomeScreen = () => {
         resizeMode="contain"
       />
     );
+  };
+
+  const renderInventorySlot = (slotType, slotName) => {
+    const item = userStats.inventory[slotType];
+    
+    return (
+      <TouchableOpacity 
+        style={styles.inventorySlot}
+        onPress={() => navigation.navigate('ItemScreen', { activeSlot: slotType })}
+      >
+        {item ? (
+          <Image 
+            source={{ uri: item.imageUri }}
+            style={styles.itemImage}
+            resizeMode="contain"
+          />
+        ) : (
+          <View style={styles.emptySlot}>
+            <Ionicons 
+              name={getSlotIcon(slotType)} 
+              size={24} 
+              color="#aaa" 
+            />
+          </View>
+        )}
+        <Text style={styles.slotName}>{slotName}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const getSlotIcon = (slotType) => {
+    switch(slotType) {
+      case 'helmet':
+        return 'shield-outline';
+      case 'chestplate':
+        return 'shirt-outline';
+      case 'leggings':
+        return 'resize-outline';
+      case 'boots':
+        return 'footsteps-outline';
+      case 'weapon':
+        return 'flash-outline';
+      case 'gear':
+        return 'cog-outline';
+      default:
+        return 'help-outline';
+    }
   };
 
   return (
@@ -230,9 +283,7 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        {/* XP bar row */}
         <View style={styles.xpContainer}>
-          <Text style={styles.xpText}>XP: {userStats.xp} / 1000</Text>
           <View style={styles.xpBarContainer}>
             <View
               style={[
@@ -240,6 +291,7 @@ const HomeScreen = () => {
                 { width: `${calculateXpProgress()}%` }
               ]}
             />
+            <Text style={styles.xpText}>XP: {userStats.xp} / 1000</Text>
           </View>
         </View>
       </View>
@@ -259,6 +311,19 @@ const HomeScreen = () => {
         {renderStatBar('Arcane', userStats.stats.arcane)}
         {renderStatBar('Focus', userStats.stats.focus)}
       </View>
+
+      {/* Inventory Section */}
+      <View style={styles.inventoryContainer}>
+        <Text style={styles.inventoryHeader}>Equipment</Text>
+        <View style={styles.inventorySlotsContainer}>
+          {renderInventorySlot('helmet', 'Helmet')}
+          {renderInventorySlot('chestplate', 'Chest')}
+          {renderInventorySlot('leggings', 'Legs')}
+          {renderInventorySlot('boots', 'Boots')}
+          {renderInventorySlot('weapon', 'Weapon')}
+          {renderInventorySlot('gear', 'Gear')}
+        </View>
+      </View>
     </ScrollView>
   );
 };
@@ -272,7 +337,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 20,
   },
-  // Updated header styles
   headerContainer: {
     backgroundColor: '#434',
     paddingVertical: 10,
@@ -323,27 +387,41 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  // XP bar styles - now part of header
   xpContainer: {
     paddingHorizontal: 16,
     paddingVertical: 5,
   },
   xpText: {
     fontSize: 12,
-    marginBottom: 4,
     color: '#ffffff',
+    fontWeight: 'bold',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    padding: 2,
+    zIndex: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   xpBarContainer: {
-    height: 8,
+    height: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 4,
+    borderRadius: 10,
     overflow: 'hidden',
+    position: 'relative',
   },
   xpBar: {
     height: '100%',
     backgroundColor: '#4CAF50',
+    position: 'absolute',
+    left: 0,
+    top: 0,
   },
-  // Avatar styles
   avatarBoxContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -373,7 +451,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  // Stats styles
   statsContainer: {
     padding: 20,
   },
@@ -407,6 +484,49 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  inventoryContainer: {
+    padding: 20,
+    paddingTop: 0,
+  },
+  inventoryHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  inventorySlotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  inventorySlot: {
+    width: '16%',
+    aspectRatio: 1,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  emptySlot: {
+    width: '100%',
+    height: '70%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  itemImage: {
+    width: '100%',
+    height: '70%',
+  },
+  slotName: {
+    fontSize: 10,
+    textAlign: 'center',
+    color: '#666',
+    marginTop: 4,
   },
 });
 

@@ -31,6 +31,7 @@ import AboutScreen from './src/screens/SettingsScreen/AboutScreen';
 import NotificationsScreen from './src/screens/SettingsScreen/NotificationsScreen';
 import PreferencesScreen from './src/screens/SettingsScreen/PreferencesScreen';
 import PrivacyScreen from './src/screens/SettingsScreen/PrivacyScreen';
+import LeaderboardScreen from './src/screens/ProfileScreen/LeaderboardScreen';
 
 // Base-64 polyfill
 if (!global.btoa) { global.btoa = encode }
@@ -58,6 +59,7 @@ const HomeStackNavigator = ({ extraData }) => (
     <HomeStack.Screen name="ProfileScreen" component={ProfileScreen} />
     <HomeStack.Screen name="UserProfile" component={UserProfileScreen} />
     <HomeStack.Screen name="FollowList" component={FollowListScreen} />
+    <HomeStack.Screen name="LeaderboardScreen" component={LeaderboardScreen} />
   </HomeStack.Navigator>
 );
 

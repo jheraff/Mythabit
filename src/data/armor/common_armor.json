@@ -1,0 +1,69 @@
+{
+    "common_armor": [
+        {
+            "id": "bronze_helmet",
+            "name": "Bronze Helmet",
+            "rarity": "common",
+            "slot": "head",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool helmet",
+            "image": "bronze_helmet.png",
+            "cost": 100,
+            "sellValue": 50
+        },
+        {
+            "id": "bronze_chestplate",
+            "name": "Bronze Chestplate",
+            "rarity": "common",
+            "slot": "chestplate",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool chestplate",
+            "image": "bronze_chestplate.png",
+            "cost": 100,
+            "sellValue": 50
+        },
+        {
+            "id": "bronze_leggings",
+            "name": "Bronze Leggings",
+            "rarity": "common",
+            "slot": "leggings",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool leggings",
+            "image": "bronze_leggings.png",
+            "cost": 100,
+            "sellValue": 50
+        },
+        {
+            "id": "bronze_boots",
+            "name": "Bronze Boots",
+            "rarity": "common",
+            "slot": "boots",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool boots",
+            "image": "bronze_boots.png",
+            "cost": 100,
+            "sellValue": 50
+        },
+        {
+            "id": "half_eaten_sandal",
+            "name": "Half-Eaten Sandal",
+            "rarity": "common",
+            "slot": "boots",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Retrieved from a feral raccoon",
+            "image": "half_eaten_sandal.png",
+            "cost": 10,
+            "sellValue": 1
+        }
+    ]
+}

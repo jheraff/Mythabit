@@ -1,0 +1,56 @@
+{
+    "mythic_armor": [
+        {
+            "id": "dragon_helmet",
+            "name": "Dragon Helmet",
+            "rarity": "common",
+            "slot": "head",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool helmet",
+            "image": "dragon_helmet.png",
+            "cost": 5000,
+            "sellValue": 2000
+        },
+        {
+            "id": "dragon_chestplate",
+            "name": "Dragon Chestplate",
+            "rarity": "common",
+            "slot": "chestplate",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool chestplate",
+            "image": "dragon_chestplate.png",
+            "cost": 5000,
+            "sellValue": 2000
+        },
+        {
+            "id": "dragon_leggings",
+            "name": "Bronze Leggings",
+            "rarity": "common",
+            "slot": "leggings",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool leggings",
+            "image": "dragon_leggings.png",
+            "cost": 5000,
+            "sellValue": 2000
+        },
+        {
+            "id": "dragon_boots",
+            "name": "Dragon Boots",
+            "rarity": "common",
+            "slot": "boots",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool boots",
+            "image": "dragon_boots.png",
+            "cost": 5000,
+            "sellValue": 2000
+        }
+    ]
+}
