@@ -3,7 +3,6 @@ import { View, Text, Switch, ScrollView, StyleSheet, Pressable } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 
 const PreferencesScreen = ({ navigation }) => {
-  // State for toggle switches and preferences
   const [darkMode, setDarkMode] = useState(false);
   const [compactView, setCompactView] = useState(false);
   const [autoSync, setAutoSync] = useState(true);
@@ -193,7 +192,6 @@ const PreferencesScreen = ({ navigation }) => {
           </Pressable>
         </View>
 
-        {/* Space at the bottom for better scrolling */}
         <View style={styles.bottomSpace} />
       </ScrollView>
     </View>
@@ -210,7 +208,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 60,
+    paddingTop: 16,
     paddingBottom: 16,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,

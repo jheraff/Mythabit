@@ -52,21 +52,19 @@ const AvatarCustomizationRegisterScreen = ({ navigation, route }) => {
     const [selectedHair, setSelectedHair] = useState(1);
     const [selectedFace, setSelectedFace] = useState(1);
     const [selectedOutfit, setSelectedOutfit] = useState(1);
-    const [selectedAccessory, setSelectedAccessory] = useState(0); // 0 means no accessory
+    const [selectedAccessory, setSelectedAccessory] = useState(0);
 
-    // Sample avatar options (you'll need your actual assets)
+    // Sample avatar options
     const hairStyles = [1, 2, 3, 4, 5];
     const faceStyles = [1, 2, 3, 4];
     const outfitStyles = [1, 2, 3, 4, 5, 6];
-    const accessoryStyles = [0, 1, 2, 3]; // 0 is no accessory
+    const accessoryStyles = [0, 1, 2, 3]; 
 
     // Save avatar choices and navigate to task customization
-    // In handleContinue function of AvatarCustomizationRegisterScreen.js
     const handleContinue = async () => {
         setIsLoading(true);
 
         try {
-            // Prepare avatar data
             const avatarData = {
                 hair: selectedHair,
                 face: selectedFace,
@@ -97,7 +95,7 @@ const AvatarCustomizationRegisterScreen = ({ navigation, route }) => {
     const AvatarPreview = () => (
         <View style={styles.previewContainer}>
             <Image
-                source={require('../../../assets/avatars/placeholder.png')} // Replace with your actual avatar generation logic
+                source={require('../../../assets/avatars/placeholder.png')}
                 style={styles.previewImage}
             />
             <Text style={styles.previewText}>Your Avatar</Text>

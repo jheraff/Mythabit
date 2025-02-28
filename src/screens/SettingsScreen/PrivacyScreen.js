@@ -3,7 +3,6 @@ import { View, Text, Switch, ScrollView, StyleSheet, Pressable } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 
 const PrivacyScreen = ({ navigation }) => {
-  // State for toggle switches
   const [profileVisibility, setProfileVisibility] = useState('Friends Only');
   const [activityVisible, setActivityVisible] = useState(true);
   const [showProgressStats, setShowProgressStats] = useState(true);
@@ -197,7 +196,6 @@ const PrivacyScreen = ({ navigation }) => {
           <Text style={styles.policyButtonText}>View Privacy Policy</Text>
         </Pressable>
 
-        {/* Space at the bottom for better scrolling */}
         <View style={styles.bottomSpace} />
       </ScrollView>
     </View>
@@ -214,7 +212,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 60,
+    paddingTop: 16,
     paddingBottom: 16,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,

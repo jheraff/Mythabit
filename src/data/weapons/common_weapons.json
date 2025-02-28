@@ -1,0 +1,30 @@
+{
+    "common_weapons": [
+        {
+            "id": "dagger",
+            "name": "Dagger",
+            "rarity": "common",
+            "slot": "weapon",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool dagger",
+            "image": "dagger.png",
+            "cost": 100,
+            "sellValue": 50
+        },
+        {
+            "id": "one_pound_fish",
+            "name": "One Pound Fish",
+            "rarity": "common",
+            "slot": "weapon",
+            "stats": {
+                "strength": 1
+            },
+            "description": "https://www.youtube.com/watch?v=ETSl8gWsFZ0",
+            "image": "one_pound_fish.png",
+            "cost": 100,
+            "sellValue": 50
+        }
+    ]
+}

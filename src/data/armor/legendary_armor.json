@@ -1,0 +1,56 @@
+{
+    "legendary_armor": [
+        {
+            "id": "diamond_helmet",
+            "name": "Diamond Helmet",
+            "rarity": "common",
+            "slot": "head",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool helmet",
+            "image": "diamond_helmet.png",
+            "cost": 2000,
+            "sellValue": 1000
+        },
+        {
+            "id": "diamond_chestplate",
+            "name": "Diamond Chestplate",
+            "rarity": "common",
+            "slot": "chestplate",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool chestplate",
+            "image": "diamond_chestplate.png",
+            "cost": 2000,
+            "sellValue": 1000
+        },
+        {
+            "id": "diamond_leggings",
+            "name": "Diamond Leggings",
+            "rarity": "common",
+            "slot": "leggings",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool leggings",
+            "image": "diamond_leggings.png",
+            "cost": 2000,
+            "sellValue": 1000
+        },
+        {
+            "id": "diamond_boots",
+            "name": "Diamond Boots",
+            "rarity": "common",
+            "slot": "boots",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool boots",
+            "image": "diamond_boots.png",
+            "cost": 2000,
+            "sellValue": 1000
+        }
+    ]
+}

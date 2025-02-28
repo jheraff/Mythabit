@@ -1,0 +1,56 @@
+{
+    "uncommon_armor": [
+        {
+            "id": "iron_helmet",
+            "name": "Iron Helmet",
+            "rarity": "uncommon",
+            "slot": "head",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool helmet",
+            "image": "iron_helmet.png",
+            "cost": 250,
+            "sellValue": 125
+        },
+        {
+            "id": "iron_chestplate",
+            "name": "Iron Chestplate",
+            "rarity": "uncommon",
+            "slot": "chestplate",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool chestplate",
+            "image": "iron_chestplate.png",
+            "cost": 250,
+            "sellValue": 125
+        },
+        {
+            "id": "iron_leggings",
+            "name": "Iron Leggings",
+            "rarity": "uncommon",
+            "slot": "leggings",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool leggings",
+            "image": "iron_leggings.png",
+            "cost": 250,
+            "sellValue": 125
+        },
+        {
+            "id": "iron_boots",
+            "name": "Iron Boots",
+            "rarity": "uncommon",
+            "slot": "boots",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool boots",
+            "image": "iron_boots.png",
+            "cost": 250,
+            "sellValue": 125
+        }
+    ]
+}

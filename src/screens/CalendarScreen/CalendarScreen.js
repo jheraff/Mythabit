@@ -40,7 +40,6 @@ const CalendarScreen = ({ navigation, extraData }) => {
     const taskMap = {};
 
     tasks.forEach(task => {
-      // Only process in-progress tasks
       if (task.status === 'in-progress') {
         // Calculate due date based on task start time and duration
         const dueDate = calculateDueDate(task);
@@ -48,7 +47,6 @@ const CalendarScreen = ({ navigation, extraData }) => {
         
         const dateString = dueDate.toISOString().split('T')[0];
         
-        // Mark the date
         marked[dateString] = { 
           selected: true,
           selectedColor: '#6366f1',
@@ -71,28 +69,22 @@ const CalendarScreen = ({ navigation, extraData }) => {
   };
 
   const calculateDueDate = (task) => {
-    // Default to current time if we don't have a start time
     let startTime;
     
-    // Check if task has a recorded start time
     if (task.acceptedAt) {
       startTime = new Date(task.acceptedAt);
     } else {
-      // If no recorded start time, estimate based on remaining time
       startTime = new Date();
       if (task.timeRemaining && task.duration) {
-        // Calculate how much time has already elapsed
-        const totalSeconds = task.duration * 60; // Convert minutes to seconds
+        const totalSeconds = task.duration * 60;
         const elapsedSeconds = totalSeconds - task.timeRemaining;
-        
-        // Subtract elapsed time from current time to get start time
         startTime = new Date(startTime.getTime() - (elapsedSeconds * 1000));
       }
     }
     
     // Calculate due date by adding the duration to the start time
     if (task.duration) {
-      const dueDate = new Date(startTime.getTime() + (task.duration * 60 * 1000)); // duration in minutes
+      const dueDate = new Date(startTime.getTime() + (task.duration * 60 * 1000));
       return dueDate;
     }
     

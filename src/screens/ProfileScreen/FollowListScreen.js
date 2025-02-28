@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const FollowListScreen = ({ route, navigation }) => {
-    const { type, userId } = route.params; // type is either 'following' or 'followers'
+    const { type, userId } = route.params;
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 

@@ -88,26 +88,31 @@ export const updateUserAvatar = async (userId, avatarData) => {
   }
 };
 
-// Function to search users by username
+// Updated function to search users by username - case-insensitive with no character minimum
 export const searchUsers = async (searchQuery, currentUserId) => {
   try {
+    // Get all users from the collection
     const usersRef = collection(db, 'users');
-    const q = query(
-      usersRef,
-      where('username', '>=', searchQuery),
-      where('username', '<=', searchQuery + '\uf8ff')
-    );
-
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(usersRef);
+    
+    // Filter users client-side for case-insensitive matching
     const users = [];
+    
     querySnapshot.forEach((doc) => {
-      if (doc.id !== currentUserId) {
+      // Skip the current user
+      if (doc.id === currentUserId) return;
+      
+      const userData = doc.data();
+      // Case-insensitive search on the username
+      if (userData.username && 
+          userData.username.toLowerCase().includes(searchQuery.toLowerCase())) {
         users.push({
           id: doc.id,
-          ...doc.data()
+          ...userData
         });
       }
     });
+    
     return users;
   } catch (error) {
     console.error('Error searching users:', error);
@@ -258,6 +263,38 @@ export const updateCustomizationStatus = async (userId, field, value) => {
     return true;
   } catch (error) {
     console.error(`Error updating ${field}:`, error);
+    throw error;
+  }
+};
+
+// Function to fetch leaderboard data
+export const fetchLeaderboardData = async (limit = 10) => {
+  try {
+    const usersRef = collection(db, 'users');
+    const querySnapshot = await getDocs(usersRef);
+    
+    const users = [];
+    querySnapshot.forEach((doc) => {
+      users.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    // Sort by level in descending order, then by XP
+    const sortedUsers = users.sort((a, b) => {
+      // First compare by level
+      if (b.level !== a.level) {
+        return b.level - a.level;
+      }
+      // If levels are equal, compare by XP
+      return (b.xp || 0) - (a.xp || 0);
+    });
+    
+    // Get the top users based on the limit
+    return sortedUsers.slice(0, limit);
+  } catch (error) {
+    console.error('Error fetching leaderboard data:', error);
     throw error;
   }
 };

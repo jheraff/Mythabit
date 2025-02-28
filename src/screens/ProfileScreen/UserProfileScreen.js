@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
+import { useFocusEffect } from '@react-navigation/native';
 
 const UserProfileScreen = ({ route, navigation }) => {
     const [userData, setUserData] = useState(null);
@@ -10,9 +11,15 @@ const UserProfileScreen = ({ route, navigation }) => {
     const userId = route.params?.userId;
     const currentUserId = auth.currentUser?.uid;
 
-    useEffect(() => {
-        loadUserData();
-    }, [userId]);
+    useFocusEffect(
+        React.useCallback(() => {
+            setLoading(true);
+            loadUserData();
+            
+            return () => {
+            };
+        }, [userId])
+    );
 
     const loadUserData = async () => {
         if (!userId) return;
@@ -25,7 +32,7 @@ const UserProfileScreen = ({ route, navigation }) => {
                     id: userId,
                     ...data
                 });
-                // Check if current user is following this profile
+
                 if (currentUserId) {
                     const currentUserDoc = await getDoc(doc(db, 'users', currentUserId));
                     if (currentUserDoc.exists()) {
@@ -66,7 +73,7 @@ const UserProfileScreen = ({ route, navigation }) => {
                 });
                 setIsFollowing(true);
             }
-            loadUserData(); // Reload user data to update counts
+            loadUserData();
         } catch (error) {
             console.error('Error toggling follow:', error);
         }

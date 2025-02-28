@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { db, auth, searchUsers } from '../../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
     const [userData, setUserData] = useState({
@@ -14,9 +15,12 @@ const ProfileScreen = ({ navigation }) => {
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        loadUserData();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            loadUserData();
+            return () => {};
+        }, [])
+    );
 
     const loadUserData = async () => {
         const userId = auth.currentUser?.uid;
@@ -41,7 +45,8 @@ const ProfileScreen = ({ navigation }) => {
 
     const handleSearch = async (text) => {
         setSearchQuery(text);
-        if (text.length < 3) {
+        
+        if (text.trim() === '') {
             setSuggestedUsers([]);
             return;
         }
@@ -113,12 +118,24 @@ const ProfileScreen = ({ navigation }) => {
                 {loading && <ActivityIndicator style={styles.loader} />}
             </View>
 
-            <FlatList
-                data={suggestedUsers}
-                renderItem={renderUserItem}
-                keyExtractor={item => item.id}
-                style={styles.userList}
-            />
+            <View style={styles.contentContainer}>
+                <FlatList
+                    data={suggestedUsers}
+                    renderItem={renderUserItem}
+                    keyExtractor={item => item.id}
+                    style={styles.userList}
+                    ListEmptyComponent={searchQuery ? <Text style={styles.noResults}>No users found</Text> : null}
+                />
+
+                <View style={styles.leaderboardButtonContainer}>
+                    <TouchableOpacity 
+                        style={styles.leaderboardButton}
+                        onPress={() => navigation.navigate('LeaderboardScreen')}
+                    >
+                        <Text style={styles.leaderboardButtonText}>View Leaderboard</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
     );
 };
@@ -127,6 +144,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    contentContainer: {
+        flex: 1,
+        position: 'relative', 
     },
     profileCard: {
         backgroundColor: '#f5f5f5',
@@ -189,6 +210,7 @@ const styles = StyleSheet.create({
     },
     userList: {
         flex: 1,
+        marginBottom: 80,
     },
     userItem: {
         flexDirection: 'row',
@@ -207,6 +229,40 @@ const styles = StyleSheet.create({
     userItemLevel: {
         fontSize: 14,
         color: '#666',
+    },
+    noResults: {
+        padding: 20,
+        textAlign: 'center',
+        color: '#666',
+    },
+    leaderboardButtonContainer: {
+        position: 'absolute',
+        bottom: 20,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+    },
+    leaderboardButton: {
+        backgroundColor: '#007AFF',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        width: '100%',
+    },
+    leaderboardButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
     },
 });
 

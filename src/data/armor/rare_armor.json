@@ -1,0 +1,56 @@
+{
+    "rare_armor": [
+        {
+            "id": "ametheist_helmet",
+            "name": "Ametheist Helmet",
+            "rarity": "rare",
+            "slot": "head",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool helmet",
+            "image": "ametheist_helmet.png",
+            "cost": 500,
+            "sellValue": 250
+        },
+        {
+            "id": "ametheist_chestplate",
+            "name": "Ametheist Chestplate",
+            "rarity": "rare",
+            "slot": "chestplate",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool chestplate",
+            "image": "ametheist_chestplate.png",
+            "cost": 500,
+            "sellValue": 250
+        },
+        {
+            "id": "ametheist_leggings",
+            "name": "Ametheist Leggings",
+            "rarity": "rare",
+            "slot": "leggings",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool leggings",
+            "image": "ametheist_leggings.png",
+            "cost": 500,
+            "sellValue": 250
+        },
+        {
+            "id": "ametheist_boots",
+            "name": "Ametheist Boots",
+            "rarity": "rare",
+            "slot": "boots",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool boots",
+            "image": "ametheist_boots.png",
+            "cost": 500,
+            "sellValue": 250
+        }
+    ]
+}

@@ -1,0 +1,56 @@
+{
+    "epic_armor": [
+        {
+            "id": "shadow_helmet",
+            "name": "Shadow Helmet",
+            "rarity": "common",
+            "slot": "head",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool helmet",
+            "image": "shadow_helmet.png",
+            "cost": 1000,
+            "sellValue": 500
+        },
+        {
+            "id": "shadow_chestplate",
+            "name": "Shadow Chestplate",
+            "rarity": "common",
+            "slot": "chestplate",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool chestplate",
+            "image": "shadow_chestplate.png",
+            "cost": 1000,
+            "sellValue": 500
+        },
+        {
+            "id": "shadow_leggings",
+            "name": "Shadow Leggings",
+            "rarity": "common",
+            "slot": "leggings",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool leggings",
+            "image": "shadow_leggings.png",
+            "cost": 1000,
+            "sellValue": 500
+        },
+        {
+            "id": "shadow_boots",
+            "name": "shadow Boots",
+            "rarity": "common",
+            "slot": "boots",
+            "stats": {
+                "strength": 1
+            },
+            "description": "Very cool boots",
+            "image": "shadow_boots.png",
+            "cost": 1000,
+            "sellValue": 500
+        }
+    ]
+}
