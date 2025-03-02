@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { db, auth, searchUsers } from '../../firebase/config';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
@@ -25,23 +25,61 @@ const ProfileScreen = ({ navigation }) => {
     const loadUserData = async () => {
         const userId = auth.currentUser?.uid;
         if (!userId) return;
-
+      
         try {
-            const userDoc = await getDoc(doc(db, 'users', userId));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                setUserData({
-                    id: userId,
-                    username: data.username,
-                    level: data.level,
-                    following: data.following || [],
-                    followers: data.followers || []
+          const userDoc = await getDoc(doc(db, 'users', userId));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            
+            let following = data.following || [];
+            let followers = data.followers || [];
+            
+            let validFollowing = [];
+            if (following.length > 0) {
+              await Promise.all(following.map(async (followedUserId) => {
+                const followedUserDoc = await getDoc(doc(db, 'users', followedUserId));
+                if (followedUserDoc.exists()) {
+                  validFollowing.push(followedUserId);
+                }
+              }));
+              
+              if (validFollowing.length !== following.length) {
+                await updateDoc(doc(db, 'users', userId), {
+                  following: validFollowing
                 });
+                following = validFollowing;
+              }
             }
+            
+            let validFollowers = [];
+            if (followers.length > 0) {
+              await Promise.all(followers.map(async (followerUserId) => {
+                const followerUserDoc = await getDoc(doc(db, 'users', followerUserId));
+                if (followerUserDoc.exists()) {
+                  validFollowers.push(followerUserId);
+                }
+              }));
+              
+              if (validFollowers.length !== followers.length) {
+                await updateDoc(doc(db, 'users', userId), {
+                  followers: validFollowers
+                });
+                followers = validFollowers;
+              }
+            }
+            
+            setUserData({
+              id: userId,
+              username: data.username,
+              level: data.level,
+              following: following,
+              followers: followers
+            });
+          }
         } catch (error) {
-            console.error('Error loading user data:', error);
+          console.error('Error loading user data:', error);
         }
-    };
+      };
 
     const handleSearch = async (text) => {
         setSearchQuery(text);
@@ -87,24 +125,31 @@ const ProfileScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.profileCard}>
-                <Text style={styles.username}>{userData.username}</Text>
-                <Text style={styles.level}>Level {userData.level}</Text>
-                <View style={styles.statsContainer}>
-                    <TouchableOpacity 
-                        style={styles.statButton}
-                        onPress={() => navigateToFollowList('following')}
-                    >
-                        <Text style={styles.statsNumber}>{userData.following.length}</Text>
-                        <Text style={styles.statsLabel}>Following</Text>
-                    </TouchableOpacity>
+                <View style={styles.profileCardContent}>
+                    {/* Username and level */}
+                    <View style={styles.profileLeft}>
+                        <Text style={styles.username}>{userData.username}</Text>
+                        <Text style={styles.level}>Level {userData.level}</Text>
+                    </View>
+                    
+                    {/* Following and followers */}
+                    <View style={styles.profileRight}>
+                        <TouchableOpacity 
+                            style={styles.statButton}
+                            onPress={() => navigateToFollowList('following')}
+                        >
+                            <Text style={styles.statsNumber}>{userData.following.length}</Text>
+                            <Text style={styles.statsLabel}>Following</Text>
+                        </TouchableOpacity>
 
-                    <TouchableOpacity 
-                        style={styles.statButton}
-                        onPress={() => navigateToFollowList('followers')}
-                    >
-                        <Text style={styles.statsNumber}>{userData.followers.length}</Text>
-                        <Text style={styles.statsLabel}>Followers</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={styles.statButton}
+                            onPress={() => navigateToFollowList('followers')}
+                        >
+                            <Text style={styles.statsNumber}>{userData.followers.length}</Text>
+                            <Text style={styles.statsLabel}>Followers</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 
@@ -154,7 +199,6 @@ const styles = StyleSheet.create({
         margin: 20,
         padding: 20,
         borderRadius: 12,
-        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -164,19 +208,26 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
+    profileCardContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    profileLeft: {
+        justifyContent: 'center',
+    },
+    profileRight: {
+        flexDirection: 'row',
+        gap: 20,
+    },
     username: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginBottom: 5,
     },
     level: {
         fontSize: 22,
         color: '#666',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginTop: 15,
-        gap: 30,
     },
     statButton: {
         alignItems: 'center',
