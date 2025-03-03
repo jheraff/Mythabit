@@ -21,31 +21,93 @@ const UserProfileScreen = ({ route, navigation }) => {
         }, [userId])
     );
 
-    const loadUserData = async () => {
-        if (!userId) return;
+const loadUserData = async () => {
+    if (!userId) return;
 
-        try {
-            const userDoc = await getDoc(doc(db, 'users', userId));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                setUserData({
-                    id: userId,
-                    ...data
-                });
-
-                if (currentUserId) {
-                    const currentUserDoc = await getDoc(doc(db, 'users', currentUserId));
-                    if (currentUserDoc.exists()) {
-                        setIsFollowing(currentUserDoc.data().following?.includes(userId) || false);
+    try {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            
+            let following = data.following || [];
+            let followers = data.followers || [];
+            
+            let validFollowing = [];
+            if (following.length > 0) {
+                await Promise.all(following.map(async (followedUserId) => {
+                    const followedUserDoc = await getDoc(doc(db, 'users', followedUserId));
+                    if (followedUserDoc.exists()) {
+                        validFollowing.push(followedUserId);
                     }
+                }));
+                
+                if (validFollowing.length !== following.length) {
+                    await updateDoc(doc(db, 'users', userId), {
+                        following: validFollowing
+                    });
+                    following = validFollowing;
                 }
             }
-        } catch (error) {
-            console.error('Error loading user data:', error);
-        } finally {
-            setLoading(false);
+            
+            let validFollowers = [];
+            if (followers.length > 0) {
+                await Promise.all(followers.map(async (followerUserId) => {
+                    const followerUserDoc = await getDoc(doc(db, 'users', followerUserId));
+                    if (followerUserDoc.exists()) {
+                        validFollowers.push(followerUserId);
+                    }
+                }));
+                
+                if (validFollowers.length !== followers.length) {
+                    await updateDoc(doc(db, 'users', userId), {
+                        followers: validFollowers
+                    });
+                    followers = validFollowers;
+                }
+            }
+            
+            setUserData({
+                id: userId,
+                username: data.username,
+                level: data.level,
+                following: following,
+                followers: followers,
+                ...data
+            });
+
+            if (currentUserId) {
+                const currentUserDoc = await getDoc(doc(db, 'users', currentUserId));
+                if (currentUserDoc.exists()) {
+                    const currentUserData = currentUserDoc.data();
+                    let currentUserFollowing = currentUserData.following || [];
+                    
+                    let validCurrentUserFollowing = [];
+                    if (currentUserFollowing.length > 0) {
+                        await Promise.all(currentUserFollowing.map(async (followingId) => {
+                            const followingDoc = await getDoc(doc(db, 'users', followingId));
+                            if (followingDoc.exists()) {
+                                validCurrentUserFollowing.push(followingId);
+                            }
+                        }));
+                        
+                        if (validCurrentUserFollowing.length !== currentUserFollowing.length) {
+                            await updateDoc(doc(db, 'users', currentUserId), {
+                                following: validCurrentUserFollowing
+                            });
+                            currentUserFollowing = validCurrentUserFollowing;
+                        }
+                    }
+                    
+                    setIsFollowing(currentUserFollowing.includes(userId) || false);
+                }
+            }
         }
-    };
+    } catch (error) {
+        console.error('Error loading user data:', error);
+    } finally {
+        setLoading(false);
+    }
+};
 
     const toggleFollow = async () => {
         if (!currentUserId || !userId) return;
@@ -98,16 +160,28 @@ const UserProfileScreen = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.profileCard}>
-                <Text style={styles.username}>{userData.username}</Text>
-                <Text style={styles.level}>Level {userData.level}</Text>
-                <View style={styles.statsContainer}>
-                    <Text style={styles.statsText}>
-                        Following: {userData.following?.length || 0}
-                    </Text>
-                    <Text style={styles.statsText}>
-                        Followers: {userData.followers?.length || 0}
-                    </Text>
+                <View style={styles.profileCardContent}>
+                    {/* Username and level */}
+                    <View style={styles.profileLeft}>
+                        <Text style={styles.username}>{userData.username}</Text>
+                        <Text style={styles.level}>Level {userData.level}</Text>
+                    </View>
+                    
+                    {/* Following and followers counts */}
+                    <View style={styles.profileRight}>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statsNumber}>{userData.following?.length || 0}</Text>
+                            <Text style={styles.statsLabel}>Following</Text>
+                        </View>
+
+                        <View style={styles.statItem}>
+                            <Text style={styles.statsNumber}>{userData.followers?.length || 0}</Text>
+                            <Text style={styles.statsLabel}>Followers</Text>
+                        </View>
+                    </View>
                 </View>
+                
+                {/* Follow button */}
                 {currentUserId !== userId && (
                     <TouchableOpacity
                         style={[styles.followButton, isFollowing && styles.followingButton]}
@@ -139,7 +213,6 @@ const styles = StyleSheet.create({
         margin: 20,
         padding: 20,
         borderRadius: 12,
-        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -149,23 +222,39 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
+    profileCardContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    profileLeft: {
+        justifyContent: 'center',
+    },
+    profileRight: {
+        flexDirection: 'row',
+        gap: 20,
+    },
     username: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginBottom: 5,
     },
     level: {
         fontSize: 22,
         color: '#666',
     },
-    statsContainer: {
-        flexDirection: 'row',
-        marginTop: 15,
-        gap: 20,
+    statItem: {
+        alignItems: 'center',
     },
-    statsText: {
-        fontSize: 16,
-        color: '#444',
+    statsNumber: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#007AFF',
+    },
+    statsLabel: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 4,
     },
     followButton: {
         backgroundColor: '#007AFF',
@@ -173,6 +262,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 20,
         marginTop: 20,
+        alignSelf: 'center',
     },
     followingButton: {
         backgroundColor: '#34C759',
