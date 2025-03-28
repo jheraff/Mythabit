@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity, Image, Pressable, zIndex} from 'react-native';
 import { collection, doc, getDoc, updateDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
@@ -60,6 +60,7 @@ const TasksScreen = () => {
   const [tasks, setTasks] = useState([]);
   const [userPrefs, setUserPrefs] = useState([]);
   const [usedTaskIds, setUsedTaskIds] = useState(new Set());
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [userStats, setUserStats] = useState({
     username: '',
     level: 1,
@@ -869,7 +870,25 @@ const TasksScreen = () => {
           </View>
         </View>
       </View>
+      
+      <View style={styles.filterContainer}>
+        <Pressable onPress={() => setShowAdvanced(!showAdvanced)}
+        style ={[styles.filterIcon, { transform: [{ scale: showAdvanced ? 1.2 : 1 }], opacity: showAdvanced ? 0.7 : 1 }]} >
+          <Ionicons 
+            name="filter" 
+            size={30} 
+            color={showAdvanced ? "white" : "grey"} 
+            style= {styles.filterIcon}
+          />
+        </Pressable>  
 
+        {showAdvanced && (
+        <View style={{ width:300, height:200,  marginTop: 180, padding: 10, borderWidth: 1, borderColor: 'gray', zIndex: 1000, backgroundColor:'white' }}>
+          <Text>Advanced Search Options</Text>
+        </View>
+      )}
+      </View>
+    
       <FlatList
         data={tasks}
         renderItem={renderTask}
@@ -889,6 +908,29 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: '#434',
     paddingVertical: 10,
+  },
+
+  //filter 
+  filterIcon: {
+    paddingLeft: 10,
+    padding: 5,
+    
+  }, 
+
+  filterContainer: {
+    zIndex: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    width: 500,
+    backgroundColor: '#aaaaaa',
+  },
+
+  difficultyButton: {
+    flexDirection: 'column',
+    height: 50,
+    width: 50,
+    backgroundColor: '#fff',
   },
   headerTopRow: {
     flexDirection: 'row',
