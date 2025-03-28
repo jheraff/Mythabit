@@ -5,14 +5,82 @@ import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
+function getRandomDelay() {
+  return Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
+}
+
 const AdventureScreen = () => {
   const [isAdventureStarted, setIsAdventureStarted] = useState(false);
+
+  const [loot, setLoot] = useState(0);
+  const [enemies, setEnemies] = useState(0);
+  const [boss, setBoss] = useState(0);
+  const [encounters, setEncounters] = useState(0);
+
+  const [displayText, setDisplayText] = useState('');
+
   const [adventureProgress, setAdventureProgress] = useState(0);
 
   const startAdventure = () => {
     setIsAdventureStarted(true);
-    
+
+    const lootVal = Math.floor(Math.random() * 11);
+    const enemiesVal = Math.floor(Math.random() * 6) + 5;
+    const bossVal = 1;
+    const encountersVal = Math.floor(Math.random() * 6) + 10;
+
+    setLoot(lootVal);
+    setEnemies(enemiesVal);
+    setBoss(bossVal);
+    setEncounters(encountersVal);
+
+    setAdventureProgress(0);
+    setDisplayText('Beginning the adventure...');
   };
+
+  useEffect(() => {
+    let timerId;
+
+    let currentEncounter = 0;
+
+    if (isAdventureStarted) {
+      function doEncounter() {
+        if (currentEncounter >= encounters) {
+          setDisplayText('Adventure complete!');
+          setAdventureProgress(100);
+          return;
+        }
+
+        if (enemies > 0 && Math.random() < 0.7) {
+          setDisplayText('The player is fighting a monster!');
+          setEnemies((prev) => prev - 1);
+        } else if (enemies > 0 && loot > 0 && Math.random() < 0.3) {
+          setDisplayText('The player has found loot!');
+          setLoot((prev) => prev - 1);
+        } else if (enemies === 0) {
+          setDisplayText('The player is fighting a boss!');
+        } else {
+          setDisplayText('Nothing happens this time...');
+        }
+        currentEncounter++;
+        const newProgress = Math.floor(
+          (currentEncounter / encounters) * 100
+        );
+        setAdventureProgress(newProgress);
+        scheduleNextEncounter();
+      }
+      function scheduleNextEncounter() {
+        const delay = getRandomDelay(); 
+        timerId = setTimeout(doEncounter, delay);
+      }
+      scheduleNextEncounter();
+    }
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [isAdventureStarted, encounters, enemies, loot, boss]);
 
   return (
     <View style={styles.container}>
@@ -25,21 +93,29 @@ const AdventureScreen = () => {
         </View>
       ) : (
         <View style={styles.adventureContainer}>
+          {/* Display text from the random encounter logic */}
+          <Text style={styles.statusText}>{displayText}</Text>
+
+          {/* Progress Bar */}
           <Text style={styles.progressLabel}>Adventure Progress</Text>
           <View style={styles.progressBarContainer}>
             <View
               style={[
                 styles.progressBar,
-                { width: `${adventureProgress}%` }
+                { width: `${adventureProgress}%` },
               ]}
             />
-            <Text style={styles.progressText}>{adventureProgress}%</Text>
+            <Text style={styles.progressText}>
+              {adventureProgress}%
+            </Text>
           </View>
         </View>
       )}
     </View>
   );
 };
+
+export default AdventureScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -56,6 +132,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  statusText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   progressLabel: {
     fontSize: 20,
@@ -103,5 +184,3 @@ const styles = StyleSheet.create({
     color: '#000',
   },
 });
-
-export default AdventureScreen;
