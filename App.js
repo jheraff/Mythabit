@@ -9,6 +9,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { decode, encode } from 'base-64';
 
+import MainScreen from './src/screens/MainScreen/MainScreen';
 import LoginScreen from './src/screens/LoginScreen/LoginScreen';
 import RegistrationScreen from './src/screens/RegistrationScreen/RegistrationScreen';
 import HomeScreen from './src/screens/HomeScreen/HomeScreen';
@@ -292,6 +293,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="MainScreen" component={MainScreen} />
         {user ? (
           isFirstTimeUser ? (
             // First-time user flow - use a dedicated onboarding stack
