@@ -1,34 +1,224 @@
 {
-    "tasks": [
-      {
-        "taskName": "Eat Food",
-        "difficulty": "Easy",
-        "duration": 1,
-        "statType": "arcane",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "health",
-        "xpReward": 15
-      },
-      {
-        "taskName": "Eat Apple",
-        "difficulty": "Easy",
-        "duration": 1,
-        "statType": "arcane",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "health",
-        "xpReward": 15
-      },
-      {
-        "taskName": "Eat Food",
-        "difficulty": "Easy",
-        "duration": 1,
-        "statType": "arcane",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "health",
-        "xpReward": 15
-      }
-    ]
-  }
+  "tasks": [
+    {
+      "taskName": "Eat a balanced Meal (Carbs + Meat + Veggies)",
+      "difficulty": "medium",
+      "duration": 20,
+      "statType": ["arcane", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 65
+    },
+    {
+      "taskName": "Eat Apple",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat Orange",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat Banana",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat Strawberry",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat Pineapple",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat Cucumber",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat Grapes",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat Watermelon slice",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat a Mango",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat a Blueberry",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat a Raspberry",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat a Fig",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat a Dragon Fruit",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat a Star Fruit",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Eat a Durian",
+      "difficulty": "Medium",
+      "duration": 10,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 15
+    },
+    {
+      "taskName": "Eat/Add avocado to your meal",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Drink 2 Glasses of Water",
+      "difficulty": "easy",
+      "duration": 2,
+      "statType": ["arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 15
+    },
+    {
+      "taskName": "Take a Nap",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 50
+    },
+    {
+      "taskName": "Stand up and Stretch",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 20
+    },
+    {
+      "taskName": "Deep Breathing Exercises",
+      "difficulty": "easy",
+      "duration": 5,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 20
+    },
+    {
+      "taskName": "Consume Protein",
+      "difficulty": "medium",
+      "duration": 10,
+      "statType": ["arcane", "strength"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 50
+    }
+  ]
+}

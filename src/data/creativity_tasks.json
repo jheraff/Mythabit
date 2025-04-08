@@ -1,34 +1,104 @@
 {
-    "tasks": [
-      {
-        "taskName": "Paint House",
-        "difficulty": "medium",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "creativity",
-        "xpReward": 10
-      },
-      {
-        "taskName": "Fortnite Dance",
-        "difficulty": "medium",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "creativity",
-        "xpReward": 10
-      },
-      {
-        "taskName": "Learn Piano",
-        "difficulty": "medium",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "creativity",
-        "xpReward": 10
-      }
-    ]
-  }
+  "tasks": [
+    {
+      "taskName": "Paint a Canvas",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["arcane", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Learn a Choreo/Dance",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["agility", "focus", "arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Learn Piano",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["intellect", "focus", "arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 150
+    },
+    {
+      "taskName": "Write a Poem",
+      "difficulty": "medium",
+      "duration": 20,
+      "statType": ["intellect", "focus", "arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 120
+    },
+    {
+      "taskName": "Write a Haiku",
+      "difficulty": "easy",
+      "duration": 10,
+      "statType": ["intellect", "focus", "arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 75
+    },
+    {
+      "taskName": "Write a Short Story",
+      "difficulty": "medium",
+      "duration": 45,
+      "statType": ["intellect", "focus", "arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Sketch a Portrait",
+      "difficulty": "medium",
+      "duration": 45,
+      "statType": ["focus", "arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Sculpt a pot",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["strength", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 65
+    },
+    {
+      "taskName": "Color/paint unpainted creations",
+      "difficulty": "easy",
+      "duration": 20,
+      "statType": ["agility", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 15
+    },
+    {
+      "taskName": "Write a short film script",
+      "difficulty": "hard",
+      "duration": 60,
+      "statType": ["intellect", "arcane", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "creativity",
+      "xpReward": 125
+    }
+  ]
+}
