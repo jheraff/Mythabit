@@ -33,6 +33,9 @@ import NotificationsScreen from './src/screens/SettingsScreen/NotificationsScree
 import PreferencesScreen from './src/screens/SettingsScreen/PreferencesScreen';
 import PrivacyScreen from './src/screens/SettingsScreen/PrivacyScreen';
 import LeaderboardScreen from './src/screens/ProfileScreen/LeaderboardScreen';
+import AchievementsScreen from './src/screens/AchievementsScreen/AchievementsScreen';
+import SearchUsersScreen from './src/screens/ProfileScreen/SearchUsersScreen';
+
 
 // Base-64 polyfill
 if (!global.btoa) { global.btoa = encode }
@@ -61,6 +64,8 @@ const HomeStackNavigator = ({ extraData }) => (
     <HomeStack.Screen name="UserProfile" component={UserProfileScreen} />
     <HomeStack.Screen name="FollowList" component={FollowListScreen} />
     <HomeStack.Screen name="LeaderboardScreen" component={LeaderboardScreen} />
+    <HomeStack.Screen name="AchievementsScreen" component={AchievementsScreen} />
+    <HomeStack.Screen name="SearchUsers" component={SearchUsersScreen} />
   </HomeStack.Navigator>
 );
 
@@ -122,6 +127,9 @@ const TaskStackNavigator = ({ extraData }) => (
     <TaskStack.Screen name="TasksList">
       {props => <TasksScreen {...props} extraData={extraData} />}
     </TaskStack.Screen>
+    <TaskStack.Screen name="Achievements">
+      {props => <AchievementsScreen {...props} extraData={extraData} />}
+    </TaskStack.Screen>
   </TaskStack.Navigator>
 );
 
@@ -182,7 +190,7 @@ const TabNavigator = ({ extraData }) => (
     </Tab.Screen>
 
     <Tab.Screen
-      name="Tasks"
+      name="Quests"
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="alert-outline" size={size} color={color} />

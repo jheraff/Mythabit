@@ -29,6 +29,8 @@ import healthTasks from '../data/health_tasks.json';
 import creativityTasks from '../data/creativity_tasks.json';
 import choresTasks from '../data/chores_tasks.json';
 import mindTasks from '../data/mind_tasks.json';
+// Import achievements data
+import achievementsData from '../data/achievements/achievements.json';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCh6YkKO_FBWY-gjbL28dHDUKJjodUP4y4",
@@ -58,6 +60,18 @@ isSupported().then((isAnalyticsSupported) => {
 // Set up authentication providers and Firestore
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
+
+// Function to save achievement definitions to Firestore
+export const saveAchievementDefinitions = async () => {
+  try {
+    await setDoc(doc(db, 'achievements', 'definitions'), {
+      achievements: achievementsData.achievements
+    });
+    console.log('Achievement definitions saved to Firestore');
+  } catch (error) {
+    console.error('Error saving achievement definitions:', error);
+  }
+};
 
 // Function to fetch avatar data
 export const getAvatarFromFirebase = async (userId) => {
@@ -239,6 +253,7 @@ export const initializeUserProfile = async (userId, username) => {
       inventory: [],
       tasks: [],
       currency: 0,
+      showcasedAchievements: [], // Added field for showcased achievements
       avatarCustomizationComplete: false,
       taskCustomizationComplete: false,
       lastUpdated: new Date().toISOString()
@@ -298,5 +313,8 @@ export const fetchLeaderboardData = async (limit = 10) => {
     throw error;
   }
 };
+
+// Call to save achievement definitions - can be called on app start
+saveAchievementDefinitions();
 
 export default app;
