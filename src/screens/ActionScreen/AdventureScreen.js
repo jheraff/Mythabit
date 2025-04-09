@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Pressable, BackHandler } from 'react-native';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,16 +25,22 @@ const AdventureScreen = () => {
         </View>
       ) : (
         <View style={styles.adventureContainer}>
-          <Text style={styles.progressLabel}>Adventure Progress</Text>
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                { width: `${adventureProgress}%` }
-              ]}
-            />
-            <Text style={styles.progressText}>{adventureProgress}%</Text>
+
+          
+          <View style={styles.headingContainer}>  
+            <Text style={styles.progressLabel}>Adventure Progress</Text>
+              <View style={styles.progressBarContainer}>
+              <View
+                style={[
+                  styles.progressBar,
+                  { width: `${adventureProgress}%` }
+                ]}
+              />
+              <Text style={styles.progressText}>{adventureProgress}%</Text>
+            </View>
+            <Text style={styles.adventureCounter}> Days left</Text>
           </View>
+      
           
 
           <View style={styles.towerContainer}> 
@@ -46,7 +52,11 @@ const AdventureScreen = () => {
                 ))}
 
             </ScrollView>
-          </View>  
+          </View> 
+
+
+
+       
         </View>   
       )}
     </View>
@@ -56,30 +66,52 @@ const AdventureScreen = () => {
 
 const styles = StyleSheet.create({
 
-  floorButton:{
-
+  adventureContainer: {
+    top: 10,
+    flex: 1,
+    justifyContent: 'top',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
 
-  towerContainer:{
+  headingContainer:{
+    backgroundColor: '#434',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 400,
+    height: 130,
+  },
+
+  towerContainer:{ //2
+    borderColor: 'black',
+    borderRadius: '100',
     alignItems: 'center',
     top: 30,
     backgroundColor: 'grey',
-    width: 500,
-    height: 500,
-  },
+    width: 400,
+    height: 450,
+  },  
 
-  towerView: {
+  towerView: { //2.1
     backgroundColor: 'lightblue',
     height: 1110,
     width: 400,
     flex: 0.5,
-    position: 'center',
-   
-   
+    position: 'center',  
   },
+
+
+
+
+  floorButton:{
+
+  },
+
+
+ 
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: 'white',
     padding: 16,
   },
   startContainer: {
@@ -87,26 +119,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  adventureContainer: {
-    top: 20,
-    flex: 1,
-    justifyContent: 'top',
-    alignItems: 'center',
-  },
+
   progressLabel: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 0,
+    color: 'white',
+    bottom: 20,
   },
   progressBarContainer: {
-  
+    bottom: 20,
     width: '80%',
     height: 20,
     backgroundColor: 'lightgray',
     borderRadius: 10,
     overflow: 'hidden',
     position: 'relative',
-    marginVertical: 10,
+    marginVertical: 8,
+    ackgroundColor: '#44434',
   },
   progressBar: {
     height: '100%',
@@ -121,6 +151,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     color: '#FFF',
+  },
+
+  adventureCounter:{
+    color: 'white',
   },
   title: {
     fontSize: 24,
