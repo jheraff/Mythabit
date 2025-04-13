@@ -54,6 +54,8 @@ const AdventureScreen = () => {
             </ScrollView>
           </View> 
 
+          <View style={styles.adventureNavContainer}>  </View>
+
 
 
        
@@ -83,8 +85,7 @@ const styles = StyleSheet.create({
   },
 
   towerContainer:{ //2
-    borderColor: 'black',
-    borderRadius: '100',
+   
     alignItems: 'center',
     top: 30,
     backgroundColor: 'grey',
@@ -101,12 +102,9 @@ const styles = StyleSheet.create({
   },
 
 
-
-
-  floorButton:{
+  adventureNavContainer: {
 
   },
-
 
  
   container: {

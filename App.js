@@ -19,6 +19,8 @@ import ProfileSettings from './src/screens/SettingsScreen/ProfileSettings';
 import ActionScreen from './src/screens/ActionScreen/ActionScreen';
 import AdventureScreen from './src/screens/ActionScreen/AdventureScreen';
 import ItemScreen from './src/screens/ActionScreen/ItemScreen';
+import TowerScreen from './src/screens/ActionScreen/TowerScreen.js';
+import ConfirmationScreen from './src/screens/ActionScreen/ConfirmationScreen.js';
 import ShopScreen from './src/screens/ActionScreen/ShopScreen';
 import ProfileScreen from './src/screens/ProfileScreen/ProfileScreen';
 import UserProfileScreen from './src/screens/ProfileScreen/UserProfileScreen';
@@ -70,6 +72,12 @@ const ActionStackNavigator = ({ extraData }) => (
     </ActionStack.Screen>
     <ActionStack.Screen name="Adventure">
       {props => <AdventureScreen {...props} extraData={extraData} />}
+    </ActionStack.Screen>
+    <ActionStack.Screen name="Tower">
+      {props => <TowerScreen {...props} extraData={extraData} />}
+     </ActionStack.Screen>
+    <ActionStack.Screen name="Confirmation">
+      {props => <ConfirmationScreen {...props} extraData={extraData} />}
     </ActionStack.Screen>
     <ActionStack.Screen name="Items">
       {props => <ItemScreen {...props} extraData={extraData} />}
