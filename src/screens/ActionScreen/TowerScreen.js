@@ -1,17 +1,30 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const TowerScreen = ({ navigation, extraData }) => {
     return (
       <View style={styles.container}>
 
+        <Text style={{color: 'black', fontSize: 50}}>Daily Tower</Text>
+
         <View style={styles.towerContainer}> 
           <ScrollView style={styles.towerView}> 
             {Array.from({ length: 20 }).map((_, index) => (
-              <Text key={index} style={styles.floorLayout}>Floor {index + 1} </Text>))}
+              <TouchableOpacity key={index} style={styles.floorLayout}> 
+              
+              <Text style={{ color: 'black', fontSize: 18 }}>Floor {index + 1}
+                
+              </Text> 
+              
+              </TouchableOpacity>
+
+              
+              ))}
           </ScrollView>
         </View> 
         
+          
 
         <View style={styles.bottomView}>
           <Text>Choose a floor</Text>
@@ -34,9 +47,9 @@ const TowerScreen = ({ navigation, extraData }) => {
    
       alignItems: 'center',
       top: 30,
-      backgroundColor: 'grey',
-      width: 100,
-      height: 400,
+      backgroundColor: 'black',
+      width: 300,
+      height: 500,
     },  
 
     towerView: { //2.1
@@ -45,15 +58,23 @@ const TowerScreen = ({ navigation, extraData }) => {
       width: 200,
       flex: 0.5,
       position: 'center',  
+      
     },
 
     floorLayout: {
-      padding: 30,
-      position: 'center',
+      //padding: 30,
+      //position: 'center',
+
+      backgroundColor: 'white',
+      margin: 10,
+      padding: 10,
+      borderRadius: 8,
+      alignItems: 'center'
+      
     },
 
     bottomView: {
-      bottom: '200',
+      bottom: '500',
     },
 
     title: { 
