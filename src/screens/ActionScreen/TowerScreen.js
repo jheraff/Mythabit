@@ -13,10 +13,8 @@ const TowerScreen = ({ navigation, extraData }) => {
             {Array.from({ length: 20 }).map((_, index) => (
               <TouchableOpacity key={index} style={styles.floorLayout}> 
               
-              <Text style={{ color: 'black', fontSize: 18 }}>Floor {index + 1}
-                
-              </Text> 
-              
+              <Text style={{ color: 'black', fontSize: 18 }}>Floor {index + 1}    
+              </Text>          
               </TouchableOpacity>
 
               
@@ -46,10 +44,11 @@ const TowerScreen = ({ navigation, extraData }) => {
     towerContainer:{ //2
    
       alignItems: 'center',
-      top: 30,
+      top: 10,
       backgroundColor: 'black',
       width: 300,
       height: 500,
+      
     },  
 
     towerView: { //2.1
@@ -58,7 +57,7 @@ const TowerScreen = ({ navigation, extraData }) => {
       width: 200,
       flex: 0.5,
       position: 'center',  
-      
+    
     },
 
     floorLayout: {
@@ -74,7 +73,7 @@ const TowerScreen = ({ navigation, extraData }) => {
     },
 
     bottomView: {
-      bottom: '500',
+      marginTop: 20,
     },
 
     title: { 
