@@ -66,7 +66,7 @@ const ActionScreen = () => {
     };
 
     const routes = [
-        { name: 'Adventure', route: 'Adventure' },
+        { name: 'Adventure', route: 'Tower' },
         { name: 'Items', route: 'Items' },
         { name: 'Shop', route: 'Shop' }
     ];
