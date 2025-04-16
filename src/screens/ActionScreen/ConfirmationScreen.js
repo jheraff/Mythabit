@@ -20,6 +20,10 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
           <TouchableOpacity style={styles.equipIcon}>
             <Image source={require('../../../assets/avatars/placeholder.png')}
              style={styles.previewImage}/>
+             <Image source={require('../../../assets/avatars/placeholder.png')}
+             style={styles.previewImage}/>
+             <Image source={require('../../../assets/avatars/placeholder.png')}
+             style={styles.previewImage}/>
           </TouchableOpacity>
         </View>
       
