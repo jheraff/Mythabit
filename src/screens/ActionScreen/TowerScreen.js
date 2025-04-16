@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const TowerScreen = ({ navigation, extraData }) => {
+
+
+    const [floorSelected, setFloorSelected] = useState(false);
+    const handlePress = (index) => {
+      console.log('Pressed index:', index);
+      // You can navigate or set state based on the index here
+    };
+
     return (
       <View style={styles.container}>
 
@@ -11,10 +19,14 @@ const TowerScreen = ({ navigation, extraData }) => {
         <View style={styles.towerContainer}> 
           <ScrollView style={styles.towerView}> 
             {Array.from({ length: 20 }).map((_, index) => (
-              <TouchableOpacity key={index} style={styles.floorLayout}> 
-              
-              <Text style={{ color: 'black', fontSize: 18 }}>Floor {index + 1}    
-              </Text>          
+              <TouchableOpacity key={index} 
+                style={styles.floorLayout} 
+                onPress={() => {
+                  setFloorSelected(true);
+                  handlePress(index + 1);
+                }}> 
+
+                <Text style={{ color: 'black', fontSize: 18 }}>Floor {index + 1}</Text>          
               </TouchableOpacity>
 
               
@@ -26,7 +38,11 @@ const TowerScreen = ({ navigation, extraData }) => {
 
         <View style={styles.bottomView}>
           <Text>Choose a floor</Text>
-          <Button title="Proceed" onPress={() => navigation.navigate('Confirmation')} />    
+          <Button 
+            title="Proceed" 
+            onPress={() => navigation.navigate('Confirmation')} 
+            disabled ={!floorSelected}
+          />    
         </View>
       </View>
     );
@@ -63,7 +79,7 @@ const TowerScreen = ({ navigation, extraData }) => {
     floorLayout: {
       //padding: 30,
       //position: 'center',
-
+      
       backgroundColor: 'white',
       margin: 10,
       padding: 10,
