@@ -1,0 +1,65 @@
+{
+    "quests": [
+      {
+        "id": "coop-xp-1",
+        "name": "Power Duo",
+        "description": "Collectively gain 5,000 XP with your partner",
+        "type": "xp",
+        "target": 5000,
+        "rewards": {
+          "xp": 1000,
+          "currency": 500,
+          "statBonus": {
+            "type": "random",
+            "amount": 2
+          }
+        },
+        "duration": 604800000
+      },
+      {
+        "id": "coop-tasks-1",
+        "name": "Task Force",
+        "description": "Complete a total of 25 tasks between you and your partner",
+        "type": "tasks",
+        "target": 25,
+        "rewards": {
+          "xp": 800,
+          "currency": 400,
+          "statBonus": {
+            "type": "chosen",
+            "amount": 1
+          }
+        },
+        "duration": 432000000
+      },
+      {
+        "id": "coop-streak-1",
+        "name": "Unbreakable Bond",
+        "description": "Both maintain a 5-day streak simultaneously",
+        "type": "streak",
+        "target": 5,
+        "rewards": {
+          "xp": 600,
+          "currency": 300,
+          "statBonus": {
+            "type": "focus",
+            "amount": 1
+          }
+        },
+        "duration": 432000000
+      },
+      {
+        "id": "coop-stat-1",
+        "name": "Balanced Team",
+        "description": "Collectively gain 10 stat points across any stats",
+        "type": "stats",
+        "target": 10,
+        "rewards": {
+          "xp": 700,
+          "currency": 350,
+          "achievement": "balanced_team"
+        },
+        "duration": 604800000
+      }
+    ]
+  }

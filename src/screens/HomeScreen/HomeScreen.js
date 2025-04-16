@@ -198,7 +198,7 @@ const HomeScreen = () => {
 
     return (
       <Image
-        source={require('../../../assets/avatars/placeholder.png')}
+        source={require('../../../assets/avatars/default_pfp.jpg')}
         style={styles.avatarImage}
         resizeMode="contain"
       />
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#F67B7B',
+    borderColor: '#6366f1',
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',

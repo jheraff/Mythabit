@@ -1,34 +1,64 @@
 {
-    "tasks": [
-      {
-        "taskName": "Read a Book",
-        "difficulty": "Easy",
-        "duration": 1,
-        "statType": "intellect",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "career",
-        "xpReward": 10
-      },
-      {
-        "taskName": "Finish Essay",
-        "difficulty": "Medium",
-        "duration": 15,
-        "statType": "intellect",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "career",
-        "xpReward": 20
-      },
-      {
-        "taskName": "Replace Rooftop",
-        "difficulty": "Easy",
-        "duration": 1,
-        "statType": "strength",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "career",
-        "xpReward": 250
-      }
-    ]
-  }
+  "tasks": [
+    {
+      "taskName": "Read a chapter of a Book",
+      "difficulty": "easy",
+      "duration": 1,
+      "statType": "intellect",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 10
+    },
+    {
+      "taskName": "Write a paragraph of an essay",
+      "difficulty": "medium",
+      "duration": 15,
+      "statType": "intellect",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 50
+    },
+    {
+      "taskName": "Finish Essay",
+      "difficulty": "hard",
+      "duration": 90,
+      "statType": "intellect",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 125
+    },
+    {
+      "taskName": "Study for Exam",
+      "difficulty": "medium",
+      "duration": 60,
+      "statType": "intellect",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Complete Group Project",
+      "difficulty": "medium",
+      "duration": 45,
+      "statType": "focus",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 75
+    },
+    {
+      "taskName": "Apply for a job",
+      "difficulty": "medium",
+      "duration": 20,
+      "statType": "intellect",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 20
+    }
+  ]
+}
