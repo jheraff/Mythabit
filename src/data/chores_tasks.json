@@ -2,9 +2,9 @@
   "tasks": [
     {
       "taskName": "Clean Room",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "chores",
@@ -12,9 +12,9 @@
     },
     {
       "taskName": "Laundry",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "chores",
@@ -22,9 +22,9 @@
     },
     {
       "taskName": "Vacuum Room",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "chores",
@@ -32,9 +32,9 @@
     },
     {
       "taskName": "Wash Dishes, Pots, and Pans",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "chores",
@@ -42,9 +42,9 @@
     },
     {
       "taskName": "Walk Dog",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "chores",
@@ -52,9 +52,9 @@
     },
     {
       "taskName": "Walk Goldfish",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 2880,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "chores",
@@ -62,7 +62,7 @@
     },
     {
       "taskName": "Mow Lawn",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 30,
       "statType": ["strength", "agility"],
       "status": "pending",
@@ -72,7 +72,7 @@
     },
     {
       "taskName": "Organize Closet",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 30,
       "statType": ["focus", "intellect"],
       "status": "pending",
@@ -82,7 +82,7 @@
     },
     {
       "taskName": "Take Out Trash",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 20,
       "statType": ["strength", "agility"],
       "status": "pending",
@@ -92,7 +92,7 @@
     },
     {
       "taskName": "Clean Windows",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 35,
       "statType": ["agility", "focus"],
       "status": "pending",
@@ -102,7 +102,7 @@
     },
     {
       "taskName": "Prepare Grocery List",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 15,
       "statType": ["intellect", "focus"],
       "status": "pending",
@@ -112,13 +112,43 @@
     },
     {
       "taskName": "Clean Garage",
-      "difficulty": "hard",
+      "difficulty": "Hard",
       "duration": 35,
       "statType": ["strength", "focus"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "chores",
       "xpReward": 250
+    },
+    {
+      "taskName": "Water your plants",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 20
+    },
+    {
+      "taskName": "Clean Out Your Email Inbox",
+      "difficulty": "Medium",
+      "duration": 20,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 70
+    },
+    {
+      "taskName": "Organize Workspace",
+      "difficulty": "Medium",
+      "duration": 25,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 85
     }
   ]
 }
