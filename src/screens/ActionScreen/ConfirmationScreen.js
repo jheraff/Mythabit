@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const ConfirmationScreen = ({ navigation, extraData }) => {
     return (
       <View style={styles.container}>
 
         <View style={styles.topView}> 
-          <Text style={styles.title}> Daily </Text>
+          <Text style={styles.headTitle}> Daily </Text>
         </View>
 
         <View style={styles.middleView}> 
@@ -16,7 +17,10 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
 
 
         <View style={styles.bottomView}> 
-
+          <TouchableOpacity style={styles.equipIcon}>
+            <Image source={require('../../../assets/avatars/placeholder.png')}
+             style={styles.previewImage}/>
+          </TouchableOpacity>
         </View>
       
       </View>
@@ -37,8 +41,8 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
       backgroundColor: 'lightblue',
     },
 
-    title: {
-      fontSize: 200,
+    headTitle: {
+      fontSize: 50,
     },
 
     middleView: {
@@ -57,6 +61,7 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
       height: 200,
       width: 400,
       backgroundColor: 'lightblue',
+      flex: 1,
     },
 
     title: { 
@@ -65,7 +70,23 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
       marginBottom: 20,
     },
 
+    equipIcon: {
+      borderColor: 'black',
+      width: 120,
+      height: 120,
+      position: 'absolute',
+      alignItems: 'center',
+      
+    },
+
+    previewText: {
+      width: 20,
+      height: 20,
+    
+    },
+
   });
+
   
   
   export default ConfirmationScreen;

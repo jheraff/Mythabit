@@ -57,7 +57,7 @@ const AdventureScreen = () => {
           <View style={styles.adventureNavContainer}>  </View>
 
 
-
+                
        
         </View>   
       )}
