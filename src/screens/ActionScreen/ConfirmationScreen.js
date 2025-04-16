@@ -12,7 +12,7 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
 
         <View style={styles.middleView}> 
           <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
-          <Button title="Yes, Begin!" onPress={() => navigation.navigate('Tower')} />
+          <Button title="Yes, Begin!" onPress={() => navigation.navigate('Adventure')} />
         </View>
 
 
