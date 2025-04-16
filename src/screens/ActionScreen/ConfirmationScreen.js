@@ -46,35 +46,28 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
     },
 
     middleView: {
-      position: 'absolute',
-      bottom: 260,
-      left: 0,
-      right: 0,
       padding: 16,
       alignItems: 'center',
+      margin: 60,
     },
 
     bottomView: {
-      position: 'absolute',
-      bottom: 20,
       alignItems: 'center',
-      height: 200,
+      height: 100,
       width: 400,
       backgroundColor: 'lightblue',
       flex: 1,
     },
 
     title: { 
-      
       fontSize: 20, 
       marginBottom: 20,
     },
 
     equipIcon: {
       borderColor: 'black',
-      width: 120,
-      height: 120,
-      position: 'absolute',
+      width: 100,
+      height: 100,
       alignItems: 'center',
       
     },
