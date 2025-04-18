@@ -24,6 +24,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
 
         <View style={styles.bottomView}> 
+          
           <View style={[styles.slotOne, {bottom: 10}]}> 
             <TouchableOpacity style={styles.equipIcon}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
@@ -37,6 +38,15 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
               style={styles.previewImageOne}/>
             </TouchableOpacity>
           </View>
+
+          <View style={[styles.slotOne, {left: 100}]}> 
+            <TouchableOpacity style={styles.equipIcon}>
+              <Image source={require('../../../assets/avatars/placeholder.png')}
+              style={styles.previewImageOne}/>
+            </TouchableOpacity>
+          </View>
+
+          
           
 
       
@@ -74,7 +84,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       justifyContent: 'center',
       alignItems: 'center',
       height: 100,
-      width: 400,
+      width: 390,
       flex: 1,
       backgroundColor: 'lightblue',
     },
@@ -86,13 +96,13 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       borderColor: 'black',
       borderWidth: 5,
       borderRadius: 10,
+      alignItems: 'center',
      
     },
 
     previewImageOne: {
       width: 70,
       height: 70,
-      left: 5,
       top: 5,
     },
 
