@@ -5,6 +5,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
     const { selectedFloor } = route.params || {};
+  
+
 
     const handleNextScreen = () => {
       setVisible;
@@ -14,14 +16,25 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
     const handleMenu = (value) => {
       console.log(value);
+      setVisible(true);
 
     };
-
-
-
+    
     return (
       <View style={styles.container}>
-
+        
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={visible}
+          onRequestClose={() => setVisible(false)}
+        >
+          <View style={styles.menu}> 
+          
+          </View>
+        </Modal>
+        
+       
 
         <View style={styles.topView}> 
           <Text style={styles.headTitle}> Daily </Text>
@@ -141,6 +154,13 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       width: 20,
       height: 20,
     
+    },
+    menu: {
+      maxHeight: '50%',
+      backgroundColor: 'white',
+      padding: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
     },
 
   });
