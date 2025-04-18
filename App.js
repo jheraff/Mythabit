@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -20,6 +20,8 @@ import ProfileSettings from './src/screens/SettingsScreen/ProfileSettings';
 import ActionScreen from './src/screens/ActionScreen/ActionScreen';
 import AdventureScreen from './src/screens/ActionScreen/AdventureScreen';
 import ItemScreen from './src/screens/ActionScreen/ItemScreen';
+import TowerScreen from './src/screens/ActionScreen/TowerScreen.js';
+import ConfirmationScreen from './src/screens/ActionScreen/ConfirmationScreen.js';
 import ShopScreen from './src/screens/ActionScreen/ShopScreen';
 import ProfileScreen from './src/screens/ProfileScreen/ProfileScreen';
 import UserProfileScreen from './src/screens/ProfileScreen/UserProfileScreen';
@@ -35,7 +37,8 @@ import PrivacyScreen from './src/screens/SettingsScreen/PrivacyScreen';
 import LeaderboardScreen from './src/screens/ProfileScreen/LeaderboardScreen';
 import AchievementsScreen from './src/screens/AchievementsScreen/AchievementsScreen';
 import SearchUsersScreen from './src/screens/ProfileScreen/SearchUsersScreen';
-
+import GuildMenuScreen from './src/screens/GuildScreen/GuildMenuScreen.js';
+import GuildScreen from './src/screens/GuildScreen/GuildScreen.js';
 
 // Base-64 polyfill
 if (!global.btoa) { global.btoa = encode }
@@ -49,12 +52,62 @@ const ActionStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 const TaskStack = createStackNavigator();
 const OnboardingStack = createStackNavigator();
+const GuildStack = createStackNavigator(); // New stack for Guild screens
 
 // Firebase setup
 const auth = getAuth();
 const db = getFirestore();
 
-// Stack Navigators
+const MoreOptionsMenu = ({ visible, onClose, navigation }) => {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>More</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={24} color="#333" />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            // More Menu, Guilds
+            style={styles.menuItem}
+            onPress={() => {
+              onClose();
+              navigation.navigate('GuildStack'); // Updated to navigate to GuildStack
+            }}
+          >
+            <Ionicons name="shield-half-outline" size={24} color="#6366f1" />
+            <Text style={styles.menuItemText}>Guilds</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            // More Menu, Settings
+            style={styles.menuItem}
+            onPress={() => {
+              onClose();
+              navigation.navigate('SettingsStack');
+            }}
+          >
+            <Ionicons name="settings-outline" size={24} color="#6366f1" />
+            <Text style={styles.menuItemText}>Settings</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
+
 const HomeStackNavigator = ({ extraData }) => (
   <HomeStack.Navigator screenOptions={{ headerShown: false }}>
     <HomeStack.Screen name="HomeMain">
@@ -76,6 +129,12 @@ const ActionStackNavigator = ({ extraData }) => (
     </ActionStack.Screen>
     <ActionStack.Screen name="Adventure">
       {props => <AdventureScreen {...props} extraData={extraData} />}
+    </ActionStack.Screen>
+    <ActionStack.Screen name="Tower">
+      {props => <TowerScreen {...props} extraData={extraData} />}
+    </ActionStack.Screen>
+    <ActionStack.Screen name="Confirmation">
+      {props => <ConfirmationScreen {...props} extraData={extraData} />}
     </ActionStack.Screen>
     <ActionStack.Screen name="Items">
       {props => <ItemScreen {...props} extraData={extraData} />}
@@ -122,6 +181,16 @@ const SettingsStackNavigator = ({ extraData }) => (
   </SettingsStack.Navigator>
 );
 
+// New Guild Stack Navigator
+const GuildStackNavigator = ({ extraData }) => (
+  <GuildStack.Navigator screenOptions={{ headerShown: false }}>
+    <GuildStack.Screen name="GuildMenu">
+      {props => <GuildMenuScreen {...props} extraData={extraData} />}
+    </GuildStack.Screen>
+    <GuildStack.Screen name="GuildScreen" component={GuildScreen} />
+  </GuildStack.Navigator>
+);
+
 const TaskStackNavigator = ({ extraData }) => (
   <TaskStack.Navigator screenOptions={{ headerShown: false }}>
     <TaskStack.Screen name="TasksList">
@@ -133,99 +202,120 @@ const TaskStackNavigator = ({ extraData }) => (
   </TaskStack.Navigator>
 );
 
-// Onboarding Stack for first-time user flow
 const OnboardingStackNavigator = ({ userId }) => (
   <OnboardingStack.Navigator screenOptions={{ headerShown: false, gestureEnabled: false }}>
-    <OnboardingStack.Screen 
-      name="AvatarCustomizationRegister" 
+    <OnboardingStack.Screen
+      name="AvatarCustomizationRegister"
       component={AvatarCustomizationRegisterScreen}
       initialParams={{ userId }}
     />
-    <OnboardingStack.Screen 
-      name="TaskCustomizationRegister" 
+    <OnboardingStack.Screen
+      name="TaskCustomizationRegister"
       component={TaskCustomizationRegisterScreen}
       initialParams={{ userId }}
     />
   </OnboardingStack.Navigator>
 );
 
-// Tab Navigator
-const TabNavigator = ({ extraData }) => (
-  <Tab.Navigator
-    initialRouteName="Home"
-    screenOptions={{
-      headerShown: false,
-      tabBarStyle: {
-        backgroundColor: '#ffffff',
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-        paddingBottom: 5,
-        paddingTop: 5,
-        height: 60,
-      },
-      tabBarActiveTintColor: '#6366f1',
-      tabBarInactiveTintColor: '#6b7280',
-    }}
-  >
-    <Tab.Screen
-      name="Home"
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="home" size={size} color={color} />
-        ),
-      }}
-    >
-      {props => <HomeStackNavigator {...props} extraData={extraData} />}
-    </Tab.Screen>
+const MoreScreen = () => <View />;
 
-    <Tab.Screen
-      name="Calendar"
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="calendar" size={size} color={color} />
-        ),
-      }}
-    >
-      {props => <CalendarScreen {...props} extraData={extraData} />}
-    </Tab.Screen>
+const TabNavigator = ({ extraData, navigation }) => {
+  const [moreOptionsVisible, setMoreOptionsVisible] = useState(false);
 
-    <Tab.Screen
-      name="Quests"
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="alert-outline" size={size} color={color} />
-        ),
-      }}
-    >
-      {props => <TaskStackNavigator {...props} extraData={extraData} />}
-    </Tab.Screen>
+  return (
+    <>
+      <Tab.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: '#ffffff',
+            borderTopWidth: 1,
+            borderTopColor: '#e0e0e0',
+            paddingBottom: 5,
+            paddingTop: 5,
+            height: 60,
+          },
+          tabBarActiveTintColor: '#6366f1',
+          tabBarInactiveTintColor: '#6b7280',
+        }}
+      >
+        <Tab.Screen
+          name="Home"
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={color} />
+            ),
+          }}
+        >
+          {props => <HomeStackNavigator {...props} extraData={extraData} />}
+        </Tab.Screen>
 
-    <Tab.Screen
-      name="Action"
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="share-social-outline" size={size} color={color} />
-        ),
-      }}
-    >
-      {props => <ActionStackNavigator {...props} extraData={extraData} />}
-    </Tab.Screen>
+        <Tab.Screen
+          name="Calendar"
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="calendar" size={size} color={color} />
+            ),
+          }}
+        >
+          {props => <CalendarScreen {...props} extraData={extraData} />}
+        </Tab.Screen>
 
-    <Tab.Screen
-      name="SettingsTab"
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="settings" size={size} color={color} />
-        ),
-        tabBarLabel: 'Settings'
-      }}
-    >
-      {props => <SettingsStackNavigator {...props} extraData={extraData} />}
-    </Tab.Screen>
-  </Tab.Navigator>
-);
+        <Tab.Screen
+          name="Quests"
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="alert-outline" size={size} color={color} />
+            ),
+          }}
+        >
+          {props => <TaskStackNavigator {...props} extraData={extraData} />}
+        </Tab.Screen>
 
-// Loading Component
+        <Tab.Screen
+          name="Action"
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="share-social-outline" size={size} color={color} />
+            ),
+          }}
+        >
+          {props => <ActionStackNavigator {...props} extraData={extraData} />}
+        </Tab.Screen>
+
+        <Tab.Screen
+          name="More"
+          component={MoreScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="ellipsis-horizontal" size={size} color={color} />
+            ),
+            tabBarButton: (props) => (
+              <TouchableOpacity
+                {...props}
+                onPress={() => setMoreOptionsVisible(true)}
+              />
+            ),
+          }}
+          listeners={{
+            tabPress: e => {
+              e.preventDefault();
+              setMoreOptionsVisible(true);
+            },
+          }}
+        />
+      </Tab.Navigator>
+
+      <MoreOptionsMenu
+        navigation={navigation}
+        visible={moreOptionsVisible}
+        onClose={() => setMoreOptionsVisible(false)}
+      />
+    </>
+  );
+};
+
 const LoadingScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
     <ActivityIndicator size="large" color="#F67B7B" />
@@ -233,7 +323,51 @@ const LoadingScreen = () => (
   </View>
 );
 
-// Main App Component
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  menuItemText: {
+    fontSize: 16,
+    marginLeft: 15,
+    color: '#333',
+  },
+});
+
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -241,29 +375,25 @@ export default function App() {
   const [needsAvatarSetup, setNeedsAvatarSetup] = useState(false);
   const [needsTaskSetup, setNeedsTaskSetup] = useState(false);
 
-  // In your App.js useEffect:
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const userDoc = doc(db, 'users', user.uid);
 
-          // Set up a real-time listener for the user document
           const unsubscribeDoc = onSnapshot(userDoc, (docSnapshot) => {
             if (docSnapshot.exists()) {
               const userData = { ...docSnapshot.data(), id: user.uid };
-              
-              // Check customization status
+
               const avatarComplete = userData.avatarCustomizationComplete === true;
               const taskComplete = userData.taskCustomizationComplete === true;
-              
-              // Determine if this is a first-time user
+
               const isFirstTimer = !avatarComplete || !taskComplete;
-              
+
               console.log('Avatar complete:', avatarComplete);
               console.log('Task complete:', taskComplete);
               console.log('Is first timer:', isFirstTimer);
-              
+
               setNeedsAvatarSetup(!avatarComplete);
               setNeedsTaskSetup(!taskComplete);
               setIsFirstTimeUser(isFirstTimer);
@@ -304,20 +434,26 @@ export default function App() {
         <Stack.Screen name="MainScreen" component={MainScreen} />
         {user ? (
           isFirstTimeUser ? (
-            // First-time user flow - use a dedicated onboarding stack
-            <Stack.Screen 
-              name="Onboarding" 
+            <Stack.Screen
+              name="Onboarding"
               options={{ gestureEnabled: false }}>
               {props => <OnboardingStackNavigator {...props} userId={user.id} />}
             </Stack.Screen>
           ) : (
-            // Regular user flow
-            <Stack.Screen name="MainTab">
-              {props => <TabNavigator {...props} extraData={user} />}
-            </Stack.Screen>
+            <>
+              <Stack.Screen name="MainTab">
+                {props => <TabNavigator {...props} extraData={user} navigation={props.navigation} />}
+              </Stack.Screen>
+              <Stack.Screen name="SettingsStack">
+                {props => <SettingsStackNavigator {...props} extraData={user} />}
+              </Stack.Screen>
+              {/* Add GuildStack to main Stack Navigator */}
+              <Stack.Screen name="GuildStack">
+                {props => <GuildStackNavigator {...props} extraData={user} />}
+              </Stack.Screen>
+            </>
           )
         ) : (
-          // Authentication flow
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Registration" component={RegistrationScreen} />

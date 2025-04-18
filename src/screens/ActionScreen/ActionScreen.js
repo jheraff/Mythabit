@@ -28,14 +28,12 @@ const ActionScreen = () => {
         const userId = auth.currentUser?.uid;
         if (!userId) return;
 
-        // Set up a real-time listener with improved error handling
         const unsubscribeUserStats = onSnapshot(
             doc(db, 'users', userId),
             (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const userData = docSnapshot.data();
 
-                    // Create complete user stats object, ensuring all fields exist
                     const completeUserStats = {
                         username: userData.username || auth.currentUser?.displayName || 'New User',
                         level: userData.level || 1,
@@ -68,16 +66,14 @@ const ActionScreen = () => {
     };
 
     const routes = [
-        { name: 'Adventure', route: 'Adventure' },
+        { name: 'Adventure', route: 'Tower' },
         { name: 'Items', route: 'Items' },
         { name: 'Shop', route: 'Shop' }
     ];
 
     return (
         <View style={styles.container}>
-            {/* Header Container */}
             <View style={styles.headerContainer}>
-                {/* Top row of header with profile, username, level, and currency */}
                 <View style={styles.headerTopRow}>
                     <TouchableOpacity
                         style={styles.profileButton}
@@ -114,7 +110,6 @@ const ActionScreen = () => {
                 </View>
             </View>
 
-            {/* Action Screen Content */}
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Action</Text>
                 <View style={styles.buttonContainer}>
