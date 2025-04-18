@@ -1,17 +1,27 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Button, StyleSheet, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
+    const [visible, setVisible] = useState(false);
     const { selectedFloor } = route.params || {};
 
     const handleNextScreen = () => {
+      setVisible;
       console.log('next: ');
       navigation.navigate('Tower', { selectedFloor, extraData });
     };
 
+    const handleMenu = (value) => {
+      console.log(value);
+
+    };
+
+
+
     return (
       <View style={styles.container}>
+
 
         <View style={styles.topView}> 
           <Text style={styles.headTitle}> Daily </Text>
@@ -25,25 +35,28 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
         <View style={styles.bottomView}> 
           
-          <View style={[styles.slotOne, {bottom: 10}]}> 
-            <TouchableOpacity style={styles.equipIcon}>
+          <View style={[styles.slotOne, {bottom: -40}]}> 
+            <TouchableOpacity style={styles.equipIcon} onPressOut={() => handleMenu('sword')}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
               style={styles.previewImageOne}/>
             </TouchableOpacity>
+            <Text style={styles.itemTitle}> Sword </Text>
           </View>
 
-          <View style={[styles.slotOne, {right: 100}]}> 
-            <TouchableOpacity style={styles.equipIcon}>
+          <View style={[styles.slotOne, {top: 60, right: 90}]}> 
+            <TouchableOpacity style={styles.equipIcon} onPressOut={() => handleMenu('Armor')}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
               style={styles.previewImageOne}/>
             </TouchableOpacity>
+            <Text style={styles.itemTitle}> Armor </Text>
           </View>
 
-          <View style={[styles.slotOne, {left: 100}]}> 
-            <TouchableOpacity style={styles.equipIcon}>
+          <View style={[styles.slotOne, {bottom: 60, left: 90}]}> 
+            <TouchableOpacity style={styles.equipIcon} onPress={() => handleMenu('Potion')}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
               style={styles.previewImageOne}/>
             </TouchableOpacity>
+            <Text style={styles.itemTitle}> Potion </Text>
           </View>
 
           
@@ -98,6 +111,11 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       borderRadius: 10,
       alignItems: 'center',
      
+    },
+
+    itemTitle: {
+      bottom: 20,
+      fontSize: 20,
     },
 
     previewImageOne: {
