@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
-import { 
-  View, 
-  FlatList, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
   Image,
   Modal,
   TouchableWithoutFeedback
@@ -66,27 +66,21 @@ const validateTask = (task) => {
     rewardClaimed: task.rewardClaimed || false
   };
 };
-
-// Helper function to check achievement progress
 const checkAchievements = async (userData) => {
   const userId = auth.currentUser?.uid;
   if (!userId) return [];
 
   try {
-    // Get current user achievements
     const userAchievementsDoc = await getDoc(doc(db, 'userAchievements', userId));
     const userAchievements = userAchievementsDoc.exists()
       ? userAchievementsDoc.data().achievements || {}
       : {};
 
-    // For storing newly unlocked achievements to return
     const newlyUnlocked = [];
 
-    // Process each achievement
     const updatedAchievements = { ...userAchievements };
 
     for (const achievement of achievementsData.achievements) {
-      // Skip if already unlocked
       if (userAchievements[achievement.id]?.unlocked) {
         continue;
       }
@@ -94,7 +88,6 @@ const checkAchievements = async (userData) => {
       let progress = 0;
       let unlocked = false;
 
-      // Calculate progress based on requirement type
       switch (achievement.requirement.type) {
         case 'tasks_completed':
           progress = userData.completedTasks || 0;
@@ -124,14 +117,12 @@ const checkAchievements = async (userData) => {
           break;
       }
 
-      // Update achievement
       updatedAchievements[achievement.id] = {
         ...userAchievements[achievement.id],
         progress,
         unlocked
       };
 
-      // If newly unlocked, add timestamp and add to return array
       if (unlocked && !userAchievements[achievement.id]?.unlocked) {
         updatedAchievements[achievement.id].dateUnlocked = new Date().toISOString();
         updatedAchievements[achievement.id].rewardClaimed = false;
@@ -144,7 +135,6 @@ const checkAchievements = async (userData) => {
       }
     }
 
-    // Save updated achievements to Firestore
     await setDoc(doc(db, 'userAchievements', userId), {
       achievements: updatedAchievements
     }, { merge: true });
@@ -156,39 +146,38 @@ const checkAchievements = async (userData) => {
   }
 };
 
-// Create a memoized task item component with optimized rendering (time removed)
 const TaskItem = memo(({ item, onPress, processingTask }) => (
-  <TouchableOpacity 
+  <TouchableOpacity
     style={[
       styles.taskCard,
       item.status === 'completed' && styles.completedTaskCard,
       item.status === 'failed' && styles.failedTaskCard,
       item.status === 'in-progress' && styles.inProgressTaskCard,
-    ]} 
+    ]}
     onPress={() => onPress(item)}
     disabled={processingTask === item.id}
   >
     <Text style={styles.taskName}>{item.taskName}</Text>
-    
+
     <View style={styles.taskBasicInfo}>
       <View style={styles.taskInfoItem}>
         <Text style={styles.taskInfoLabel}>Type</Text>
         <Text style={styles.taskInfoValue}>{item.taskType}</Text>
       </View>
-      
+
       <View style={styles.taskInfoItem}>
         <Text style={styles.taskInfoLabel}>Stat</Text>
         <Text style={styles.taskInfoValue}>{item.statType}</Text>
       </View>
-      
+
       <View style={styles.taskInfoItem}>
         <Text style={styles.taskInfoLabel}>XP</Text>
         <Text style={styles.taskInfoValue}>{item.xpReward}</Text>
       </View>
-      
+
       {/* Time display removed from card */}
     </View>
-    
+
     {item.status !== 'pending' && (
       <Text style={[
         styles.taskStatusBadge,
@@ -199,14 +188,14 @@ const TaskItem = memo(({ item, onPress, processingTask }) => (
         {item.status.toUpperCase()}
       </Text>
     )}
-    
+
     {item.status === 'in-progress' && (
       <View style={styles.progressBarContainer}>
-        <View 
+        <View
           style={[
-            styles.progressBar, 
+            styles.progressBar,
             { width: `${(item.currentProgress / item.taskAmount) * 100}%` }
-          ]} 
+          ]}
         />
         <Text style={styles.progressText}>
           {item.currentProgress}/{item.taskAmount}
@@ -215,10 +204,9 @@ const TaskItem = memo(({ item, onPress, processingTask }) => (
     )}
   </TouchableOpacity>
 ), (prevProps, nextProps) => {
-  // Only re-render if key properties change
   return (
     prevProps.item.id === nextProps.item.id &&
-    prevProps.item.status === nextProps.item.status && 
+    prevProps.item.status === nextProps.item.status &&
     prevProps.item.currentProgress === nextProps.item.currentProgress &&
     prevProps.processingTask === nextProps.processingTask
   );
@@ -246,8 +234,7 @@ const TasksScreen = () => {
   const [processingTask, setProcessingTask] = useState(null);
   const timerRefs = useRef({});
   const [completedQuestName, setCompletedQuestName] = useState('');
-  
-  // Modal state
+
   const [selectedTask, setSelectedTask] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -276,12 +263,10 @@ const TasksScreen = () => {
             }
           };
           setUserStats(completeUserStats);
-          
-          // Check if there's a recently completed quest
+
           if (userData.recentlyCompletedQuest) {
             setCompletedQuestName(userData.recentlyCompletedQuest.name || 'Co-op Quest');
-            
-            // Clear the recent completion flag
+
             updateDoc(doc(db, 'users', userId), {
               recentlyCompletedQuest: null
             });
@@ -294,13 +279,11 @@ const TasksScreen = () => {
     return () => unsubscribe();
   }, []);
 
-  // New effect to handle task updates without causing modal jitters
-  // Only update selected task when important properties change
+
   useEffect(() => {
     if (selectedTask) {
       const currentTask = tasks.find(task => task.id === selectedTask.id);
-      
-      // Only update the selectedTask if a significant property has changed (like status)
+
       if (currentTask && (
         currentTask.status !== selectedTask.status ||
         currentTask.currentProgress !== selectedTask.currentProgress
@@ -355,7 +338,6 @@ const TasksScreen = () => {
     }
   }, []);
 
-  // Modified startTimer to avoid updating the selectedTask with every tick
   const startTimer = useCallback((taskId) => {
     if (timerRefs.current[taskId]) return;
 
@@ -375,9 +357,6 @@ const TasksScreen = () => {
           }
           return task;
         });
-
-        // DON'T update the selectedTask with every tick, this causes modal jitters
-        // The separate useEffect will handle updating the modal when important properties change
 
         updateFirestore(updatedTasks, true);
         return updatedTasks;
@@ -552,8 +531,6 @@ const TasksScreen = () => {
       const xpReward = firestoreTask.xpReward || 0;
       const newXP = currentXP + xpReward;
 
-      const statType = firestoreTask.statType ? firestoreTask.statType.toLowerCase() : null;
-
       const stats = {
         strength: userData.stats?.strength || 1,
         intellect: userData.stats?.intellect || 1,
@@ -562,8 +539,22 @@ const TasksScreen = () => {
         focus: userData.stats?.focus || 1
       };
 
-      if (statType && stats[statType] !== undefined) {
-        stats[statType] += 1;
+      const statType = firestoreTask.statType;
+
+      if (statType) {
+        if (Array.isArray(statType)) {
+          statType.forEach(type => {
+            const normalizedType = type.toLowerCase();
+            if (stats[normalizedType] !== undefined) {
+              stats[normalizedType] += 1;
+            }
+          });
+        } else if (typeof statType === 'string') {
+          const normalizedType = statType.toLowerCase();
+          if (stats[normalizedType] !== undefined) {
+            stats[normalizedType] += 1;
+          }
+        }
       }
 
       let level = userData.level || 1;
@@ -611,12 +602,10 @@ const TasksScreen = () => {
         tasks: updatedFirestoreTasks
       });
 
-      // ACHIEVEMENT SYSTEM INTEGRATION: Track completed tasks
-      // Get the task type of the completed task
+
       const completedTask = tasks.find(t => t.id === taskId);
       const taskType = completedTask?.taskType?.toLowerCase();
 
-      // Get completed tasks count
       const completedTasksDoc = await getDoc(doc(db, 'userStats', userId));
       let completedTasks = 0;
       let completedTasksByType = {};
@@ -628,7 +617,6 @@ const TasksScreen = () => {
         completedTasksByType = statsData.completedTasksByType || {};
         streak = statsData.streak || 0;
 
-        // Update completed tasks by type
         if (taskType) {
           completedTasksByType[taskType] = (completedTasksByType[taskType] || 0) + 1;
         }
@@ -637,11 +625,9 @@ const TasksScreen = () => {
         completedTasksByType = taskType ? { [taskType]: 1 } : {};
       }
 
-      // Check if task was completed today
       const now = new Date();
       const today = now.toISOString().split('T')[0];
 
-      // Update user stats
       await setDoc(doc(db, 'userStats', userId), {
         completedTasks,
         completedTasksByType,
@@ -650,10 +636,8 @@ const TasksScreen = () => {
         lastUpdated: now.toISOString()
       }, { merge: true });
 
-      // Update daily streak
       await updateDailyStreak();
 
-      // Create an object with all the data needed for achievement checking
       const achievementUserData = {
         ...updatedUserData,
         completedTasks,
@@ -661,26 +645,31 @@ const TasksScreen = () => {
         streak
       };
 
-      // Check if any achievements were unlocked
       await checkAchievements(achievementUserData);
-      
-      // Update co-op quest progress for XP gain
+
       if (xpReward > 0) {
         await CoopQuestService.updateQuestProgress(userId, 'xp', xpReward);
       }
 
-      // Update co-op quest progress for stat gains
       if (statType) {
-        await CoopQuestService.updateQuestProgress(userId, 'stat', 1);
+        let statGainCount = 0;
+
+        if (Array.isArray(statType)) {
+          statGainCount = statType.length;
+        } else {
+          statGainCount = 1;
+        }
+
+        await CoopQuestService.updateQuestProgress(userId, 'stat', statGainCount);
       }
 
     } catch (error) {
+      console.error("Error updating user stats:", error);
     } finally {
       setProcessingTask(null);
     }
   }, [tasks, processingTask, updateDailyStreak]);
 
-  // Add this function to update daily streak
   const updateDailyStreak = useCallback(async () => {
     const userId = auth.currentUser?.uid;
     if (!userId) return;
@@ -689,41 +678,34 @@ const TasksScreen = () => {
       const userStatsDoc = await getDoc(doc(db, 'userStats', userId));
       const now = new Date();
       const today = now.toISOString().split('T')[0];
-      
+
       if (userStatsDoc.exists()) {
         const statsData = userStatsDoc.data();
         const lastDate = statsData.lastCompletedDate;
         let streak = statsData.streak || 0;
-        
-        // Check if last completion was yesterday
+
         if (lastDate) {
           const lastDateObj = new Date(lastDate);
           const oneDayAgo = new Date(now);
           oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-          
+
           if (lastDateObj.toISOString().split('T')[0] === oneDayAgo.toISOString().split('T')[0]) {
-            // Increment streak
             streak += 1;
-            
-            // Update co-op quest progress for streak
+
             await CoopQuestService.updateQuestProgress(userId, 'streak', 1);
           } else if (lastDate !== today) {
-            // Reset streak if not consecutive and not already logged today
             streak = 1;
           }
         } else {
-          // First time logging
           streak = 1;
         }
-        
-        // Update streak in Firestore
+
         await setDoc(doc(db, 'userStats', userId), {
           lastCompletedDate: today,
           streak: streak,
           lastUpdated: now.toISOString()
         }, { merge: true });
       } else {
-        // First time logging ever
         await setDoc(doc(db, 'userStats', userId), {
           lastCompletedDate: today,
           streak: 1,
@@ -761,28 +743,28 @@ const TasksScreen = () => {
     const taskToRefresh = tasks.find(task => task.id === taskId);
 
     if (taskToRefresh?.status === 'in-progress') {
-      return;
+      return null;
     }
 
     try {
       const userId = auth.currentUser?.uid;
       if (!userId) {
-        return;
+        return null;
       }
 
       const userPrefsDoc = await getDoc(doc(db, 'userPreferences', userId));
       if (!userPrefsDoc.exists()) {
-        return;
+        return null;
       }
 
       const preferredTypes = userPrefsDoc.data().taskTypes || [];
       if (!preferredTypes || preferredTypes.length === 0) {
-        return;
+        return null;
       }
 
       const allAvailableTasks = getTasksForType(preferredTypes);
       if (!allAvailableTasks || allAvailableTasks.length === 0) {
-        return;
+        return null;
       }
 
       const usedTasksDoc = await getDoc(doc(db, 'usedTasks', userId));
@@ -807,14 +789,14 @@ const TasksScreen = () => {
       }
 
       if (!eligibleTasks || eligibleTasks.length === 0) {
-        return;
+        return null;
       }
 
       const randomIndex = Math.floor(Math.random() * eligibleTasks.length);
       const selectedTask = eligibleTasks[randomIndex];
 
       if (!selectedTask) {
-        return;
+        return null;
       }
 
       const duration = selectedTask.duration || 5;
@@ -848,7 +830,12 @@ const TasksScreen = () => {
         tasks: updatedTasks
       });
 
-    } catch (error) { }
+      return newTask;
+
+    } catch (error) {
+      console.error("Error refreshing task:", error);
+      return null;
+    }
   }, [tasks]);
 
   const skipTask = useCallback(async (taskId) => {
@@ -859,16 +846,14 @@ const TasksScreen = () => {
     try {
       if (processingTask === taskId) return;
 
-      // Immediately update UI state
-      setTasks(currentTasks => 
+      setTasks(currentTasks =>
         currentTasks.map(task =>
           task.id === taskId
             ? validateTask({ ...task, status: 'in-progress' })
             : task
         )
       );
-      
-      // If the selected task in the modal is being started, also update its status
+
       setSelectedTask(currentSelectedTask => {
         if (currentSelectedTask && currentSelectedTask.id === taskId) {
           return {
@@ -879,20 +864,17 @@ const TasksScreen = () => {
         return currentSelectedTask;
       });
 
-      // Now handle background updates
       startTimer(taskId);
       await updateFirestore(tasks.map(task =>
         task.id === taskId
           ? validateTask({ ...task, status: 'in-progress' })
           : task
       ), false);
-      
-      // Close the modal after accepting the task
+
       setModalVisible(false);
     } catch (error) { }
   }, [processingTask, tasks, updateFirestore, startTimer]);
 
-  // Modified completeTask to update UI immediately for better feedback
   const completeTask = useCallback(async (taskId) => {
     if (processingTask === taskId) return;
 
@@ -908,8 +890,7 @@ const TasksScreen = () => {
       return;
     }
 
-    // Immediately update UI state
-    setTasks(currentTasks => 
+    setTasks(currentTasks =>
       currentTasks.map(task =>
         task.id === taskId ? {
           ...task,
@@ -919,8 +900,7 @@ const TasksScreen = () => {
         } : task
       )
     );
-    
-    // If the selected task in the modal is being completed, also update its status
+
     setSelectedTask(currentSelectedTask => {
       if (currentSelectedTask && currentSelectedTask.id === taskId) {
         return {
@@ -943,7 +923,6 @@ const TasksScreen = () => {
       delete timerRefs.current[taskId];
     }
 
-    // Process backend updates
     setProcessingTask(taskId);
 
     try {
@@ -974,7 +953,6 @@ const TasksScreen = () => {
         tasks: updatedFirestoreTasks
       });
 
-      // Update co-op quest progress for completed task
       await CoopQuestService.updateQuestProgress(userId, 'task', 1);
 
       setTimeout(() => {
@@ -1002,8 +980,7 @@ const TasksScreen = () => {
 
       const newProgress = Math.min(currentProgress + 1, taskAmount);
 
-      // Immediately update UI
-      setTasks(currentTasks => 
+      setTasks(currentTasks =>
         currentTasks.map(task => {
           if (task.id === taskId) {
             return validateTask({
@@ -1014,8 +991,7 @@ const TasksScreen = () => {
           return task;
         })
       );
-      
-      // Update selected task in modal if applicable
+
       setSelectedTask(currentSelectedTask => {
         if (currentSelectedTask && currentSelectedTask.id === taskId) {
           return {
@@ -1056,8 +1032,7 @@ const TasksScreen = () => {
       return;
     }
 
-    // Immediately update UI
-    setTasks(currentTasks => 
+    setTasks(currentTasks =>
       currentTasks.map(task =>
         task.id === taskId ? validateTask({
           ...task,
@@ -1068,8 +1043,7 @@ const TasksScreen = () => {
         }) : task
       )
     );
-    
-    // Update selected task in modal if applicable
+
     setSelectedTask(currentSelectedTask => {
       if (currentSelectedTask && currentSelectedTask.id === taskId) {
         return validateTask({
@@ -1117,38 +1091,33 @@ const TasksScreen = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  // New function to handle task card press
   const handleTaskPress = useCallback((task) => {
     setSelectedTask(task);
     setModalVisible(true);
   }, []);
 
-  // Create a memoized render function for FlatList
   const renderTask = useCallback(({ item }) => (
-    <TaskItem 
-      item={item} 
-      onPress={handleTaskPress} 
+    <TaskItem
+      item={item}
+      onPress={handleTaskPress}
       processingTask={processingTask}
     />
   ), [handleTaskPress, processingTask]);
 
-  // Optimize FlatList by providing item layout dimensions
   const getItemLayout = useCallback((_, index) => ({
-    length: 150, // approximate height of task item
+    length: 150,
     offset: 150 * index,
     index,
   }), []);
-  
-  // Extract key from task item
+
   const keyExtractor = useCallback(item => item.id, []);
 
-  // Simplified Modal component with minimal dependencies to prevent jitters
   const TaskDetailModal = useCallback(() => {
     if (!selectedTask) return null;
-    
+
     return (
       <Modal
-        animationType="none" // Changed from "fade" to prevent animation re-renders
+        animationType="none"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
@@ -1158,33 +1127,33 @@ const TasksScreen = () => {
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>{selectedTask.taskName}</Text>
-                
+
                 <View style={styles.modalInfoRow}>
                   <View style={styles.modalInfoItem}>
                     <Text style={styles.modalInfoLabel}>Type</Text>
                     <Text style={styles.modalInfoValue}>{selectedTask.taskType}</Text>
                   </View>
-                  
+
                   <View style={styles.modalInfoItem}>
                     <Text style={styles.modalInfoLabel}>Stat</Text>
                     <Text style={styles.modalInfoValue}>{selectedTask.statType}</Text>
                   </View>
                 </View>
-                
+
                 <View style={styles.modalInfoRow}>
                   <View style={styles.modalInfoItem}>
                     <Text style={styles.modalInfoLabel}>Difficulty</Text>
                     <Text style={styles.modalInfoValue}>{selectedTask.difficulty}</Text>
                   </View>
-                  
+
                   <View style={styles.modalInfoItem}>
                     <Text style={styles.modalInfoLabel}>XP Reward</Text>
                     <Text style={styles.modalInfoValue}>{selectedTask.xpReward}</Text>
                   </View>
                 </View>
-                
+
                 {/* Time display removed */}
-                
+
                 <View style={styles.modalStatusRow}>
                   <Text style={styles.modalInfoLabel}>Status</Text>
                   <Text style={[
@@ -1196,23 +1165,23 @@ const TasksScreen = () => {
                     {selectedTask.status.toUpperCase()}
                   </Text>
                 </View>
-                
+
                 {selectedTask.status === 'in-progress' && (
                   <View style={styles.modalProgressContainer}>
                     <Text style={styles.modalProgressLabel}>
                       Progress: {selectedTask.currentProgress}/{selectedTask.taskAmount}
                     </Text>
                     <View style={styles.modalProgressBarContainer}>
-                      <View 
+                      <View
                         style={[
-                          styles.modalProgressBar, 
+                          styles.modalProgressBar,
                           { width: `${(selectedTask.currentProgress / selectedTask.taskAmount) * 100}%` }
-                        ]} 
+                        ]}
                       />
                     </View>
                   </View>
                 )}
-                
+
                 <View style={styles.modalButtonsContainer}>
                   {selectedTask.status === 'pending' && !selectedTask.rewardClaimed && (
                     <>
@@ -1280,7 +1249,7 @@ const TasksScreen = () => {
                       <Text style={styles.buttonText}>New Task</Text>
                     </TouchableOpacity>
                   )}
-                  
+
                   <TouchableOpacity
                     style={styles.modalCloseButton}
                     onPress={() => setModalVisible(false)}
@@ -1294,7 +1263,7 @@ const TasksScreen = () => {
         </TouchableWithoutFeedback>
       </Modal>
     );
-  }, [selectedTask, modalVisible]); // Minimized dependencies to prevent re-renders
+  }, [selectedTask, modalVisible]);
 
   return (
     <View style={styles.container}>
@@ -1359,7 +1328,7 @@ const TasksScreen = () => {
         updateCellsBatchingPeriod={50}
         removeClippedSubviews={true}
       />
-      
+
       {/* Task Detail Modal */}
       <TaskDetailModal />
     </View>
@@ -1461,8 +1430,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 20,
   },
-  
-  // Redesigned task card styles
+
   taskCard: {
     backgroundColor: '#f5f5f5',
     padding: 14,
@@ -1498,7 +1466,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   taskInfoItem: {
-    width: '48%', 
+    width: '48%',
     marginBottom: 8,
   },
   taskInfoLabel: {
@@ -1561,8 +1529,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0.5, height: 0.5 },
     textShadowRadius: 1,
   },
-  
-  // Modal styles
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -1607,7 +1574,6 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '600',
   },
-  // New style for status row
   modalStatusRow: {
     marginBottom: 15,
   },
