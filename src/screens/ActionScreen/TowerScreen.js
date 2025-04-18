@@ -9,7 +9,8 @@ const TowerScreen = ({ navigation, extraData }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     
     const handlePress = (index) => {
-      console.log('Pressed index:', index);
+      setSelectedIndex(index );
+      console.log('Pressed index:', index + 1);
       
     };
     return (
@@ -24,8 +25,7 @@ const TowerScreen = ({ navigation, extraData }) => {
                 
                 onPress={() => {
                   setFloorSelected(true);
-                  setSelectedIndex(index);
-                  handlePress(index + 1);
+                  handlePress(index);
                   
                 }}
                 
@@ -50,7 +50,7 @@ const TowerScreen = ({ navigation, extraData }) => {
           <Text>Choose a floor</Text>
           <Button 
             title="Proceed" 
-            onPress={() => navigation.navigate('Confirmation')} 
+            onPress={() => navigation.navigate('Confirmation',{selectedIndex})} 
             disabled ={!floorSelected}
           />    
         </View>

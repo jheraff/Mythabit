@@ -2,7 +2,14 @@ import React from 'react';
 import { View, Text, Button, StyleSheet, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const ConfirmationScreen = ({ navigation, extraData }) => {
+const ConfirmationScreen = ({ navigation, route, extraData }) => {
+    const { selectedFloor } = route.params || {};
+
+    const handleNextScreen = () => {
+      console.log('next: ');
+      navigation.navigate('Tower', { selectedFloor, extraData });
+    };
+
     return (
       <View style={styles.container}>
 
@@ -12,19 +19,27 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
 
         <View style={styles.middleView}> 
           <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
-          <Button title="Yes, Begin!" onPress={() => navigation.navigate('Tower')} />
+          <Button title="Yes, Begin!" onPress={handleNextScreen}/>
         </View>
 
 
         <View style={styles.bottomView}> 
-          <TouchableOpacity style={styles.equipIcon}>
-            <Image source={require('../../../assets/avatars/placeholder.png')}
-             style={styles.previewImage}/>
-             <Image source={require('../../../assets/avatars/placeholder.png')}
-             style={styles.previewImage}/>
-             <Image source={require('../../../assets/avatars/placeholder.png')}
-             style={styles.previewImage}/>
-          </TouchableOpacity>
+          <View style={[styles.slotOne, {bottom: 10}]}> 
+            <TouchableOpacity style={styles.equipIcon}>
+              <Image source={require('../../../assets/avatars/placeholder.png')}
+              style={styles.previewImageOne}/>
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.slotOne, {right: 100}]}> 
+            <TouchableOpacity style={styles.equipIcon}>
+              <Image source={require('../../../assets/avatars/placeholder.png')}
+              style={styles.previewImageOne}/>
+            </TouchableOpacity>
+          </View>
+          
+
+      
         </View>
       
       </View>
@@ -56,11 +71,29 @@ const ConfirmationScreen = ({ navigation, extraData }) => {
     },
 
     bottomView: {
+      justifyContent: 'center',
       alignItems: 'center',
       height: 100,
       width: 400,
-      backgroundColor: 'lightblue',
       flex: 1,
+      backgroundColor: 'lightblue',
+    },
+
+    slotOne: {
+      backgroundColor: 'white',
+      height: 120,
+      width: 120,
+      borderColor: 'black',
+      borderWidth: 5,
+      borderRadius: 10,
+     
+    },
+
+    previewImageOne: {
+      width: 70,
+      height: 70,
+      left: 5,
+      top: 5,
     },
 
     title: { 
