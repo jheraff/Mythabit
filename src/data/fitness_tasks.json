@@ -1,44 +1,214 @@
 {
-    "tasks": [
-      {
-        "taskName": "Morning Run",
-        "difficulty": "medium",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "fitness",
-        "xpReward": 100
-      },
-      {
-        "taskName": "Night Run",
-        "difficulty": "medium",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "fitness",
-        "xpReward": 100
-      },
-      {
-        "taskName": "Afternoon Run",
-        "difficulty": "medium",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "fitness",
-        "xpReward": 100
-      },
-      {
-        "taskName": "Push Up",
-        "difficulty": "Easy",
-        "duration": 15,
-        "statType": "strength",
-        "status": "pending",
-        "taskAmount": 10,
-        "taskType": "fitness",
-        "xpReward": 250
-      }
-    ]
-  }
+  "tasks": [
+    {
+      "taskName": "Run",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 90
+    },
+    {
+      "taskName": "Push Ups",
+      "difficulty": "medium",
+      "duration": 10,
+      "statType": "strength",
+      "status": "pending",
+      "taskAmount": 20,
+      "taskType": "fitness",
+      "xpReward": 50
+    },
+    {
+      "taskName": "Jump Rope",
+      "difficulty": "medium",
+      "duration": 15,
+      "statType": ["agility", "focus"],
+      "status": "pending",
+      "taskAmount": 100,
+      "taskType": "fitness",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Plank Hold for a Minute", 
+      "difficulty": "easy", 
+      "duration": 1,
+      "statType": "strength",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 40
+    },
+    {
+      "taskName": "Plank Hold for a Minute Each", 
+      "difficulty": "medium", 
+      "duration": 3,
+      "statType": "strength",
+      "status": "pending",
+      "taskAmount": 2,
+      "taskType": "fitness",
+      "xpReward": 75
+    },
+    {
+      "taskName": "Plank Hold for a Minute Each(Adjust)", 
+      "difficulty": "hard", 
+      "duration": 5,
+      "statType": "strength",
+      "status": "pending",
+      "taskAmount": 3,
+      "taskType": "fitness",
+      "xpReward": 125
+    },
+    {
+      "taskName": "Burpees", 
+      "difficulty": "hard", 
+      "duration": 10,
+      "statType": ["strength", "agility"],
+      "status": "pending",
+      "taskAmount": 15,
+      "taskType": "fitness",
+      "xpReward": 150
+    },
+    {
+      "taskName": "Squats", 
+      "difficulty": "medium", 
+      "duration": 10,
+      "statType": "strength",
+      "status": "pending",
+      "taskAmount": 30,
+      "taskType": "fitness",
+      "xpReward": 65
+    },
+    {
+      "taskName": "Cycling", 
+      "difficulty": "medium", 
+      "duration": 45,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 75
+    },
+    {
+      "taskName": "Jumping Jacks", 
+      "difficulty": "easy", 
+      "duration": 5,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 50,
+      "taskType": "fitness",
+      "xpReward": 35
+    },
+    {
+      "taskName": "Sit-ups", 
+      "difficulty": "medium", 
+      "duration": 10,
+      "statType": "strength",
+      "status": "pending",
+      "taskAmount": 25,
+      "taskType": "fitness",
+      "xpReward": 75
+    },
+    {
+      "taskName": "Yoga Streching", 
+      "difficulty": "easy", 
+      "duration": 20,
+      "statType": ["focus", "agility"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 50
+    },
+    {
+      "taskName": "Shadow Boxing", 
+      "difficulty": "medium", 
+      "duration": 15,
+      "statType": ["agility", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 65
+    },
+    {
+      "taskName": "Endurance Run", 
+      "difficulty": "hard", 
+      "duration": 60,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 400
+    },
+    {
+      "taskName": "Weight Lift of your choosing Bench Press, Squat, or Deadlift (# of reps)",
+      "difficulty": "hard",
+      "duration": 15,
+      "statType": ["strength", "focus"],
+      "status": "pending",
+      "taskAmount": 12,
+      "taskType": "fitness",
+      "xpReward": 125
+    },
+    {
+      "taskName": "Swim",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["strength", "agility"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 85
+    },
+    {
+      "taskName": "Pull ups",
+      "difficulty": "hard",
+      "duration": 5,
+      "statType": ["strength", "focus"],
+      "status": "pending",
+      "taskAmount": 10,
+      "taskType": "fitness",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Take a walk",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "focus",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 25
+    },
+    {
+      "taskName": "Jog",
+      "difficulty": "medium",
+      "duration": 25,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 20
+    },
+    {
+      "taskName": "Sprint",
+      "difficulty": "hard",
+      "duration": 10,
+      "statType": ["agility", "strength"],
+      "status": "pending",
+      "taskAmount": 5,
+      "taskType": "fitness",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Bypass PR (Personal Record)",
+      "difficulty": "hard",
+      "duration": 10,
+      "statType": ["strength", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 135
+    }
+  ]
+}

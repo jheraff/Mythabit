@@ -1,44 +1,114 @@
 {
-    "tasks": [
-      {
-        "taskName": "Count to 10 in Chinese",
-        "difficulty": "Easy",
-        "duration": 30,
-        "statType": "focus",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "mind",
-        "xpReward": 250
-      },
-      {
-        "taskName": "Don't Scroll TikTok",
-        "difficulty": "Easy",
-        "duration": 30,
-        "statType": "focus",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "mind",
-        "xpReward": 250
-      },
-      {
-        "taskName": "Touch Grass",
-        "difficulty": "Easy",
-        "duration": 30,
-        "statType": "focus",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "mind",
-        "xpReward": 250
-      },
-      {
-        "taskName": "Meditate",
-        "difficulty": "Easy",
-        "duration": 30,
-        "statType": "focus",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "mind",
-        "xpReward": 250
-      }
-    ]
-  }
+  "tasks": [
+    {
+      "taskName": "Count to 10 in Chinese",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "focus",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 250
+    },
+    {
+      "taskName": "Don't Scroll TikTok",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "focus",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 250
+    },
+    {
+      "taskName": "Touch Grass",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "focus",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 250
+    },
+    {
+      "taskName": "Meditate",
+      "difficulty": "medium",
+      "duration": 15,
+      "statType": ["focus", "arcane"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Spend time outside",
+      "difficulty": "easy",
+      "duration": 20,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 25
+    },
+    {
+      "taskName": "Learn a New Word in a Foreign Language of your choosing",
+      "difficulty": "easy",
+      "duration": 10,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Solve a Jigsaw Puzzle",
+      "difficulty": "medium",
+      "duration": 20,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Solve a Sudoku",
+      "difficulty": "medium",
+      "duration": 20,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Solve a Crossword",
+      "difficulty": "medium",
+      "duration": 25,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Solve a Wordle",
+      "difficulty": "easy",
+      "duration": 10,
+      "statType": ["intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 35
+    },
+    {
+      "taskName": "Read an Article on a New Topic",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 75
+    }
+  ]
+}

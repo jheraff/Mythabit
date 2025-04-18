@@ -1,0 +1,166 @@
+{
+    "achievements": [
+        {
+            "id": "ach_task_com1",
+            "name": "Getting the Hang of It",
+            "description": "Complete 5 tasks",
+            "requirement": {
+                "type": "tasks_completed",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_task_com2",
+            "name": "Task Master",
+            "description": "Complete 100 tasks",
+            "requirement": {
+                "type": "tasks_completed",
+                "count": 100
+            },
+            "xpReward": 500,
+            "currencyReward": 250
+        },
+        {
+            "id": "ach_lvl1",
+            "name": "Level Climber",
+            "description": "Reach level 5",
+            "requirement": {
+                "type": "player_level",
+                "count": 5
+            },
+            "xpReward": 200,
+            "currencyReward": 75
+        },
+        {
+            "id": "ach_lvl2",
+            "name": "High Achiever",
+            "description": "Reach level 50",
+            "requirement": {
+                "type": "player_level",
+                "count": 50
+            },
+            "xpReward": 500,
+            "currencyReward": 250
+        },
+        {
+            "id": "ach_lvl3",
+            "name": "Solo Leveling",
+            "description": "Reach level 100",
+            "requirement": {
+                "type": "player_level",
+                "count": 100
+            },
+            "xpReward": 999,
+            "currencyReward": 500
+        },
+        {
+            "id": "ach_task_type1",
+            "name": "Know something about fitness?",
+            "description": "Complete 5 fitness tasks",
+            "requirement": {
+                "type": "task_type_completed",
+                "taskType": "fitness",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_task_type2",
+            "name": "Got something in your mind?",
+            "description": "Complete 5 mind tasks",
+            "requirement": {
+                "type": "task_type_completed",
+                "taskType": "mind",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_task_type3",
+            "name": "Is this your career?",
+            "description": "Complete 5 career tasks",
+            "requirement": {
+                "type": "task_type_completed",
+                "taskType": "career",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_task_type4",
+            "name": "An Apple a Day...",
+            "description": "Complete 5 health tasks",
+            "requirement": {
+                "type": "task_type_completed",
+                "taskType": "health",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_task_type5",
+            "name": "Creator",
+            "description": "Complete 5 creativity tasks",
+            "requirement": {
+                "type": "task_type_completed",
+                "taskType": "creativity",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_task_type6",
+            "name": "Get it out of the way",
+            "description": "Complete 5 chores tasks",
+            "requirement": {
+                "type": "task_type_completed",
+                "taskType": "chores",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_lvl_com1",
+            "name": "Gains!",
+            "description": "Reach level 5 in Strength",
+            "requirement": {
+                "type": "stat_level",
+                "statType": "strength",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_lvl_com2",
+            "name": "Brainiac",
+            "description": "Reach level 5 in Intellect",
+            "requirement": {
+                "type": "stat_level",
+                "statType": "intellect",
+                "count": 5
+            },
+            "xpReward": 100,
+            "currencyReward": 50
+        },
+        {
+            "id": "ach_streak1",
+            "name": "Consistency is Key!",
+            "description": "Complete tasks 3 days in a row",
+            "requirement": {
+                "type": "consecutive_days",
+                "count": 3
+            },
+            "xpReward": 150,
+            "currencyReward": 75
+        }
+    ]
+}

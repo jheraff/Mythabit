@@ -1,64 +1,124 @@
 {
-    "tasks": [
-      {
-        "taskName": "Clean Room",
-        "difficulty": "easy",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "chores",
-        "xpReward": 100
-      },
-      {
-        "taskName": "Laundry",
-        "difficulty": "easy",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "chores",
-        "xpReward": 100
-      },
-      {
-        "taskName": "Vacuum Room",
-        "difficulty": "easy",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "chores",
-        "xpReward": 100
-      },
-      {
-        "taskName": "Wash Dishes",
-        "difficulty": "easy",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "chores",
-        "xpReward": 50
-      },
-      {
-        "taskName": "Walk Dog",
-        "difficulty": "easy",
-        "duration": 30,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "chores",
-        "xpReward": 50
-      },
-      {
-        "taskName": "Walk Goldfish",
-        "difficulty": "easy",
-        "duration": 2880,
-        "statType": "agility",
-        "status": "pending",
-        "taskAmount": 1,
-        "taskType": "chores",
-        "xpReward": 500
-      }
-    ]
-  }
+  "tasks": [
+    {
+      "taskName": "Clean Room",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Laundry",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Vacuum Room",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 100
+    },
+    {
+      "taskName": "Wash Dishes, Pots, and Pans",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 50
+    },
+    {
+      "taskName": "Walk Dog",
+      "difficulty": "easy",
+      "duration": 30,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 50
+    },
+    {
+      "taskName": "Walk Goldfish",
+      "difficulty": "easy",
+      "duration": 2880,
+      "statType": "agility",
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 500
+    },
+    {
+      "taskName": "Mow Lawn",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["strength", "agility"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 150
+    },
+    {
+      "taskName": "Organize Closet",
+      "difficulty": "medium",
+      "duration": 30,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 120
+    },
+    {
+      "taskName": "Take Out Trash",
+      "difficulty": "easy",
+      "duration": 20,
+      "statType": ["strength", "agility"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 60
+    },
+    {
+      "taskName": "Clean Windows",
+      "difficulty": "medium",
+      "duration": 35,
+      "statType": ["agility", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 130
+    },
+    {
+      "taskName": "Prepare Grocery List",
+      "difficulty": "easy",
+      "duration": 15,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 130
+    },
+    {
+      "taskName": "Clean Garage",
+      "difficulty": "hard",
+      "duration": 35,
+      "statType": ["strength", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "chores",
+      "xpReward": 250
+    }
+  ]
+}
