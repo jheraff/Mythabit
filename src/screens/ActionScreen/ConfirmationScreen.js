@@ -25,19 +25,24 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         
         <Modal
           animationType="slide"
-          transparent={false}
+          transparent={true}
           visible={visible}
           onRequestClose={() => setVisible(false)}
         >
           <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
-            <Pressable style={styles.menu} onPress={() => {}}>
-              <Text>Slide-up Menu</Text>
-
-              <TouchableOpacity onPress={() => setVisible(false)}>
-                <Text style={{color: 'blue', fontSize: 50,}}>Close</Text>
-              </TouchableOpacity>
+            <Pressable style={styles.menu} onPress={() => setVisible(false)}>
+              <Text>Close</Text>
             </Pressable>
+
+            <View style={styles.quickMenu}> 
+              
+            </View>
           </Pressable>
+
+          <View style={styles.quickMenu}> 
+              
+          </View>
+          
 
         </Modal>
         
@@ -89,6 +94,10 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
   };
 
   const styles = StyleSheet.create({
+
+    quickMenu: {
+      backgroundColor: 'white',
+    },
     container: { 
       flex: 1, 
       alignItems: 'center',
