@@ -5,6 +5,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
     const { selectedFloor } = route.params || {};
+    const numberArray = [1, 2, 3, 4, 5, 6,7,8,9,10,11,12,13,14,15];
+
   
 
 
@@ -21,29 +23,33 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     };
     
     return (
+
       <View style={styles.container}>
-        
+
+
         <Modal
           animationType="slide"
           transparent={true}
           visible={visible}
           onRequestClose={() => setVisible(false)}
         >
-          <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
-            <Pressable style={styles.menu} onPress={() => setVisible(false)}>
-              <Text>Close</Text>
-            </Pressable>
+          <Pressable style={styles.overlay} onPress={() => setVisible(false)} />
+          <View style={styles.menu}>
+            <TouchableOpacity onPress={() => setVisible(false)}>
+              <Text style={{ color: 'blue', fontSize: 18 }}>Close</Text>
+            </TouchableOpacity>
 
-            <View style={styles.quickMenu}> 
-              
+            <View style={styles.quickMenu}>
+              {numberArray.map((num, index) => (
+                <View key={index} style={styles.itemBox}>
+                  <Text> {index + 1} </Text>
+                </View>
+              ))}
+
             </View>
-          </Pressable>
 
-          <View style={styles.quickMenu}> 
-              
+
           </View>
-          
-
         </Modal>
         
        
@@ -94,9 +100,25 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
   };
 
   const styles = StyleSheet.create({
-
-    quickMenu: {
+    
+    itemBox: {
+      borderColor: '#ccc',
+      borderWidth: 10,
       backgroundColor: 'white',
+      marginHorizontal: 10,
+      marginVertical: 8,
+      height: 70,
+      width: 70,
+    },
+    quickMenu: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-start',
+      backgroundColor: 'lightgreen',
+      
+      height: 500,
+      width: 390,
+      right: 19,
     },
     container: { 
       flex: 1, 
@@ -169,7 +191,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       flex: 1,
       justifyContent: 'flex-end',
       backgroundColor: 'rgba(0, 0, 0, 0.3)',
-      maxHeight: '50%',
+      maxHeight: '25%',
     },
 
     previewText: {
@@ -179,11 +201,12 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     },
     menu: {
       
-      maxHeight: '50%',
+      maxHeight: '70%',
       backgroundColor: 'white',
       padding: 20,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
+      height: 75,
     },
 
   });
