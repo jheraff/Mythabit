@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Image, Modal} from 'react-native';
+import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
@@ -29,9 +29,16 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
           visible={visible}
           onRequestClose={() => setVisible(false)}
         >
-          <View style={styles.menu}> 
-          
-          </View>
+          <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
+            <Pressable style={styles.menu} onPress={() => {}}>
+              <Text>Slide-up Menu</Text>
+
+              <TouchableOpacity onPress={() => setVisible(false)}>
+                <Text style={{color: 'blue', fontSize: 50,}}>Close</Text>
+              </TouchableOpacity>
+            </Pressable>
+          </Pressable>
+
         </Modal>
         
        
@@ -72,8 +79,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             <Text style={styles.itemTitle}> Potion </Text>
           </View>
 
-          
-          
+        
 
       
         </View>
@@ -150,12 +156,20 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       
     },
 
+    overlay: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      maxHeight: '50%',
+    },
+
     previewText: {
       width: 20,
       height: 20,
     
     },
     menu: {
+      
       maxHeight: '50%',
       backgroundColor: 'white',
       padding: 20,
