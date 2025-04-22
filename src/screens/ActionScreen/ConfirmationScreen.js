@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
