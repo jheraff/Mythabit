@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     View, 
     Text, 
     StyleSheet, 
     TouchableOpacity, 
     ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    FlatList,
     Image,
     ScrollView
 } from 'react-native';
@@ -16,43 +13,21 @@ import {
     getDoc, 
     updateDoc, 
     arrayUnion, 
-    arrayRemove,
-    collection,
-    query,
-    where,
-    onSnapshot,
-    addDoc,
-    serverTimestamp
+    arrayRemove
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import CoopQuestsModal from '../tasks/CoopQuestsModal';
-import CoopQuestService from '../tasks/CoopQuestService';
 
 const UserProfileScreen = ({ route, navigation }) => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isFollowing, setIsFollowing] = useState(false);
-    const [showChat, setShowChat] = useState(false);
-    const [showMessageOptions, setShowMessageOptions] = useState(false);
-    const [messages, setMessages] = useState([]);
-    const [selectedMessage, setSelectedMessage] = useState('');
     const [achievements, setAchievements] = useState([]);
     const [showcasedAchievements, setShowcasedAchievements] = useState([]);
     const [showCoopQuestModal, setShowCoopQuestModal] = useState(false);
-    const flatListRef = useRef(null);
     
-    const predefinedMessages = [
-        "Hey, how are you?",
-        "Hello!",
-        "I'm great",
-        "Nice to meet you!",
-        "Do you want to quest together?",
-        "Congratulations on leveling up!",
-        "/quest", // Command to start co-op quests
-    ];
-
     const userId = route.params?.userId;
     const currentUserId = auth.currentUser?.uid;
 
@@ -63,54 +38,12 @@ const UserProfileScreen = ({ route, navigation }) => {
             loadUserAchievements();
             
             return () => {
-                
+                // Cleanup function
             };
         }, [userId])
     );
 
-    useEffect(() => {
-        if (!showChat || !currentUserId || !userId) return;
-        
-        const chatId = getChatId();
-        
-        try {
-            console.log("Load messages for chatId:", chatId);
-            
-            const q = query(
-                collection(db, 'chats'),
-                where('chatId', '==', chatId)
-            );
-
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                console.log("Messages count:", snapshot.docs.length);
-                
-                const messageList = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                })).sort((a, b) => {
-                    if (!a.timestamp) return -1;
-                    if (!b.timestamp) return 1;
-                    return a.timestamp.toDate() - b.timestamp.toDate();
-                });
-                
-                setMessages(messageList);
-                
-                if (messageList.length > 0 && flatListRef.current) {
-                    setTimeout(() => {
-                        flatListRef.current.scrollToEnd({ animated: false });
-                    }, 100);
-                }
-            }, error => {
-                console.error("Error loading messages:", error);
-            });
-
-            return () => unsubscribe();
-        } catch (error) {
-            console.error("Error:", error);
-            return () => {};
-        }
-    }, [showChat, currentUserId, userId]);
-
+    // All existing functions (loadUserData, loadUserAchievements, etc.) remain the same
     const loadUserData = async () => {
         if (!userId) return;
 
@@ -303,6 +236,15 @@ const UserProfileScreen = ({ route, navigation }) => {
         }
     };
 
+    const navigateToMessageScreen = () => {
+        navigation.navigate('Message', { userId: userId });
+    };
+
+    // Add XP progress calculation function to match header
+    const calculateXpProgress = () => {
+        return ((userData?.xp || 0) / 1000) * 100;
+    };
+
     const renderAvatar = () => {
         try {
             if (!userData || !userData.avatar) {
@@ -334,7 +276,8 @@ const UserProfileScreen = ({ route, navigation }) => {
         try {
             return (
                 <View style={styles.statItemBox}>
-                    <Text style={styles.statItemLabel}>{statName} <Text style={styles.statItemValue}>{value}</Text></Text>
+                    <Text style={styles.statItemLabel}>{statName}</Text>
+                    <Text style={styles.statItemValue}>{value}</Text>
                 </View>
             );
         } catch (error) {
@@ -376,123 +319,10 @@ const UserProfileScreen = ({ route, navigation }) => {
         );
     };
 
-    const getChatId = () => {
-        const sortedIds = [currentUserId, userId].sort();
-        return `${sortedIds[0]}_${sortedIds[1]}`;
-    };
-
-    const toggleChat = () => {
-        setShowChat(!showChat);
-    };
-
-    // Function to handle quest commands from chat
-    const handleQuestCommand = (message) => {
-        if (message.toLowerCase().startsWith('/quest')) {
-            // The user is trying to initiate a quest
-            setShowCoopQuestModal(true);
-            return true; // Message was handled as a command
-        }
-        return false; // Not a command
-    };
-
-    const sendMessage = async () => {
-        if (!selectedMessage || !currentUserId || !userId) return;
-
-        // Check if this is a quest command before sending
-        if (handleQuestCommand(selectedMessage)) {
-            return; // Don't send the message if it was a command
-        }
-
-        const chatId = getChatId();
-        
-        try {
-            console.log("Sending message:", {
-                chatId,
-                text: selectedMessage,
-                senderId: currentUserId,
-                receiverId: userId
-            });
-            
-            const timestamp = new Date();
-            
-            await addDoc(collection(db, 'chats'), {
-                chatId: chatId,
-                text: selectedMessage,
-                senderId: currentUserId,
-                receiverId: userId,
-                timestamp: timestamp,
-            });
-            
-            console.log("Message sent successfully");
-            
-            setSelectedMessage('');
-            setShowMessageOptions(false);
-        } catch (error) {
-            console.error('Error sending message:', error);
-        }
-    };
-
-    const renderMessage = ({ item }) => {
-        const isCurrentUser = item.senderId === currentUserId;
-        const isSystemMessage = item.senderId === 'system' && item.questRelated;
-        
-        let timeDisplay = '';
-        try {
-            if (item.timestamp) {
-                if (typeof item.timestamp.toDate === 'function') {
-                    timeDisplay = new Date(item.timestamp.toDate()).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    });
-                } else {
-                    timeDisplay = new Date(item.timestamp).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    });
-                }
-            }
-        } catch (error) {
-            console.error("Error formatting message time:", error);
-            timeDisplay = '';
-        }
-        
-        if (isSystemMessage) {
-            return (
-                <View style={styles.systemMessageContainer}>
-                    <View style={styles.systemMessageBubble}>
-                        <Ionicons name="trophy" size={16} color="#6366f1" style={styles.systemMessageIcon} />
-                        <Text style={styles.systemMessageText}>{item.text}</Text>
-                    </View>
-                    <Text style={styles.systemMessageTime}>{timeDisplay}</Text>
-                </View>
-            );
-        }
-        
-        return (
-            <View style={[
-                styles.messageBubble,
-                isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage
-            ]}>
-                <Text style={[
-                    styles.messageText,
-                    isCurrentUser ? styles.currentUserMessageText : styles.otherUserMessageText
-                ]}>
-                    {item.text}
-                </Text>
-                <Text style={[
-                    styles.timeText,
-                    isCurrentUser ? styles.currentUserTimeText : styles.otherUserTimeText
-                ]}>
-                    {timeDisplay}
-                </Text>
-            </View>
-        );
-    };
-
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color="#1c2d63" />
             </View>
         );
     }
@@ -506,66 +336,90 @@ const UserProfileScreen = ({ route, navigation }) => {
     }
 
     return (
-        <KeyboardAvoidingView 
-            style={styles.container} 
-            behavior={Platform.OS === 'ios' ? 'padding' : null}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        >
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                <View style={styles.profileCard}>
-                    <View style={styles.profileCardContent}>
-                        {/* Left side: Avatar and user info */}
-                        <View style={styles.profileLeft}>
-                            <View style={styles.avatarContainer}>
-                                {renderAvatar()}
+        <View style={styles.container}>
+            {/* Header Container with updated styling */}
+            <View style={styles.headerContainer}>
+                {/* Top row of header with back button, username, level */}
+                <View style={styles.headerTopRow}>
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#afe8ff" />
+                    </TouchableOpacity>
+
+                    <Text style={styles.headerUsername}>{userData.username}</Text>
+
+                    <View style={styles.levelContainer}>
+                        <Text style={styles.levelText}>Level {userData.level}</Text>
+                    </View>
+                </View>
+
+                {/* XP bar row with text inside */}
+                <View style={styles.xpContainer}>
+                    <View style={styles.xpBarContainer}>
+                        <View
+                            style={[
+                                styles.xpBar,
+                                { width: `${calculateXpProgress()}%` }
+                            ]}
+                        />
+                        <Text style={styles.xpText}>XP: {userData.xp || 0} / 1000</Text>
+                    </View>
+                </View>
+            </View>
+            
+            <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+                <View style={styles.profileSection}>
+                    {/* Left side: Avatar */}
+                    <View style={styles.avatarSection}>
+                        <View style={styles.avatarContainer}>
+                            {renderAvatar()}
+                        </View>
+                    </View>
+                    
+                    {/* Right side: Following and followers */}
+                    <View style={styles.userInfoSection}>
+                        <View style={styles.followCounts}>
+                            <View style={styles.statFollowing}>
+                                <Text style={styles.statsNumber}>{userData.following?.length || 0}</Text>
+                                <Text style={styles.statsLabel}>Following</Text>
                             </View>
-                            <Text style={styles.username}>{userData.username}</Text>
-                            <Text style={styles.level}>Level {userData.level}</Text>
+
+                            <View style={styles.statFollowers}>
+                                <Text style={styles.statsNumber}>{userData.followers?.length || 0}</Text>
+                                <Text style={styles.statsLabel}>Followers</Text>
+                            </View>
                         </View>
                         
-                        {/* Right side: Following, followers and action buttons */}
-                        <View style={styles.profileRight}>
-                            {/* Follow counts */}
-                            <View style={styles.followCounts}>
-                                <View style={styles.statFollowing}>
-                                    <Text style={styles.statsNumber}>{userData.following?.length || 0}</Text>
-                                    <Text style={styles.statsLabel}>Following</Text>
-                                </View>
+                        {/* Action buttons */}
+                        {currentUserId !== userId && (
+                            <View style={styles.actionButtons}>
+                                <TouchableOpacity
+                                    style={[styles.followButton, isFollowing && styles.followingButton]}
+                                    onPress={toggleFollow}
+                                >
+                                    <Text style={styles.followButtonText} numberOfLines={1} ellipsizeMode="tail">
+                                        {isFollowing ? 'Following' : 'Follow'}
+                                    </Text>
+                                </TouchableOpacity>
 
-                                <View style={styles.statFollowers}>
-                                    <Text style={styles.statsNumber}>{userData.followers?.length || 0}</Text>
-                                    <Text style={styles.statsLabel}>Followers</Text>
-                                </View>
+                                <TouchableOpacity
+                                    style={styles.messageButton}
+                                    onPress={navigateToMessageScreen}
+                                >
+                                    <Text style={styles.messageButtonText} numberOfLines={1} ellipsizeMode="tail">
+                                        Message
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-                            
-                            {/* Action buttons */}
-                            {currentUserId !== userId && (
-                                <View style={styles.actionButtons}>
-                                    <TouchableOpacity
-                                        style={[styles.followButton, isFollowing && styles.followingButton]}
-                                        onPress={toggleFollow}
-                                    >
-                                        <Text style={styles.followButtonText} numberOfLines={1} ellipsizeMode="tail">
-                                            {isFollowing ? 'Following' : 'Follow'}
-                                        </Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        style={[styles.messageButton, showChat && styles.activeMessageButton]}
-                                        onPress={toggleChat}
-                                    >
-                                        <Text style={styles.messageButtonText} numberOfLines={1} ellipsizeMode="tail">
-                                            {showChat ? 'Hide' : 'Message'}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        </View>
+                        )}
                     </View>
                 </View>
                 
                 {/* Stats Section */}
                 <View style={styles.statsContainer}>
+                    <Text style={styles.sectionTitle}>Character Stats</Text>
                     <View style={styles.statsList}>
                         {renderStatItem('STR', userData.stats?.strength || 1)}
                         {renderStatItem('INT', userData.stats?.intellect || 1)}
@@ -578,130 +432,21 @@ const UserProfileScreen = ({ route, navigation }) => {
                 {/* Achievements Section */}
                 <View style={styles.achievementsContainer}>
                     <View style={styles.achievementsHeader}>
-                        <Text style={styles.achievementsTitle}>Showcased Achievements</Text>
+                        <Text style={styles.sectionTitle}>Showcased Achievements</Text>
                     </View>
                     
                     {renderShowcasedAchievements()}
                 </View>
+
+                {/* Co-op Quest Modal */}
+                <CoopQuestsModal
+                    visible={showCoopQuestModal}
+                    onClose={() => setShowCoopQuestModal(false)}
+                    partnerId={userId}
+                    partnerName={userData?.username || 'Partner'}
+                />
             </ScrollView>
-
-            {/* Chat section */}
-            {showChat && currentUserId !== userId && (
-                <View style={styles.chatContainer}>
-                    <FlatList
-                        ref={flatListRef}
-                        data={messages}
-                        renderItem={renderMessage}
-                        keyExtractor={item => item.id}
-                        contentContainerStyle={styles.messageList}
-                        ListEmptyComponent={
-                            <View style={styles.emptyChat}>
-                                <Text style={styles.emptyChatText}>
-                                    No messages yet.
-                                </Text>
-                                <TouchableOpacity
-                                    style={styles.startQuestButton}
-                                    onPress={() => setShowCoopQuestModal(true)}
-                                >
-                                    <Ionicons name="trophy" size={20} color="#fff" style={{ marginRight: 8 }} />
-                                    <Text style={styles.startQuestButtonText}>Start a Co-op Quest</Text>
-                                </TouchableOpacity>
-                            </View>
-                        }
-                    />
-                    
-                    <View style={styles.messageOptionsContainer}>
-                        <TouchableOpacity 
-                            style={styles.questButton}
-                            onPress={() => setShowCoopQuestModal(true)}
-                        >
-                            <Ionicons name="trophy" size={20} color="#fff" />
-                            <Text style={styles.questButtonText}>Start Co-op Quest</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity 
-                            style={styles.toggleMessagesButton}
-                            onPress={() => setShowMessageOptions(!showMessageOptions)}
-                        >
-                            <Text style={styles.toggleMessagesButtonText}>
-                                {showMessageOptions ? "Hide Message Options" : "Show Message Options"}
-                            </Text>
-                        </TouchableOpacity>
-                        
-                        {showMessageOptions && (
-                            <View style={styles.messageGrid}>
-                                <View style={styles.messageColumn}>
-                                    {predefinedMessages.slice(0, Math.ceil(predefinedMessages.length / 2)).map((message, index) => (
-                                        <TouchableOpacity 
-                                            key={`message-option-left-${index}`}
-                                            style={[
-                                                styles.messageOption,
-                                                selectedMessage === message && styles.selectedMessageOption
-                                            ]}
-                                            onPress={() => setSelectedMessage(message)}
-                                        >
-                                            <Text 
-                                                style={[
-                                                    styles.messageOptionText,
-                                                    selectedMessage === message && styles.selectedMessageOptionText
-                                                ]}
-                                            >
-                                                {message}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                                
-                                <View style={styles.messageColumn}>
-                                    {predefinedMessages.slice(Math.ceil(predefinedMessages.length / 2)).map((message, index) => (
-                                        <TouchableOpacity 
-                                            key={`message-option-right-${index}`}
-                                            style={[
-                                                styles.messageOption,
-                                                selectedMessage === message && styles.selectedMessageOption
-                                            ]}
-                                            onPress={() => setSelectedMessage(message)}
-                                        >
-                                            <Text 
-                                                style={[
-                                                    styles.messageOptionText,
-                                                    selectedMessage === message && styles.selectedMessageOptionText
-                                                ]}
-                                            >
-                                                {message}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            </View>
-                        )}
-                        
-                        <View style={styles.sendButtonContainer}>
-                            <TouchableOpacity 
-                                style={[
-                                    styles.sendButton,
-                                    !selectedMessage && styles.disabledButton
-                                ]}
-                                onPress={sendMessage}
-                                disabled={!selectedMessage}
-                            >
-                                <Text style={styles.sendButtonText}>
-                                    {selectedMessage ? "Send" : "Choose a Message"}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            )}
-
-            {/* Co-op Quest Modal */}
-            <CoopQuestsModal
-                visible={showCoopQuestModal}
-                onClose={() => setShowCoopQuestModal(false)}
-                partnerId={userId}
-                partnerName={userData?.username || 'Partner'}
-            />
-        </KeyboardAvoidingView>
+        </View>
     );
 };
 
@@ -710,7 +455,90 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
-    scrollView: {
+    headerContainer: {
+        backgroundColor: '#1c2d63', 
+        paddingVertical: 15,
+        borderBottomWidth: 4,
+        borderBottomColor: '#afe8ff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5,
+    },
+    headerTopRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 5,
+    },
+    backButton: {
+        padding: 5,
+        marginRight: 10,
+        backgroundColor: '#152551',
+        borderRadius: 5,
+        borderWidth: 2,
+        borderColor: '#afe8ff',
+    },
+    headerUsername: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#ffffff',
+        flex: 1,
+    },
+    levelContainer: {
+        backgroundColor: '#152551',
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        marginRight: 10,
+        borderWidth: 2,
+        borderColor: '#afe8ff',
+    },
+    levelText: {
+        fontSize: 14,
+        color: '#ffffff',
+        fontWeight: '700',
+    },
+    xpContainer: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        marginTop: 5,
+    },
+    xpText: {
+        fontSize: 12,
+        color: '#ffffff',
+        fontWeight: 'bold',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        padding: 2,
+        zIndex: 1,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+    },
+    xpBarContainer: {
+        height: 20,
+        backgroundColor: '#152551',
+        borderRadius: 4,
+        overflow: 'hidden',
+        position: 'relative',
+        borderWidth: 2,
+        borderColor: '#afe8ff',
+    },
+    xpBar: {
+        height: '100%',
+        backgroundColor: '#4287f5',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+    },
+    scrollContainer: {
         flex: 1,
     },
     scrollContent: {
@@ -722,34 +550,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#fff'
     },
-    profileCard: {
-        backgroundColor: '#f5f5f5',
-        marginHorizontal: 20,
-        marginTop: 20,
-        marginBottom: 10,
-        padding: 15,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    profileCardContent: {
+    profileSection: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        padding: 20,
+        backgroundColor: '#f5f5f5',
+        borderBottomWidth: 1, 
+        borderBottomColor: '#e0e0e0',
     },
-    profileLeft: {
+    avatarSection: {
         alignItems: 'center',
-        width: '40%',
+        marginRight: 20,
     },
     avatarContainer: {
-        marginBottom: 10,
+        marginBottom: 5,
     },
     avatarPlaceholder: {
         width: 80,
@@ -759,59 +572,65 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#6366f1',
+        borderColor: '#1c2d63',
     },
     avatarImage: {
         width: 80,
         height: 80,
         borderRadius: 8, 
         borderWidth: 2,
-        borderColor: '#6366f1',
+        borderColor: '#1c2d63',
     },
-    profileRight: {
-        width: '55%',
-        justifyContent: 'space-between',
+    userInfoSection: {
+        flex: 1,
+        justifyContent: 'center',
     },
     followCounts: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginBottom: 15,
     },
-    username: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 4,
-        textAlign: 'center',
-    },
-    level: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
-    },
     statFollowing: {
         alignItems: 'center',
+        padding: 10,
+        backgroundColor: 'white',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#1c2d63',
+        minWidth: 80,
     },
     statFollowers: {
         alignItems: 'center',
+        padding: 10,
+        backgroundColor: 'white',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#1c2d63',
+        minWidth: 80,
     },
     statsNumber: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#007AFF',
+        color: '#1c2d63',
     },
     statsLabel: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#666',
         marginTop: 4,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1c2d63',
+        marginBottom: 10,
     },
     statsContainer: {
         padding: 15,
         backgroundColor: '#f9f9f9',
         borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
-        marginHorizontal: 20,
-        marginBottom: 10,
+        marginHorizontal: 15,
+        marginTop: 15,
+        marginBottom: 15,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -826,32 +645,34 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     statItemBox: {
+        width: 55,
+        height: 55,
         paddingVertical: 8,
         paddingHorizontal: 6,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'white',
         borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#000000',
+        borderWidth: 2,
+        borderColor: '#1c2d63',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     statItemLabel: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#666',
         fontWeight: '500',
+        marginBottom: 3,
     },
     statItemValue: {
-        fontSize: 15,
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#6366f1',
+        color: '#1c2d63',
     },
     achievementsContainer: {
-        marginHorizontal: 20,
-        marginBottom: 10,
+        marginHorizontal: 15,
+        marginBottom: 15,
         padding: 15,
         backgroundColor: '#f9f9f9',
         borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -866,11 +687,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 10,
-    },
-    achievementsTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
     },
     showcasedContainer: {
         marginBottom: 10,
@@ -896,9 +712,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#000000',
+        borderColor: '#1c2d63',
         borderLeftWidth: 3,
-        borderLeftColor: '#000000',
+        borderLeftColor: '#1c2d63',
     },
     achievementHeader: {
         marginBottom: 4,
@@ -906,17 +722,12 @@ const styles = StyleSheet.create({
     achievementName: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#1c2d63',
     },
     achievementDescription: {
         fontSize: 12,
         color: '#666',
         marginBottom: 6,
-    },
-    errorText: {
-        color: 'red',
-        textAlign: 'center',
-        padding: 10,
     },
     actionButtons: {
         flexDirection: 'row',
@@ -924,10 +735,10 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     followButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#1c2d63',
         paddingHorizontal: 10,
         paddingVertical: 8,
-        borderRadius: 16,
+        borderRadius: 8,
         flex: 1,
         alignItems: 'center',
         marginRight: 5,
@@ -941,200 +752,21 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     messageButton: {
-        backgroundColor: '#009500',
+        backgroundColor: '#152551',
         paddingHorizontal: 10,
         paddingVertical: 8,
-        borderRadius: 16,
+        borderRadius: 8,
         flex: 1,
         alignItems: 'center',
         marginLeft: 5,
-    },
-    activeMessageButton: {
-        backgroundColor: '#FF3B30',
+        borderWidth: 1,
+        borderColor: '#afe8ff',
     },
     messageButtonText: {
-        color: '#fff',
+        color: '#afe8ff',
         fontSize: 14,
         fontWeight: '500',
-    },
-    chatContainer: {
-        flex: 1,
-        marginHorizontal: 20,
-        marginTop: 8,
-        marginBottom: 20,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
-        overflow: 'hidden',
-        backgroundColor: '#f9f9f9',
-    },
-    messageList: {
-        padding: 10,
-        flexGrow: 1,
-    },
-    emptyChat: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    emptyChatText: {
-        color: '#666',
-        fontSize: 16,
-        textAlign: 'center',
-    },
-    messageBubble: {
-        padding: 12,
-        marginVertical: 5,
-        borderWidth: 2,
-        borderColor: '#000000',
-    },
-    currentUserMessage: {
-        alignSelf: 'flex-end',
-        backgroundColor: '#007AFF',
-    },
-    messageText: {
-        fontSize: 16,
-    },
-    currentUserMessageText: {
-        color: '#fff',
-    },
-    otherUserMessageText: {
-        color: '#000',
-    },
-    timeText: {
-        fontSize: 10,
-        alignSelf: 'flex-end',
-        marginTop: 4,
-    },
-    currentUserTimeText: {
-        color: 'rgba(255, 255, 255, 0.7)',
-    },
-    otherUserTimeText: {
-        color: 'rgba(0, 0, 0, 0.5)',
-    },
-    messageOptionsContainer: {
-        padding: 10,
-        backgroundColor: '#fff',
-        borderTopWidth: 1,
-        borderTopColor: '#ddd',
-    },
-    toggleMessagesButton: {
-        backgroundColor: '#007AFF',
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    toggleMessagesButtonText: {
-        color: 'white',
-        fontWeight: '600',
-        fontSize: 14,
-    },
-    messageGrid: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    messageColumn: {
-        width: '48%', 
-    },
-    messageOption: {
-        padding: 10,
-        marginBottom: 8,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: '#ddd',
-    },
-    selectedMessageOption: {
-        backgroundColor: '#E1F5FE',
-        borderColor: '#007AFF',
-    },
-    messageOptionText: {
-        fontSize: 14,
-        color: '#333',
-    },
-    selectedMessageOptionText: {
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    sendButtonContainer: {
-        marginTop: 10,
-        alignItems: 'center',
-    },
-    sendButton: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#007AFF',
-        borderRadius: 20,
-        paddingHorizontal: 25,
-        paddingVertical: 10,
-        width: 120,
-    },
-    disabledButton: {
-        backgroundColor: '#B0C4DE',
-    },
-    sendButtonText: {
-        color: '#fff',
-        fontWeight: '600',
-        fontSize: 16,
-    },
-    // New styles for co-op quest integration
-    questButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#6366f1',
-        padding: 10,
-        borderRadius: 8,
-        marginBottom: 10,
-    },
-    questButtonText: {
-        color: 'white',
-        fontWeight: '600',
-        marginLeft: 8,
-    },
-    systemMessageContainer: {
-        alignItems: 'center',
-        marginVertical: 10,
-    },
-    systemMessageBubble: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#f0f4ff',
-        borderRadius: 20,
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        maxWidth: '80%',
-        borderWidth: 1,
-        borderColor: '#e0e7ff',
-    },
-    systemMessageIcon: {
-        marginRight: 8,
-    },
-    systemMessageText: {
-        color: '#4b5563',
-        fontSize: 14,
-    },
-    systemMessageTime: {
-        fontSize: 10,
-        color: '#9ca3af',
-        marginTop: 4,
-    },
-    startQuestButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#6366f1',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-        marginTop: 10,
-    },
-    startQuestButtonText: {
-        color: 'white',
-        fontWeight: '600',
-        fontSize: 14,
-    },
+    }
 });
 
 export default UserProfileScreen;
