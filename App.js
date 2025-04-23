@@ -25,6 +25,8 @@ import ConfirmationScreen from './src/screens/ActionScreen/ConfirmationScreen.js
 import ShopScreen from './src/screens/ActionScreen/ShopScreen';
 import ProfileScreen from './src/screens/ProfileScreen/ProfileScreen';
 import UserProfileScreen from './src/screens/ProfileScreen/UserProfileScreen';
+import MessageScreen from './src/screens/ProfileScreen/MessageScreen.js';
+import MessageListScreen from './src/screens/ProfileScreen/MessageListScreen';
 import FollowListScreen from './src/screens/ProfileScreen/FollowListScreen';
 import AvatarCustomizationRegisterScreen from './src/screens/AvatarScreen/AvatarCustomizationRegisterScreen';
 import AvatarCustomizationSettingsScreen from './src/screens/AvatarScreen/AvatarCustomizationSettingsScreen';
@@ -52,7 +54,9 @@ const ActionStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 const TaskStack = createStackNavigator();
 const OnboardingStack = createStackNavigator();
-const GuildStack = createStackNavigator(); // New stack for Guild screens
+const GuildStack = createStackNavigator();
+const MessageStack = createStackNavigator();
+const AchievementStack = createStackNavigator(); 
 
 // Firebase setup
 const auth = getAuth();
@@ -80,11 +84,35 @@ const MoreOptionsMenu = ({ visible, onClose, navigation }) => {
           </View>
 
           <TouchableOpacity
+            // More Menu, Achievements
+            style={styles.menuItem}
+            onPress={() => {
+              onClose();
+              navigation.navigate('AchievementStack');
+            }}
+          >
+            <Ionicons name="trophy-outline" size={24} color="#6366f1" />
+            <Text style={styles.menuItemText}>Achievements</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            // More Menu, Messages
+            style={styles.menuItem}
+            onPress={() => {
+              onClose();
+              navigation.navigate('MessageStack');
+            }}
+          >
+            <Ionicons name="chatbubble-outline" size={24} color="#6366f1" />
+            <Text style={styles.menuItemText}>Messages</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             // More Menu, Guilds
             style={styles.menuItem}
             onPress={() => {
               onClose();
-              navigation.navigate('GuildStack'); // Updated to navigate to GuildStack
+              navigation.navigate('GuildStack');
             }}
           >
             <Ionicons name="shield-half-outline" size={24} color="#6366f1" />
@@ -115,6 +143,7 @@ const HomeStackNavigator = ({ extraData }) => (
     </HomeStack.Screen>
     <HomeStack.Screen name="ProfileScreen" component={ProfileScreen} />
     <HomeStack.Screen name="UserProfile" component={UserProfileScreen} />
+    <HomeStack.Screen name="Message" component={MessageScreen} />
     <HomeStack.Screen name="FollowList" component={FollowListScreen} />
     <HomeStack.Screen name="LeaderboardScreen" component={LeaderboardScreen} />
     <HomeStack.Screen name="AchievementsScreen" component={AchievementsScreen} />
@@ -143,6 +172,30 @@ const ActionStackNavigator = ({ extraData }) => (
       {props => <ShopScreen {...props} extraData={extraData} />}
     </ActionStack.Screen>
   </ActionStack.Navigator>
+);
+
+const MessageStackNavigator = ({ extraData }) => (
+  <MessageStack.Navigator screenOptions={{ headerShown: false }}>
+    <MessageStack.Screen 
+      name="MessageList" 
+      component={MessageListScreen}
+      initialParams={{ extraData }}
+    />
+    <MessageStack.Screen 
+      name="MessageDetail" 
+      component={MessageScreen}
+    />
+  </MessageStack.Navigator>
+);
+
+const AchievementStackNavigator = ({ extraData }) => (
+  <AchievementStack.Navigator screenOptions={{ headerShown: false }}>
+    <AchievementStack.Screen 
+      name="AchievementsMain" 
+      component={AchievementsScreen}
+      initialParams={{ extraData }}
+    />
+  </AchievementStack.Navigator>
 );
 
 const SettingsStackNavigator = ({ extraData }) => (
@@ -181,7 +234,6 @@ const SettingsStackNavigator = ({ extraData }) => (
   </SettingsStack.Navigator>
 );
 
-// New Guild Stack Navigator
 const GuildStackNavigator = ({ extraData }) => (
   <GuildStack.Navigator screenOptions={{ headerShown: false }}>
     <GuildStack.Screen name="GuildMenu">
@@ -444,13 +496,21 @@ export default function App() {
               <Stack.Screen name="MainTab">
                 {props => <TabNavigator {...props} extraData={user} navigation={props.navigation} />}
               </Stack.Screen>
-              <Stack.Screen name="SettingsStack">
-                {props => <SettingsStackNavigator {...props} extraData={user} />}
-              </Stack.Screen>
-              {/* Add GuildStack to main Stack Navigator */}
-              <Stack.Screen name="GuildStack">
-                {props => <GuildStackNavigator {...props} extraData={user} />}
-              </Stack.Screen>
+              
+              <Stack.Group screenOptions={{ presentation: 'containedModal' }}>
+                <Stack.Screen name="SettingsStack">
+                  {props => <SettingsStackNavigator {...props} extraData={user} />}
+                </Stack.Screen>
+                <Stack.Screen name="GuildStack">
+                  {props => <GuildStackNavigator {...props} extraData={user} />}
+                </Stack.Screen>
+                <Stack.Screen name="MessageStack">
+                  {props => <MessageStackNavigator {...props} extraData={user} />}
+                </Stack.Screen>
+                <Stack.Screen name="AchievementStack">
+                  {props => <AchievementStackNavigator {...props} extraData={user} />}
+                </Stack.Screen>
+              </Stack.Group>
             </>
           )
         ) : (

@@ -1341,8 +1341,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   headerContainer: {
-    backgroundColor: '#434',
-    paddingVertical: 10,
+    backgroundColor: '#1c2d63', 
+    paddingVertical: 15,
+    borderBottomWidth: 4,
+    borderBottomColor: '#afe8ff', 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -1353,32 +1360,48 @@ const styles = StyleSheet.create({
   profileButton: {
     padding: 5,
     marginRight: 10,
+    backgroundColor: '#152551',
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#afe8ff',
   },
   username: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#ffffff',
     flex: 1,
   },
   levelContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
+    backgroundColor: '#152551',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
     marginRight: 10,
+    borderWidth: 2,
+    borderColor: '#afe8ff',
   },
   levelText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#ffffff',
-    fontWeight: '500',
+    fontWeight: '700',
+  },
+  achievementsButton: {
+    padding: 5,
+    marginRight: 10,
+    backgroundColor: '#152551',
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#afe8ff',
   },
   currencyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 20,
+    backgroundColor: '#152551',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#afe8ff',
   },
   currencyIcon: {
     width: 20,
@@ -1386,13 +1409,14 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   currencyText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#afe8ff',
   },
   xpContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 5,
+    paddingVertical: 10,
+    marginTop: 5,
   },
   xpText: {
     fontSize: 12,
@@ -1413,14 +1437,16 @@ const styles = StyleSheet.create({
   },
   xpBarContainer: {
     height: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 10,
+    backgroundColor: '#152551',
+    borderRadius: 4,
     overflow: 'hidden',
     position: 'relative',
+    borderWidth: 2,
+    borderColor: '#afe8ff',
   },
   xpBar: {
     height: '100%',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#4287f5', 
     position: 'absolute',
     left: 0,
     top: 0,
@@ -1430,7 +1456,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 20,
   },
-
   taskCard: {
     backgroundColor: '#f5f5f5',
     padding: 14,
@@ -1442,7 +1467,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     borderWidth: 2,
-    borderColor: '#6366f1',
+    borderColor: '#1c2d63',
     position: 'relative',
   },
   completedTaskCard: {
@@ -1529,7 +1554,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0.5, height: 0.5 },
     textShadowRadius: 1,
   },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -1621,7 +1645,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   modalPrimaryButton: {
-    backgroundColor: '#6366f1',
+    backgroundColor: '#1c2d63', 
     padding: 12,
     borderRadius: 8,
     flex: 1,
@@ -1671,10 +1695,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
-  },
-  achievementsButton: {
-    padding: 5,
-    marginRight: 10,
   },
 });
 
