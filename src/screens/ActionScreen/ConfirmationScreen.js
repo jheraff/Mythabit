@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDocs, query} from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
@@ -9,8 +9,19 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const { selectedFloor } = route.params || {};
     const numberArray = [1, 2, 3, 4, 5, 6,7,8,9,10,11,12,13,14,15];
 
-  
-
+    const fetchEquipped = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db,'equippedItems'));
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log('fetched items:', data);
+        return data;
+      } catch (error){
+        console.log('error')
+      }
+    };
 
     const handleNextScreen = () => {
       setVisible;
@@ -69,7 +80,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         <View style={styles.bottomView}> 
           
           <View style={[styles.slotOne, {bottom: -40}]}> 
-            <TouchableOpacity style={styles.equipIcon} onPressOut={() => handleMenu('sword')}>
+            <TouchableOpacity style={styles.equipIcon} onPressOut={() => {handleMenu('sword'); fetchEquipped()}}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
               style={styles.previewImageOne}/>
             </TouchableOpacity>
