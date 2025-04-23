@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
 import { db, auth } from '../../firebase/config';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = () => {
+    const navigation = useNavigation();
     const [userData, setUserData] = useState({
         username: '',
         level: 1,
+        xp: 0,
         following: [],
         followers: [],
         avatar: null,
@@ -32,6 +34,7 @@ const ProfileScreen = ({ navigation }) => {
         }, [])
     );
 
+    // Existing functions (loadUserData, loadUserAchievements, etc.) remain the same
     const loadUserData = async () => {
         const userId = auth.currentUser?.uid;
         if (!userId) return;
@@ -82,6 +85,7 @@ const ProfileScreen = ({ navigation }) => {
               id: userId,
               username: data.username || 'User',
               level: data.level || 1,
+              xp: data.xp || 0,
               following: following,
               followers: followers,
               avatar: data.avatar || null,
@@ -161,18 +165,14 @@ const ProfileScreen = ({ navigation }) => {
         if (!userId) return;
 
         try {
-            // Get the current showcased achievements
             let updatedShowcase = [...userData.showcasedAchievements];
 
-            // If already showcased, remove it
             if (updatedShowcase.includes(achievementId)) {
                 updatedShowcase = updatedShowcase.filter(id => id !== achievementId);
             } 
-            // Otherwise add it if we have less than 3
             else if (updatedShowcase.length < 3) {
                 updatedShowcase.push(achievementId);
             }
-            // If we already have 3, replace the first one
             else {
                 updatedShowcase.shift();
                 updatedShowcase.push(achievementId);
@@ -191,6 +191,11 @@ const ProfileScreen = ({ navigation }) => {
         } catch (error) {
             console.error('Error updating showcased achievements:', error);
         }
+    };
+
+    // Add XP progress calculation function to match header
+    const calculateXpProgress = () => {
+        return (userData.xp / 1000) * 100;
     };
 
     const renderAvatar = () => {
@@ -224,7 +229,8 @@ const ProfileScreen = ({ navigation }) => {
         try {
             return (
                 <View style={styles.statItemBox}>
-                    <Text style={styles.statItemLabel}>{statName} <Text style={styles.statItemValue}>{value}</Text></Text>
+                    <Text style={styles.statItemLabel}>{statName}</Text>
+                    <Text style={styles.statItemValue}>{value}</Text>
                 </View>
             );
         } catch (error) {
@@ -338,43 +344,72 @@ const ProfileScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.scrollContainer}>
-                <View style={styles.profileCard}>
-                    <View style={styles.profileCardContent}>
-                        {/* Left side: Avatar and user info */}
-                        <View style={styles.profileLeft}>
-                            <View style={styles.avatarContainer}>
-                                {renderAvatar()}
-                            </View>
-                            <Text style={styles.username}>{userData.username}</Text>
-                            <Text style={styles.level}>Level {userData.level}</Text>
-                        </View>
-                        
-                        {/* Right side: Following and followers */}
-                        <View style={styles.profileRight}>
-                            <View style={styles.followCounts}>
-                                <TouchableOpacity 
-                                    style={styles.statButton}
-                                    onPress={() => navigateToFollowList('following')}
-                                >
-                                    <Text style={styles.statsNumber}>{userData.following.length}</Text>
-                                    <Text style={styles.statsLabel}>Following</Text>
-                                </TouchableOpacity>
+            {/* Header Container with updated styling */}
+            <View style={styles.headerContainer}>
+                {/* Top row of header with profile, username, level, and currency */}
+                <View style={styles.headerTopRow}>
+                    <TouchableOpacity
+                        style={styles.profileButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#afe8ff" />
+                    </TouchableOpacity>
 
-                                <TouchableOpacity 
-                                    style={styles.statButton}
-                                    onPress={() => navigateToFollowList('followers')}
-                                >
-                                    <Text style={styles.statsNumber}>{userData.followers.length}</Text>
-                                    <Text style={styles.statsLabel}>Followers</Text>
-                                </TouchableOpacity>
-                            </View>
+                    <Text style={styles.headerUsername}>{userData.username}</Text>
+
+                    <View style={styles.levelContainer}>
+                        <Text style={styles.levelText}>Level {userData.level}</Text>
+                    </View>
+                </View>
+
+                {/* XP bar row with text inside */}
+                <View style={styles.xpContainer}>
+                    <View style={styles.xpBarContainer}>
+                        <View
+                            style={[
+                                styles.xpBar,
+                                { width: `${calculateXpProgress()}%` }
+                            ]}
+                        />
+                        <Text style={styles.xpText}>XP: {userData.xp} / 1000</Text>
+                    </View>
+                </View>
+            </View>
+
+            <ScrollView style={styles.scrollContainer}>
+                <View style={styles.profileSection}>
+                    {/* Avatar Section */}
+                    <View style={styles.avatarSection}>
+                        <View style={styles.avatarContainer}>
+                            {renderAvatar()}
+                        </View>
+                    </View>
+                    
+                    {/* User Info Section */}
+                    <View style={styles.userInfoSection}>
+                        <View style={styles.followCounts}>
+                            <TouchableOpacity 
+                                style={styles.statButton}
+                                onPress={() => navigateToFollowList('following')}
+                            >
+                                <Text style={styles.statsNumber}>{userData.following.length}</Text>
+                                <Text style={styles.statsLabel}>Following</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity 
+                                style={styles.statButton}
+                                onPress={() => navigateToFollowList('followers')}
+                            >
+                                <Text style={styles.statsNumber}>{userData.followers.length}</Text>
+                                <Text style={styles.statsLabel}>Followers</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
 
                 {/* Stats Section */}
                 <View style={styles.statsContainer}>
+                    <Text style={styles.sectionTitle}>Character Stats</Text>
                     <View style={styles.statsList}>
                         {renderStatItem('STR', userData.stats?.strength || 1)}
                         {renderStatItem('INT', userData.stats?.intellect || 1)}
@@ -387,7 +422,7 @@ const ProfileScreen = ({ navigation }) => {
                 {/* Achievements Section */}
                 <View style={styles.achievementsContainer}>
                     <View style={styles.achievementsHeader}>
-                        <Text style={styles.achievementsTitle}>Showcased Achievements</Text>
+                        <Text style={styles.sectionTitle}>Showcased Achievements</Text>
                         <TouchableOpacity 
                             style={styles.editButton}
                             onPress={() => setShowAchievementModal(true)}
@@ -437,37 +472,105 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    headerContainer: {
+        backgroundColor: '#1c2d63',
+        paddingVertical: 15,
+        borderBottomWidth: 4,
+        borderBottomColor: '#afe8ff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5,
+    },
+    headerTopRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 5,
+    },
+    profileButton: {
+        padding: 5,
+        marginRight: 10,
+        backgroundColor: '#152551',
+        borderRadius: 5,
+        borderWidth: 2,
+        borderColor: '#afe8ff',
+    },
+    headerUsername: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#ffffff',
+        flex: 1,
+    },
+    levelContainer: {
+        backgroundColor: '#152551',
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        marginRight: 10,
+        borderWidth: 2,
+        borderColor: '#afe8ff',
+    },
+    levelText: {
+        fontSize: 14,
+        color: '#ffffff',
+        fontWeight: '700',
+    },
+    xpContainer: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        marginTop: 5,
+    },
+    xpText: {
+        fontSize: 12,
+        color: '#ffffff',
+        fontWeight: 'bold',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        padding: 2,
+        zIndex: 1,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+    },
+    xpBarContainer: {
+        height: 20,
+        backgroundColor: '#152551',
+        borderRadius: 4,
+        overflow: 'hidden',
+        position: 'relative',
+        borderWidth: 2,
+        borderColor: '#afe8ff',
+    },
+    xpBar: {
+        height: '100%',
+        backgroundColor: '#4287f5',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+    },
     scrollContainer: {
         flex: 1,
     },
-    profileCard: {
-        backgroundColor: '#f5f5f5',
-        marginHorizontal: 20,
-        marginTop: 20,
-        marginBottom: 10,
-        padding: 15,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    profileCardContent: {
+    profileSection: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        padding: 20,
+        backgroundColor: '#f5f5f5',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
     },
-    profileLeft: {
+    avatarSection: {
         alignItems: 'center',
-        width: '40%',
+        marginRight: 20,
     },
     avatarContainer: {
-        marginBottom: 10,
+        marginBottom: 5,
     },
     avatarPlaceholder: {
         width: 80,
@@ -477,55 +580,55 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#000000',
+        borderColor: '#1c2d63',
     },
     avatarImage: {
         width: 80,
         height: 80,
         borderRadius: 8, 
         borderWidth: 2,
-        borderColor: '#000000',
+        borderColor: '#1c2d63',
     },
-    profileRight: {
-        width: '55%',
+    userInfoSection: {
+        flex: 1,
         justifyContent: 'center',
     },
     followCounts: {
         flexDirection: 'row',
         justifyContent: 'space-around',
     },
-    username: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 4,
-        textAlign: 'center',
-    },
-    level: {
-        fontSize: 16,
-        color: '#000000',
-        textAlign: 'center',
-    },
     statButton: {
         alignItems: 'center',
+        padding: 10,
+        backgroundColor: 'white',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#1c2d63',
+        minWidth: 80,
     },
     statsNumber: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#007AFF',
+        color: '#1c2d63',
     },
     statsLabel: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#666',
         marginTop: 4,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1c2d63',
+        marginBottom: 10,
     },
     statsContainer: {
         padding: 15,
         backgroundColor: '#f9f9f9',
         borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
-        marginHorizontal: 20,
-        marginBottom: 10,
+        marginHorizontal: 15,
+        marginTop: 15,
+        marginBottom: 15,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -540,32 +643,34 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     statItemBox: {
+        width: 55,
+        height: 55,
         paddingVertical: 8,
         paddingHorizontal: 6,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'white',
         borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#000000',
+        borderWidth: 2,
+        borderColor: '#1c2d63',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     statItemLabel: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#666',
         fontWeight: '500',
+        marginBottom: 3,
     },
     statItemValue: {
-        fontSize: 15,
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#6366f1',
+        color: '#1c2d63',
     },
     achievementsContainer: {
-        marginHorizontal: 20,
-        marginBottom: 10,
+        marginHorizontal: 15,
+        marginBottom: 15,
         padding: 15,
         backgroundColor: '#f9f9f9',
         borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -581,22 +686,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
     },
-    achievementsTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-    },
     editButton: {
         paddingVertical: 4,
         paddingHorizontal: 12,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 12,
+        backgroundColor: '#152551',
+        borderRadius: 6,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#afe8ff',
     },
     editButtonText: {
         fontSize: 12,
-        color: '#666',
+        color: '#afe8ff',
+        fontWeight: '500',
     },
     showcasedContainer: {
         marginBottom: 10,
@@ -626,6 +727,7 @@ const styles = StyleSheet.create({
     },
     showcasedAchievement: {
         borderColor: '#4CAF50',
+        borderWidth: 2,
     },
     achievementHeader: {
         marginBottom: 4,
@@ -641,7 +743,7 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     viewAllButton: {
-        backgroundColor: '#6366f1',
+        backgroundColor: '#1c2d63',
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 8,
@@ -652,17 +754,16 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '500',
     },
-    // New styles for the side-by-side action buttons
     actionButtonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginHorizontal: 20,
+        marginHorizontal: 15,
         marginTop: 15,
         marginBottom: 10,
     },
     actionButton: {
         flex: 1,
-        backgroundColor: '#007AFF',
+        backgroundColor: '#1c2d63',
         paddingVertical: 12,
         paddingHorizontal: 10,
         borderRadius: 8,
@@ -678,11 +779,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     buttonText: {
-        color: 'white',
-        fontSize: 16,
+        color: '#afe8ff',
+        fontSize: 14,
         fontWeight: '600',
     },
-    // Modal styles
     modalContainer: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -713,7 +813,7 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#1c2d63',
     },
     modalSubtitle: {
         fontSize: 14,
@@ -737,6 +837,7 @@ const styles = StyleSheet.create({
     achievementSelectItemActive: {
         borderColor: '#4CAF50',
         backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        borderWidth: 2,
     },
     achievementSelectContent: {
         flex: 1,
@@ -753,7 +854,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     modalButton: {
-        backgroundColor: '#6366f1',
+        backgroundColor: '#1c2d63',
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 8,
@@ -761,7 +862,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     modalButtonText: {
-        color: 'white',
+        color: '#afe8ff',
         fontSize: 16,
         fontWeight: '600',
     },
