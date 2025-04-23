@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { doc, updateDoc, getDocs, query} from 'firebase/firestore';
+import { doc, updateDoc, getDocs, query, collection} from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
     const { selectedFloor } = route.params || {};
-    const numberArray = [1, 2, 3, 4, 5, 6,7,8,9,10,11,12,13,14,15];
+    const numberArray = [1, 2, 3, 4, 5, 6,7,8,9];
+    const [mainWeapon, setMainWeapon] = useState(null);
 
     const fetchEquipped = async () => {
       try {
@@ -59,6 +60,18 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
                 </View>
               ))}
 
+            </View>
+
+            <View style ={[styles.itemBox ,{bottom: 130, backgroundColor:'lightgrey'}]}>
+              <Text> Weapon</Text>
+            </View>
+
+            <View style ={[styles.itemBox ,{bottom: 215, left:120,backgroundColor:'lightgrey'}]}>
+              <Text> Armor</Text>
+            </View>
+
+            <View style ={[styles.itemBox ,{bottom: 300,left: 230,backgroundColor:'lightgrey'}]}>
+              <Text> Potion</Text>
             </View>
 
 
