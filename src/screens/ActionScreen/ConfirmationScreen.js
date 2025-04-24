@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { doc, updateDoc, getDocs, query, collection} from 'firebase/firestore';
+import { doc, updateDoc,getDoc, getDocs, query, collection} from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
@@ -9,18 +9,47 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const { selectedFloor } = route.params || {};
     const numberArray = [1, 2, 3, 4, 5, 6,7,8,9];
     const [mainWeapon, setMainWeapon] = useState(null);
+    const [mainArmor, setMainAmor] = useState(null);
+    const [mainPotion, setMainPotion] = useState(null);
+ 
 
     const fetchEquipped = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db,'equippedItems'));
-        const data = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        console.log('fetched items:', data);
-        return data;
-      } catch (error){
-        console.log('error')
+        const slots = ['weaponSlot','potionSlot','armorSlot']
+        const promises = slots.map(slot => getDoc(doc(db,'equippedItems',slot)))
+        const docs = await Promise.all(promises);
+
+        
+        const equippedItems = docs.map((docSnap, index) => {
+          if (docSnap.exists()) {
+            if (docSnap.id === 'weaponSlot') {
+              setMainWeapon(docSnap.data());
+              console.log(mainWeapon);
+            } else if (docSnap.id === 'armorSlot') {
+              setMainAmor(docSnap.data());
+              console.log(mainArmor);
+            }  else if (docSnap.id === 'potionSlot') {
+              setMainPotion(docSnap.data());
+              console.log(mainPotion);
+            } 
+
+            return {
+              slot: slots[index],
+              ...docSnap.data()
+             
+            };
+          } else {
+            return {
+              slot: slots[index],
+              name: null
+            };
+          }
+        });
+    
+        return equippedItems; // [{slot: 'weapon', name: 'dagger'}, ...]
+      } catch (err) {
+        console.log('Error fetching equipped items:', err);
+        return [];
       }
     };
 
@@ -63,11 +92,11 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             </View>
 
             <View style ={[styles.itemBox ,{bottom: 130, backgroundColor:'lightgrey'}]}>
-              <Text> Weapon</Text>
+              <Text> {mainWeapon.name}</Text>
             </View>
 
             <View style ={[styles.itemBox ,{bottom: 215, left:120,backgroundColor:'lightgrey'}]}>
-              <Text> Armor</Text>
+              <Text> mainArmor</Text>
             </View>
 
             <View style ={[styles.itemBox ,{bottom: 300,left: 230,backgroundColor:'lightgrey'}]}>
