@@ -11,7 +11,11 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [mainWeapon, setMainWeapon] = useState(null);
     const [mainArmor, setMainAmor] = useState(null);
     const [mainPotion, setMainPotion] = useState(null);
- 
+
+    useEffect(() => {
+      fetchEquipped();
+      
+    }, []);
 
     const fetchEquipped = async () => {
       try {
@@ -24,13 +28,10 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
           if (docSnap.exists()) {
             if (docSnap.id === 'weaponSlot') {
               setMainWeapon(docSnap.data());
-              console.log(mainWeapon);
             } else if (docSnap.id === 'armorSlot') {
               setMainAmor(docSnap.data());
-              console.log(mainArmor);
             }  else if (docSnap.id === 'potionSlot') {
               setMainPotion(docSnap.data());
-              console.log(mainPotion);
             } 
 
             return {
@@ -51,6 +52,10 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         console.log('Error fetching equipped items:', err);
         return [];
       }
+    };
+
+    const renderInventory = (category) => {
+
     };
 
     const handleNextScreen = () => {
@@ -92,7 +97,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             </View>
 
             <View style ={[styles.itemBox ,{bottom: 130, backgroundColor:'lightgrey'}]}>
-              <Text> {mainWeapon.name}</Text>
+              <Text> {mainWeapon?.name || 'None equipped'}</Text>
             </View>
 
             <View style ={[styles.itemBox ,{bottom: 215, left:120,backgroundColor:'lightgrey'}]}>
@@ -121,28 +126,33 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
         <View style={styles.bottomView}> 
           
-          <View style={[styles.slotOne, {bottom: -40}]}> 
-            <TouchableOpacity style={styles.equipIcon} onPressOut={() => {handleMenu('sword'); fetchEquipped()}}>
+          <View style={[styles.slotOne, {bottom: -180}]}> 
+            <TouchableOpacity style={styles.equipIcon} onPressOut={() => {handleMenu('sword')}}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
               style={styles.previewImageOne}/>
             </TouchableOpacity>
-            <Text style={styles.itemTitle}> Sword </Text>
+            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
+            <Text style={styles.itemTitle}> {mainWeapon?.name || 'None equipped'} </Text>
           </View>
 
-          <View style={[styles.slotOne, {top: 60, right: 90}]}> 
+          <View style={[styles.slotOne, {top: -10, right: 125}]}> 
             <TouchableOpacity style={styles.equipIcon} onPressOut={() => handleMenu('Armor')}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
               style={styles.previewImageOne}/>
             </TouchableOpacity>
-            <Text style={styles.itemTitle}> Armor </Text>
+            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
+            <Text style={styles.itemTitle}> {mainArmor?.name || 'None equipped'} </Text>
           </View>
 
-          <View style={[styles.slotOne, {bottom: 60, left: 90}]}> 
+          <View style={[styles.slotOne, {bottom: 200, left: 122}]}> 
             <TouchableOpacity style={styles.equipIcon} onPress={() => handleMenu('Potion')}>
               <Image source={require('../../../assets/avatars/placeholder.png')}
               style={styles.previewImageOne}/>
             </TouchableOpacity>
-            <Text style={styles.itemTitle}> Potion </Text>
+            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Potion </Text>
+            <Text style={styles.itemTitle}>{mainPotion?.name || 'None equipped'}</Text>
+            
+
           </View>
 
         
@@ -209,8 +219,8 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
     slotOne: {
       backgroundColor: 'white',
-      height: 120,
-      width: 120,
+      height: 190,
+      width: 110,
       borderColor: 'black',
       borderWidth: 5,
       borderRadius: 10,
@@ -224,8 +234,8 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     },
 
     previewImageOne: {
-      width: 70,
-      height: 70,
+      width: 55,
+      height: 55,
       top: 5,
     },
 
