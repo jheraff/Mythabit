@@ -202,6 +202,8 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             </TouchableOpacity>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
             <Text style={styles.itemTitle}> {mainWeapon?.name || 'None equipped'} </Text>
+            <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {'+ ' + mainWeapon?.damage || 'None equipped'} </Text>
+
           </View>
 
           <View style={[styles.slotOne, {top: -10, right: 125}]}> 
