@@ -195,40 +195,32 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
         <View style={styles.bottomView}> 
           
-          <View style={[styles.slotOne, {bottom: -180}]}> 
-            <TouchableOpacity style={styles.equipIcon} onPressOut={() => {handleMenu('sword')}}>
-              <Image source={require('../../../assets/avatars/placeholder.png')}
-              style={styles.previewImageOne}/>
-            </TouchableOpacity>
+          <TouchableOpacity style={[styles.slotOne, {top: 190,right: 125}]} onPress={() => handleMenu('Armor')}> 
+            <Image source={require('../../../assets/avatars/placeholder.png')}
+            style={styles.previewImageOne}/>
+            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
+            <Text style={styles.itemTitle}> {mainArmor?.name || 'None equipped'} </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.slotOne, {bottom: 0}]} onPress={() => {handleMenu('sword')}}> 
+            <Image source={require('../../../assets/avatars/placeholder.png')}
+            style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
             <Text style={styles.itemTitle}> {mainWeapon?.name || 'None equipped'} </Text>
             <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {'+ ' + mainWeapon?.damage || 'None equipped'} </Text>
 
-          </View>
+          </TouchableOpacity>
 
-          <View style={[styles.slotOne, {top: -10, right: 125}]}> 
-            <TouchableOpacity style={styles.equipIcon} onPressOut={() => handleMenu('Armor')}>
-              <Image source={require('../../../assets/avatars/placeholder.png')}
-              style={styles.previewImageOne}/>
-            </TouchableOpacity>
-            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
-            <Text style={styles.itemTitle}> {mainArmor?.name || 'None equipped'} </Text>
-          </View>
 
-          <View style={[styles.slotOne, {bottom: 200, left: 122}]}> 
-            <TouchableOpacity style={styles.equipIcon} onPress={() => handleMenu('Potion')}>
-              <Image source={require('../../../assets/avatars/placeholder.png')}
-              style={styles.previewImageOne}/>
-            </TouchableOpacity>
+          <TouchableOpacity style={[styles.slotOne, {bottom: 190, left: 122}]} onPress={() => handleMenu('Potion')}> 
+            <Image source={require('../../../assets/avatars/placeholder.png')}
+            style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Potion </Text>
             <Text style={styles.itemTitle}>{mainPotion?.name || 'None equipped'}</Text>
             
 
-          </View>
+          </TouchableOpacity>
 
-        
-
-      
         </View>
       
       </View>
@@ -308,6 +300,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       width: 55,
       height: 55,
       top: 5,
+      marginBottom: 30,
     },
 
     title: { 
