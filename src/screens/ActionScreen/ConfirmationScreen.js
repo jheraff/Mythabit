@@ -7,19 +7,69 @@ import { db } from '../../firebase/config';
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
     const { selectedFloor } = route.params || {};
-    const armorArray = [1, 2, 3, 4, 5, 6,7,8,9];
-    const potionArray = [1, 2, 3, 4, 5, 6];
-    const weaponArray = [1, 2, 3, 4, 5, 6,7,8,9,10,11,12];
     const [numberArray, setNumberArray] = useState([]);
     const [mainWeapon, setMainWeapon] = useState(null);
     const [mainArmor, setMainAmor] = useState(null);
     const [mainPotion, setMainPotion] = useState(null);
+    const [inventoryArmor, setInventoryArmor] = useState(null);
+    const [inventoryWeapon, setInventoryWeapon] = useState(null);
+    const [inventoryPotion, setInventoryPotion] = useState(null);
 
     useEffect(() => {
       fetchEquipped();
+      fetchArmor();
+      fetchWeapon();
+      fetchPotion();
       
     }, []);
 
+    const fetchArmor = async () => {
+      try {
+        const armor = collection(db, 'inventory_armor');
+        const snapshot = await getDocs(armor);
+    
+        const armorItems = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+    
+        setInventoryArmor(armorItems);
+      } catch (error) {
+        console.error('Error loading armor:', error);
+      }
+    };
+
+    const fetchWeapon = async () => {
+      try {
+        const weapon = collection(db, 'inventory_weapons');
+        const snapshot = await getDocs(weapon);
+    
+        const weaponItems = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+    
+        setInventoryWeapon(weaponItems);
+      } catch (error) {
+        console.error('Error loading weapons:', error);
+      }
+    };
+
+    const fetchPotion = async () => {
+      try {
+        const potion = collection(db, 'inventory_potions');
+        const snapshot = await getDocs(potion);
+    
+        const potionItems = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+    
+        setInventoryPotion(potionItems);
+      } catch (error) {
+        console.error('Error loading potions:', error);
+      }
+    };
 
     const fetchEquipped = async () => {
       try {
@@ -60,11 +110,11 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
     const renderInventory = (category) => {
       if (category == 'sword') {
-        setNumberArray(weaponArray);
+        setNumberArray(inventoryWeapon);
       } else if (category == 'Potion') {
-        setNumberArray(potionArray);
+        setNumberArray(inventoryPotion);
       } else if (category == 'Armor') {
-        setNumberArray(armorArray);
+        setNumberArray(inventoryArmor);
       
       }
     
@@ -83,6 +133,11 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       setVisible(true);
 
     };
+
+    useEffect(() => {
+      console.log('Updated inventory', inventoryWeapon);
+
+    }, [inventoryWeapon]);
     
     return (
 
@@ -102,7 +157,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             </TouchableOpacity>
 
             <View style={styles.quickMenu}>
-              {numberArray.map((num, index) => (
+              {numberArray.map((index) => (
                 <View key={index} style={styles.itemBox}>
                   <Text> {index + 1} </Text>
                 </View>
