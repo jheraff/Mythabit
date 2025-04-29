@@ -7,7 +7,10 @@ import { db } from '../../firebase/config';
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
     const { selectedFloor } = route.params || {};
-    const numberArray = [1, 2, 3, 4, 5, 6,7,8,9];
+    const armorArray = [1, 2, 3, 4, 5, 6,7,8,9];
+    const potionArray = [1, 2, 3, 4, 5, 6];
+    const weaponArray = [1, 2, 3, 4, 5, 6,7,8,9,10,11,12];
+    const [numberArray, setNumberArray] = useState([]);
     const [mainWeapon, setMainWeapon] = useState(null);
     const [mainArmor, setMainAmor] = useState(null);
     const [mainPotion, setMainPotion] = useState(null);
@@ -16,6 +19,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       fetchEquipped();
       
     }, []);
+
 
     const fetchEquipped = async () => {
       try {
@@ -55,7 +59,15 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     };
 
     const renderInventory = (category) => {
-
+      if (category == 'sword') {
+        setNumberArray(weaponArray);
+      } else if (category == 'Potion') {
+        setNumberArray(potionArray);
+      } else if (category == 'Armor') {
+        setNumberArray(armorArray);
+      
+      }
+    
     };
 
     const handleNextScreen = () => {
@@ -64,7 +76,9 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       navigation.navigate('Tower', { selectedFloor, extraData });
     };
 
+    
     const handleMenu = (value) => {
+      renderInventory(value);
       console.log(value);
       setVisible(true);
 
