@@ -20,6 +20,9 @@ import {
   arrayUnion,
   arrayRemove
 } from "firebase/firestore";
+// Import Firebase Storage
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 // Import task data
@@ -60,33 +63,57 @@ isSupported().then((isAnalyticsSupported) => {
 // Set up authentication providers and Firestore
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
+// Set up Firebase Storage
+export const storage = getStorage(app);
 
-// Function to save achievement definitions to Firestore
-export const saveAchievementDefinitions = async () => {
+// NEW FUNCTIONS FOR IMAGE UPLOAD
+
+// Function to upload image to Firebase Storage
+export const uploadImageToStorage = async (uri, userId) => {
   try {
-    await setDoc(doc(db, 'achievements', 'definitions'), {
-      achievements: achievementsData.achievements
-    });
-    console.log('Achievement definitions saved to Firestore');
+    // Create a blob from the image URI
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    // Create a unique filename in the format 'avatars/userId/timestamp'
+    const filename = `avatars/${userId}/${Date.now().toString()}`;
+    const storageRef = ref(storage, filename);
+
+    // Upload the blob to Firebase Storage
+    await uploadBytes(storageRef, blob);
+
+    // Get and return the download URL
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
   } catch (error) {
-    console.error('Error saving achievement definitions:', error);
+    console.error('Error uploading image to storage:', error);
+    throw error;
   }
 };
 
-// Function to fetch avatar data
+// UPDATED AVATAR FUNCTIONS
+
+// Function to fetch avatar data - No changes needed as it already returns the full avatar object
+// But we'll add better error handling
 export const getAvatarFromFirebase = async (userId) => {
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
 
-  if (userSnap.exists()) {
-    return userSnap.data().avatar;
-  } else {
-    console.log("No avatar data found");
-    return null;
+    if (userSnap.exists()) {
+      return userSnap.data().avatar;
+    } else {
+      console.log("No avatar data found");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting avatar:", error);
+    throw error;
   }
 };
 
-// Function to update avatar data
+// Function to update avatar data - No changes needed as it can handle any avatar data structure
+// Already existing in your code, keeping for reference
 export const updateUserAvatar = async (userId, avatarData) => {
   try {
     const userRef = doc(db, 'users', userId);
@@ -99,6 +126,18 @@ export const updateUserAvatar = async (userId, avatarData) => {
   } catch (error) {
     console.error('Error updating avatar:', error);
     throw error;
+  }
+};
+
+// Function to save achievement definitions to Firestore
+export const saveAchievementDefinitions = async () => {
+  try {
+    await setDoc(doc(db, 'achievements', 'definitions'), {
+      achievements: achievementsData.achievements
+    });
+    console.log('Achievement definitions saved to Firestore');
+  } catch (error) {
+    console.error('Error saving achievement definitions:', error);
   }
 };
 
@@ -226,7 +265,7 @@ export const initializeUserTasks = async (userId) => {
   }
 };
 
-// Function to initialize a new user profile
+// Updated function to initialize a new user profile with custom image support
 export const initializeUserProfile = async (userId, username) => {
   try {
     const userRef = doc(db, 'users', userId);
@@ -237,6 +276,7 @@ export const initializeUserProfile = async (userId, username) => {
       followers: [],
       createdAt: new Date(),
       avatar: {
+        useCustomImage: false, // Add this field to indicate if using custom image
         hair: 1,
         face: 1,
         outfit: 1,
@@ -253,7 +293,7 @@ export const initializeUserProfile = async (userId, username) => {
       inventory: [],
       tasks: [],
       currency: 0,
-      showcasedAchievements: [], // Added field for showcased achievements
+      showcasedAchievements: [],
       avatarCustomizationComplete: false,
       taskCustomizationComplete: false,
       lastUpdated: new Date().toISOString()
