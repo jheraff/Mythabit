@@ -123,7 +123,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const handleNextScreen = () => {
       setVisible;
       console.log('next: ');
-      navigation.navigate('Tower', { selectedFloor, extraData });
+      navigation.navigate('Adventure', { selectedFloor, extraData });
     };
 
     
