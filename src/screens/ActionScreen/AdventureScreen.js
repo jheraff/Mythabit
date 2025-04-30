@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
+import { collection, getDocs } from 'firebase/firestore'; 
 
 // Delays between 2s and 5s
 function getRandomDelay() {
@@ -41,6 +42,8 @@ export default function AdventureScreen() {
   const encounterRef = useRef(0);
   // Track our timer so we can cancel it on unmount or when adventure ends
   const timerIdRef = useRef(null);
+
+  const playerLootRef = useRef(0); // Tracks total loot collected
 
   // -----------------------
   // Load Player Stats
@@ -87,6 +90,74 @@ export default function AdventureScreen() {
     }
     return null;
   }
+  async function giveLoot(playerLootCount) {
+    try {
+      const userId = auth.currentUser?.uid;
+      if (!userId) return;
+  
+      // FIXED: Get document instead of collection
+      const dungeonLootDoc = await getDoc(doc(db, 'items', 'dungeonloot'));
+      if (!dungeonLootDoc.exists()) {
+        console.error('No dungeonloot document found.');
+        return;
+      }
+  
+      const lootData = dungeonLootDoc.data(); // this will be { dagger: {...}, ... }
+      const lootItems = Object.keys(lootData).map((key) => ({
+        id: key,
+        ...lootData[key],
+      }));
+  
+      if (lootItems.length === 0) {
+        console.error('No loot items found in dungeonloot.');
+        return;
+      }
+  
+      const rewards = [];
+      for (let i = 0; i < playerLootCount; i++) {
+        const randomItem = lootItems[Math.floor(Math.random() * lootItems.length)];
+        rewards.push(randomItem);
+      }
+  
+      const userDocRef = doc(db, 'users', userId);
+      const userDocSnap = await getDoc(userDocRef);
+      if (!userDocSnap.exists()) {
+        console.error('User not found');
+        return;
+      }
+  
+      const userData = userDocSnap.data();
+      const currentInventory = userData.inventory || [];
+  
+      await updateDoc(userDocRef, {
+        inventory: [...currentInventory, ...rewards],
+      });
+  
+      const itemCounts = {};
+      for (const item of rewards) {
+        const key = item.name;
+        if (!itemCounts[key]) {
+          itemCounts[key] = { count: 0, rarity: item.rarity };
+        }
+        itemCounts[key].count += 1;
+      }
+
+      const rewardSummary = Object.entries(itemCounts)
+        .map(([name, data]) => {
+          return `• ${data.count}x ${name}`;
+        })
+        .join('\n');
+
+      alert(`You have received:\n${rewardSummary}`);
+
+      
+    } catch (error) {
+      console.error('Error giving loot:', error);
+    }
+  }
+  
+  
+  
 
   // -----------------------
   // Combat Logic
@@ -122,20 +193,29 @@ export default function AdventureScreen() {
     };
   }
 
+  useEffect(() => {
+    if (adventureResult === 'won') {
+      if (playerLootRef.current > 0) {
+        giveLoot(playerLootRef.current);
+        playerLootRef.current = 0;
+      }
+    }
+  }, [adventureResult]);
+
   // -----------------------
   // Start Adventure
   // -----------------------
   async function startAdventure() {
     // Load latest player data
     await loadPlayerStats();
-
+    
     setIsAdventureStarted(true);
     setAdventureProgress(0);
     setDisplayText('Beginning the adventure...');
     setAdventureResult('in-progress');
 
     // Random starting values
-    setLoot(Math.floor(Math.random() * 11));        // 0-10
+    setLoot(Math.floor(Math.random() * 5));        // 0-5
     setEnemies(Math.floor(Math.random() * 6) + 5);  // 5-10
     setBoss(1);
     setEncounters(Math.floor(Math.random() * 6) + 10); // 10-15
@@ -148,13 +228,8 @@ export default function AdventureScreen() {
   // Encounter Loop
   // -----------------------
   useEffect(() => {
-    // Only run the logic if the adventure is started
     if (!isAdventureStarted) {
-      // If the user stops or hasn't started, clear any scheduled timeout
-      if (timerIdRef.current) {
-        clearTimeout(timerIdRef.current);
-        timerIdRef.current = null;
-      }
+      if (timerIdRef.current) clearTimeout(timerIdRef.current);
       return;
     }
 
@@ -163,6 +238,7 @@ export default function AdventureScreen() {
       // If we've reached total encounters or we already have a result (lost/won), wrap up
       if (encounterRef.current >= encounters) {
         // End the adventure: consider it a win if the player is alive
+
         setDisplayText('Adventure complete! You have won!');
         setAdventureProgress(100);
         setAdventureResult('won');
@@ -210,6 +286,7 @@ export default function AdventureScreen() {
       // 30% chance to find loot, if loot > 0
       else if (enemies > 0 && loot > 0 && Math.random() < 0.3) {
         setDisplayText('Your avatar has found loot!');
+        playerLootRef.current += 1;
         setLoot((prev) => {
           const newVal = prev - 1;
           return newVal < 0 ? 0 : newVal; // clamp to 0
@@ -229,9 +306,10 @@ export default function AdventureScreen() {
           setLoot(0);
           setBoss(0);
           setIsAdventureStarted(false);
+          playerLootRef.current = 0;
           return;
         } else {
-          setPlayerHealth((prev) => Math.min(prev, result.remainingHP));
+          setPlayerHealth(() => result.remainingHP);
           setBoss((prev) => {
             const newVal = prev - 1;
             return newVal < 0 ? 0 : newVal;
@@ -245,8 +323,9 @@ export default function AdventureScreen() {
 
       // Increment encounters
       encounterRef.current += 1;
-      const newProgress = Math.floor((encounterRef.current / encounters) * 100);
-      setAdventureProgress(newProgress);
+      setAdventureProgress((prev) =>
+        Math.max(prev, Math.floor((encounterRef.current / encounters) * 100))
+      );      
 
       // If we used up all enemies, loot, and boss, we might as well end right away
       if (enemies === 0 && loot === 0 && boss === 0) {

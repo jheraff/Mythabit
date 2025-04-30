@@ -15,28 +15,12 @@ const ItemScreen = () => {
   const [inventory, setInventory] = useState([]);
   const [selectedRarity, setSelectedRarity] = useState(null);
 
-  // Map rarity levels to colors and display names
   const rarityConfig = {
-    common: { 
-      color: '#C0C0C0',
-      label: 'Common'
-    },
-    uncommon: { 
-      color: '#008000',
-      label: 'Uncommon'
-    },
-    rare: { 
-      color: '#0000FF',
-      label: 'Rare'
-    },
-    epic: { 
-      color: '#800080',
-      label: 'Epic'
-    },
-    legendary: { 
-      color: '#FFD700',
-      label: 'Legendary'
-    },
+    common: { label: 'Common', color: '#C0C0C0' },
+    uncommon: { label: 'Uncommon', color: '#008000' },
+    rare: { label: 'Rare', color: '#0000FF' },
+    epic: { label: 'Epic', color: '#800080' },
+    legendary: { label: 'Legendary', color: '#FFD700' },
   };
 
   useEffect(() => {
@@ -51,14 +35,17 @@ const ItemScreen = () => {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        setInventory(userData.inventory || []);
+        const sanitized = (userData.inventory || []).map(item => ({
+          ...item,
+          rarity: item.rarity?.toLowerCase() || 'common',
+        }));
+        setInventory(sanitized);
       }
     } catch (error) {
       console.error('Error loading inventory:', error);
     }
   };
 
-  // Get screen dimensions
   const screenWidth = Dimensions.get('window').width;
   const numColumns = 3;
   const itemSpacing = 12;
@@ -96,31 +83,33 @@ const ItemScreen = () => {
     </View>
   );
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={[styles.itemBox, { width: itemSize }]}
-      onPress={() => handleItemPress(item)}
-    >
-      <View style={[
-        styles.itemRarity, 
-        { backgroundColor: rarityConfig[item.rarity].color }
-      ]} />
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemRarityText}>
-        {rarityConfig[item.rarity].label}
-      </Text>
-      {item.description && (
-        <Text style={styles.itemDescription} numberOfLines={2}>
-          {item.description}
-        </Text>
-      )}
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const rarityKey = typeof item.rarity === 'string' ? item.rarity.toLowerCase() : 'common';
+    const rarityInfo = rarityConfig[rarityKey] || { label: 'Unknown', color: '#999' };
+
+    return (
+      <TouchableOpacity
+        style={[styles.itemBox, { width: itemSize }]}
+        onPress={() => handleItemPress(item)}
+      >
+        <View style={[styles.itemRarity, { backgroundColor: rarityInfo.color }]} />
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemRarityText}>{rarityInfo.label}</Text>
+        {item.description && (
+          <Text style={styles.itemDescription} numberOfLines={2}>
+            {item.description}
+          </Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   const handleItemPress = (item) => {
+    const rarityKey = typeof item.rarity === 'string' ? item.rarity.toLowerCase() : 'common';
+    const rarityLabel = rarityConfig[rarityKey]?.label || 'Unknown';
     Alert.alert(
       item.name,
-      `${item.description}\n\nRarity: ${rarityConfig[item.rarity].label}`,
+      `${item.description}\n\nRarity: ${rarityLabel}`,
       [{ text: 'Close' }]
     );
   };
@@ -146,7 +135,7 @@ const ItemScreen = () => {
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             {selectedRarity 
-              ? `No ${rarityConfig[selectedRarity].label.toLowerCase()} items in inventory`
+              ? `No ${rarityConfig[selectedRarity]?.label.toLowerCase()} items in inventory`
               : 'Your inventory is empty'}
           </Text>
         }
