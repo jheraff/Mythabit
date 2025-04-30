@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TouchableOpacity, 
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
     FlatList,
     ScrollView
 } from 'react-native';
-import { 
-    doc, 
-    getDoc, 
+import {
+    doc,
+    getDoc,
     collection,
     query,
     where,
@@ -32,7 +32,7 @@ const MessageScreen = ({ route, navigation }) => {
     const [showMessageOptions, setShowMessageOptions] = useState(false);
     const [showCoopQuestModal, setShowCoopQuestModal] = useState(false);
     const flatListRef = useRef(null);
-    
+
     const predefinedMessages = [
         "Hey, how are you?",
         "Hello!",
@@ -48,17 +48,17 @@ const MessageScreen = ({ route, navigation }) => {
     useEffect(() => {
         setLoading(true);
         loadPartnerData();
-        return () => {};
+        return () => { };
     }, [partnerId]);
 
     useEffect(() => {
         if (!currentUserId || !partnerId) return;
-        
+
         const chatId = getChatId();
-        
+
         try {
             console.log("Load messages for chatId:", chatId);
-            
+
             const q = query(
                 collection(db, 'chats'),
                 where('chatId', '==', chatId)
@@ -66,7 +66,7 @@ const MessageScreen = ({ route, navigation }) => {
 
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 console.log("Messages count:", snapshot.docs.length);
-                
+
                 const messageList = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
@@ -75,9 +75,9 @@ const MessageScreen = ({ route, navigation }) => {
                     if (!b.timestamp) return 1;
                     return a.timestamp.toDate() - b.timestamp.toDate();
                 });
-                
+
                 setMessages(messageList);
-                
+
                 if (messageList.length > 0 && flatListRef.current) {
                     setTimeout(() => {
                         flatListRef.current.scrollToEnd({ animated: false });
@@ -90,7 +90,7 @@ const MessageScreen = ({ route, navigation }) => {
             return () => unsubscribe();
         } catch (error) {
             console.error("Error:", error);
-            return () => {};
+            return () => { };
         }
     }, [currentUserId, partnerId]);
 
@@ -101,13 +101,13 @@ const MessageScreen = ({ route, navigation }) => {
             const userDoc = await getDoc(doc(db, 'users', partnerId));
             if (userDoc.exists()) {
                 const data = userDoc.data();
-                
+
                 const partnerInfo = {
                     id: partnerId,
                     username: data.username || 'User',
                     avatar: data.avatar || null,
                 };
-                
+
                 setPartnerData(partnerInfo);
                 setLoading(false);
             } else {
@@ -144,7 +144,7 @@ const MessageScreen = ({ route, navigation }) => {
         }
 
         const chatId = getChatId();
-        
+
         try {
             console.log("Sending message:", {
                 chatId,
@@ -152,9 +152,9 @@ const MessageScreen = ({ route, navigation }) => {
                 senderId: currentUserId,
                 receiverId: partnerId
             });
-            
+
             const timestamp = new Date();
-            
+
             await addDoc(collection(db, 'chats'), {
                 chatId: chatId,
                 text: selectedMessage,
@@ -162,9 +162,9 @@ const MessageScreen = ({ route, navigation }) => {
                 receiverId: partnerId,
                 timestamp: timestamp,
             });
-            
+
             console.log("Message sent successfully");
-            
+
             setSelectedMessage('');
             setShowMessageOptions(false);
         } catch (error) {
@@ -175,19 +175,19 @@ const MessageScreen = ({ route, navigation }) => {
     const renderMessage = ({ item }) => {
         const isCurrentUser = item.senderId === currentUserId;
         const isSystemMessage = item.senderId === 'system' && item.questRelated;
-        
+
         let timeDisplay = '';
         try {
             if (item.timestamp) {
                 if (typeof item.timestamp.toDate === 'function') {
-                    timeDisplay = new Date(item.timestamp.toDate()).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                    timeDisplay = new Date(item.timestamp.toDate()).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
                     });
                 } else {
-                    timeDisplay = new Date(item.timestamp).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                    timeDisplay = new Date(item.timestamp).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
                     });
                 }
             }
@@ -195,7 +195,7 @@ const MessageScreen = ({ route, navigation }) => {
             console.error("Error formatting message time:", error);
             timeDisplay = '';
         }
-        
+
         if (isSystemMessage) {
             return (
                 <View style={styles.systemMessageContainer}>
@@ -207,7 +207,7 @@ const MessageScreen = ({ route, navigation }) => {
                 </View>
             );
         }
-        
+
         return (
             <View style={[
                 styles.messageBubble,
@@ -246,8 +246,8 @@ const MessageScreen = ({ route, navigation }) => {
     }
 
     return (
-        <KeyboardAvoidingView 
-            style={styles.container} 
+        <KeyboardAvoidingView
+            style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : null}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
@@ -265,7 +265,7 @@ const MessageScreen = ({ route, navigation }) => {
                     <Text style={styles.headerTitle}>
                         {partnerData.username}
                     </Text>
-                    
+
                     <TouchableOpacity
                         style={styles.profileButton}
                         onPress={() => navigation.navigate('UserProfile', { userId: partnerId })}
@@ -297,9 +297,9 @@ const MessageScreen = ({ route, navigation }) => {
                         </View>
                     }
                 />
-                
+
                 <View style={styles.messageOptionsContainer}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.questButton}
                         onPress={() => setShowCoopQuestModal(true)}
                     >
@@ -307,7 +307,7 @@ const MessageScreen = ({ route, navigation }) => {
                         <Text style={styles.questButtonText}>Start Co-op Quest</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.toggleMessagesButton}
                         onPress={() => setShowMessageOptions(!showMessageOptions)}
                     >
@@ -315,12 +315,12 @@ const MessageScreen = ({ route, navigation }) => {
                             {showMessageOptions ? "Hide Message Options" : "Show Message Options"}
                         </Text>
                     </TouchableOpacity>
-                    
+
                     {showMessageOptions && (
                         <View style={styles.messageGrid}>
                             <View style={styles.messageColumn}>
                                 {predefinedMessages.slice(0, Math.ceil(predefinedMessages.length / 2)).map((message, index) => (
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         key={`message-option-left-${index}`}
                                         style={[
                                             styles.messageOption,
@@ -328,7 +328,7 @@ const MessageScreen = ({ route, navigation }) => {
                                         ]}
                                         onPress={() => setSelectedMessage(message)}
                                     >
-                                        <Text 
+                                        <Text
                                             style={[
                                                 styles.messageOptionText,
                                                 selectedMessage === message && styles.selectedMessageOptionText
@@ -339,10 +339,10 @@ const MessageScreen = ({ route, navigation }) => {
                                     </TouchableOpacity>
                                 ))}
                             </View>
-                            
+
                             <View style={styles.messageColumn}>
                                 {predefinedMessages.slice(Math.ceil(predefinedMessages.length / 2)).map((message, index) => (
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         key={`message-option-right-${index}`}
                                         style={[
                                             styles.messageOption,
@@ -350,7 +350,7 @@ const MessageScreen = ({ route, navigation }) => {
                                         ]}
                                         onPress={() => setSelectedMessage(message)}
                                     >
-                                        <Text 
+                                        <Text
                                             style={[
                                                 styles.messageOptionText,
                                                 selectedMessage === message && styles.selectedMessageOptionText
@@ -363,9 +363,9 @@ const MessageScreen = ({ route, navigation }) => {
                             </View>
                         </View>
                     )}
-                    
+
                     <View style={styles.sendButtonContainer}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[
                                 styles.sendButton,
                                 !selectedMessage && styles.disabledButton
@@ -398,10 +398,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     headerContainer: {
-        backgroundColor: '#1c2d63', 
+        backgroundColor: '#1c2d63',
         paddingVertical: 15,
         borderBottomWidth: 4,
-        borderBottomColor: '#afe8ff', 
+        borderBottomColor: '#afe8ff',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     messageColumn: {
-        width: '48%', 
+        width: '48%',
     },
     messageOption: {
         padding: 10,
