@@ -8,7 +8,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { decode, encode } from 'base-64';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 
+// Import directly without the AvatarProvider
 import MainScreen from './src/screens/MainScreen/MainScreen';
 import LoginScreen from './src/screens/LoginScreen/LoginScreen';
 import RegistrationScreen from './src/screens/RegistrationScreen/RegistrationScreen';

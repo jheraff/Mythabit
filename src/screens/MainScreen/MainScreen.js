@@ -20,9 +20,9 @@ const MainScreen = () => {
 
   const handleStart = () => {
     if (user) {
-      navigation.replace('MainTab');
+      navigation.navigate('MainTab');
     } else {
-      navigation.replace('Login');
+      navigation.navigate('Login');
     }
   };
 

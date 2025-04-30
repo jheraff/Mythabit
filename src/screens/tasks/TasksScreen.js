@@ -6,8 +6,8 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  Modal,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Animated
 } from 'react-native';
 import { collection, doc, getDoc, updateDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
@@ -66,6 +66,7 @@ const validateTask = (task) => {
     rewardClaimed: task.rewardClaimed || false
   };
 };
+
 const checkAchievements = async (userData) => {
   const userId = auth.currentUser?.uid;
   if (!userId) return [];
@@ -146,69 +147,175 @@ const checkAchievements = async (userData) => {
   }
 };
 
-const TaskItem = memo(({ item, onPress, processingTask }) => (
-  <TouchableOpacity
-    style={[
-      styles.taskCard,
-      item.status === 'completed' && styles.completedTaskCard,
-      item.status === 'failed' && styles.failedTaskCard,
-      item.status === 'in-progress' && styles.inProgressTaskCard,
-    ]}
-    onPress={() => onPress(item)}
-    disabled={processingTask === item.id}
-  >
-    <Text style={styles.taskName}>{item.taskName}</Text>
+const TaskItem = memo(({ item, processingTask, isExpanded, onToggleExpand, 
+                        acceptTask, completeTask, incrementProgress, quitTask, refreshSingleTask, formatTime }) => {
+  const expandAnimation = useRef(new Animated.Value(0)).current;
 
-    <View style={styles.taskBasicInfo}>
-      <View style={styles.taskInfoItem}>
-        <Text style={styles.taskInfoLabel}>Type</Text>
-        <Text style={styles.taskInfoValue}>{item.taskType}</Text>
-      </View>
+  useEffect(() => {
+    Animated.timing(expandAnimation, {
+      toValue: isExpanded ? 1 : 0,
+      duration: 200,
+      useNativeDriver: false
+    }).start();
+  }, [isExpanded, expandAnimation]);
 
-      <View style={styles.taskInfoItem}>
-        <Text style={styles.taskInfoLabel}>Stat</Text>
-        <Text style={styles.taskInfoValue}>{item.statType}</Text>
-      </View>
+  const maxHeight = expandAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 500]
+  });
 
-      <View style={styles.taskInfoItem}>
-        <Text style={styles.taskInfoLabel}>XP</Text>
-        <Text style={styles.taskInfoValue}>{item.xpReward}</Text>
-      </View>
+  return (
+    <View style={styles.taskItemContainer}>
+      <TouchableOpacity
+        style={[
+          styles.taskCard,
+          item.status === 'completed' && styles.completedTaskCard,
+          item.status === 'failed' && styles.failedTaskCard,
+          item.status === 'in-progress' && styles.inProgressTaskCard,
+        ]}
+        onPress={() => onToggleExpand(item.id)}
+        disabled={processingTask === item.id}
+      >
+        <View style={styles.taskHeaderRow}>
+          <Text style={styles.taskName}>{item.taskName}</Text>
+          <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={24} color="#444" />
+        </View>
+      </TouchableOpacity>
 
-      {/* Time display removed from card */}
+      {/* Dropdown content */}
+      <Animated.View style={[styles.taskDetailsContainer, { maxHeight }]}>
+        <View style={styles.taskDetailsContent}>
+          {/* Task Details */}
+          <View style={styles.taskInfoRow}>
+            <View style={styles.taskInfoItem}>
+              <Text style={styles.taskInfoLabel}>Type</Text>
+              <Text style={styles.taskInfoValue}>{item.taskType}</Text>
+            </View>
+
+            <View style={styles.taskInfoItem}>
+              <Text style={styles.taskInfoLabel}>Stat</Text>
+              <Text style={styles.taskInfoValue}>{item.statType}</Text>
+            </View>
+          </View>
+
+          <View style={styles.taskInfoRow}>
+            <View style={styles.taskInfoItem}>
+              <Text style={styles.taskInfoLabel}>Difficulty</Text>
+              <Text style={styles.taskInfoValue}>{item.difficulty}</Text>
+            </View>
+
+            <View style={styles.taskInfoItem}>
+              <Text style={styles.taskInfoLabel}>XP Reward</Text>
+              <Text style={styles.taskInfoValue}>{item.xpReward}</Text>
+            </View>
+          </View>
+
+          <View style={styles.taskInfoRow}>
+            <View style={styles.taskInfoItem}>
+              <Text style={styles.taskInfoLabel}>Time to Complete</Text>
+              <Text style={styles.taskInfoValue}>{item.duration} minutes</Text>
+            </View>
+
+            <View style={styles.taskInfoItem}>
+              <Text style={styles.taskInfoLabel}>Status</Text>
+              <Text style={[
+                styles.taskInfoValue,
+                item.status === 'completed' && styles.completedText,
+                item.status === 'failed' && styles.failedText,
+                item.status === 'in-progress' && styles.inProgressText,
+              ]}>
+                {item.status.toUpperCase()}
+              </Text>
+            </View>
+          </View>
+
+          {item.status === 'in-progress' && (
+            <View style={styles.progressContainer}>
+              <Text style={styles.progressLabel}>
+                Progress: {item.currentProgress}/{item.taskAmount}
+              </Text>
+              <View style={styles.progressBarContainer}>
+                <View
+                  style={[
+                    styles.progressBar,
+                    { width: `${(item.currentProgress / item.taskAmount) * 100}%` }
+                  ]}
+                />
+              </View>
+            </View>
+          )}
+
+          {/* Task Action Buttons */}
+          <View style={styles.taskButtonsContainer}>
+            {item.status === 'pending' && !item.rewardClaimed && (
+              <>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={() => acceptTask(item.id)}
+                  disabled={processingTask === item.id}
+                >
+                  <Text style={styles.buttonText}>Start Task</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.secondaryButton}
+                  onPress={() => refreshSingleTask(item.id)}
+                  disabled={processingTask === item.id}
+                >
+                  <Text style={styles.buttonText}>New Task</Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {item.status === 'in-progress' && !item.rewardClaimed && (
+              <>
+                <TouchableOpacity
+                  style={styles.progressButton}
+                  onPress={() => incrementProgress(item.id)}
+                  disabled={processingTask === item.id}
+                >
+                  <Text style={styles.buttonText}>Count Progress</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={() => completeTask(item.id)}
+                  disabled={processingTask === item.id}
+                >
+                  <Text style={styles.buttonText}>Complete</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.failButton}
+                  onPress={() => quitTask(item.id)}
+                  disabled={processingTask === item.id}
+                >
+                  <Text style={styles.buttonText}>Quit</Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {(item.status === 'completed' || item.status === 'failed' || item.rewardClaimed) && (
+              <TouchableOpacity
+                style={styles.refreshButton}
+                onPress={() => refreshSingleTask(item.id)}
+                disabled={processingTask === item.id}
+              >
+                <Text style={styles.buttonText}>New Task</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </Animated.View>
     </View>
-
-    {item.status !== 'pending' && (
-      <Text style={[
-        styles.taskStatusBadge,
-        item.status === 'completed' && styles.completedStatus,
-        item.status === 'failed' && styles.failedStatus,
-        item.status === 'in-progress' && styles.inProgressStatus,
-      ]}>
-        {item.status.toUpperCase()}
-      </Text>
-    )}
-
-    {item.status === 'in-progress' && (
-      <View style={styles.progressBarContainer}>
-        <View
-          style={[
-            styles.progressBar,
-            { width: `${(item.currentProgress / item.taskAmount) * 100}%` }
-          ]}
-        />
-        <Text style={styles.progressText}>
-          {item.currentProgress}/{item.taskAmount}
-        </Text>
-      </View>
-    )}
-  </TouchableOpacity>
-), (prevProps, nextProps) => {
+  );
+}, (prevProps, nextProps) => {
   return (
     prevProps.item.id === nextProps.item.id &&
     prevProps.item.status === nextProps.item.status &&
     prevProps.item.currentProgress === nextProps.item.currentProgress &&
-    prevProps.processingTask === nextProps.processingTask
+    prevProps.processingTask === nextProps.processingTask &&
+    prevProps.isExpanded === nextProps.isExpanded
   );
 });
 
@@ -234,9 +341,7 @@ const TasksScreen = () => {
   const [processingTask, setProcessingTask] = useState(null);
   const timerRefs = useRef({});
   const [completedQuestName, setCompletedQuestName] = useState('');
-
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [expandedTaskId, setExpandedTaskId] = useState(null);
 
   useEffect(() => {
     const userId = auth.currentUser?.uid;
@@ -278,20 +383,6 @@ const TasksScreen = () => {
 
     return () => unsubscribe();
   }, []);
-
-
-  useEffect(() => {
-    if (selectedTask) {
-      const currentTask = tasks.find(task => task.id === selectedTask.id);
-
-      if (currentTask && (
-        currentTask.status !== selectedTask.status ||
-        currentTask.currentProgress !== selectedTask.currentProgress
-      )) {
-        setSelectedTask(currentTask);
-      }
-    }
-  }, [tasks, selectedTask]);
 
   const calculateXpProgress = useCallback(() => {
     return (userStats.xp / 1000) * 100;
@@ -448,7 +539,9 @@ const TasksScreen = () => {
         tasks: currentTasks.map(validateTask)
       });
 
-    } catch (error) { }
+    } catch (error) {
+      console.error("Error loading initial tasks:", error);
+    }
   }, [userPrefs, clearActiveTasks, startTimer, generateNewTasks]);
 
   const updateUserStats = useCallback(async (taskId) => {
@@ -854,24 +947,12 @@ const TasksScreen = () => {
         )
       );
 
-      setSelectedTask(currentSelectedTask => {
-        if (currentSelectedTask && currentSelectedTask.id === taskId) {
-          return {
-            ...currentSelectedTask,
-            status: 'in-progress'
-          };
-        }
-        return currentSelectedTask;
-      });
-
       startTimer(taskId);
       await updateFirestore(tasks.map(task =>
         task.id === taskId
           ? validateTask({ ...task, status: 'in-progress' })
           : task
       ), false);
-
-      setModalVisible(false);
     } catch (error) { }
   }, [processingTask, tasks, updateFirestore, startTimer]);
 
@@ -900,18 +981,6 @@ const TasksScreen = () => {
         } : task
       )
     );
-
-    setSelectedTask(currentSelectedTask => {
-      if (currentSelectedTask && currentSelectedTask.id === taskId) {
-        return {
-          ...currentSelectedTask,
-          status: 'completed',
-          processed: false,
-          rewardClaimed: false
-        };
-      }
-      return currentSelectedTask;
-    });
 
     const userId = auth.currentUser?.uid;
     if (!userId) {
@@ -992,16 +1061,6 @@ const TasksScreen = () => {
         })
       );
 
-      setSelectedTask(currentSelectedTask => {
-        if (currentSelectedTask && currentSelectedTask.id === taskId) {
-          return {
-            ...currentSelectedTask,
-            currentProgress: newProgress
-          };
-        }
-        return currentSelectedTask;
-      });
-
       await updateFirestore(tasks.map(task => {
         if (task.id === taskId) {
           return validateTask({
@@ -1044,19 +1103,6 @@ const TasksScreen = () => {
       )
     );
 
-    setSelectedTask(currentSelectedTask => {
-      if (currentSelectedTask && currentSelectedTask.id === taskId) {
-        return validateTask({
-          ...currentSelectedTask,
-          status: 'failed',
-          timeRemaining: 0,
-          processed: true,
-          rewardClaimed: false
-        });
-      }
-      return currentSelectedTask;
-    });
-
     const userId = auth.currentUser?.uid;
     if (!userId) {
       return;
@@ -1091,18 +1137,34 @@ const TasksScreen = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  const handleTaskPress = useCallback((task) => {
-    setSelectedTask(task);
-    setModalVisible(true);
+  const toggleTaskExpand = useCallback((taskId) => {
+    setExpandedTaskId(prevId => (prevId === taskId ? null : taskId));
   }, []);
 
   const renderTask = useCallback(({ item }) => (
     <TaskItem
       item={item}
-      onPress={handleTaskPress}
       processingTask={processingTask}
+      isExpanded={expandedTaskId === item.id}
+      onToggleExpand={toggleTaskExpand}
+      acceptTask={acceptTask}
+      completeTask={completeTask}
+      incrementProgress={incrementProgress}
+      quitTask={quitTask}
+      refreshSingleTask={refreshSingleTask}
+      formatTime={formatTime}
     />
-  ), [handleTaskPress, processingTask]);
+  ), [
+    processingTask, 
+    expandedTaskId, 
+    toggleTaskExpand, 
+    acceptTask, 
+    completeTask, 
+    incrementProgress, 
+    quitTask, 
+    refreshSingleTask, 
+    formatTime
+  ]);
 
   const getItemLayout = useCallback((_, index) => ({
     length: 150,
@@ -1111,159 +1173,6 @@ const TasksScreen = () => {
   }), []);
 
   const keyExtractor = useCallback(item => item.id, []);
-
-  const TaskDetailModal = useCallback(() => {
-    if (!selectedTask) return null;
-
-    return (
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>{selectedTask.taskName}</Text>
-
-                <View style={styles.modalInfoRow}>
-                  <View style={styles.modalInfoItem}>
-                    <Text style={styles.modalInfoLabel}>Type</Text>
-                    <Text style={styles.modalInfoValue}>{selectedTask.taskType}</Text>
-                  </View>
-
-                  <View style={styles.modalInfoItem}>
-                    <Text style={styles.modalInfoLabel}>Stat</Text>
-                    <Text style={styles.modalInfoValue}>{selectedTask.statType}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.modalInfoRow}>
-                  <View style={styles.modalInfoItem}>
-                    <Text style={styles.modalInfoLabel}>Difficulty</Text>
-                    <Text style={styles.modalInfoValue}>{selectedTask.difficulty}</Text>
-                  </View>
-
-                  <View style={styles.modalInfoItem}>
-                    <Text style={styles.modalInfoLabel}>XP Reward</Text>
-                    <Text style={styles.modalInfoValue}>{selectedTask.xpReward}</Text>
-                  </View>
-                </View>
-
-                {/* Time display removed */}
-
-                <View style={styles.modalStatusRow}>
-                  <Text style={styles.modalInfoLabel}>Status</Text>
-                  <Text style={[
-                    styles.modalStatusValue,
-                    selectedTask.status === 'completed' && styles.completedText,
-                    selectedTask.status === 'failed' && styles.failedText,
-                    selectedTask.status === 'in-progress' && styles.inProgressText,
-                  ]}>
-                    {selectedTask.status.toUpperCase()}
-                  </Text>
-                </View>
-
-                {selectedTask.status === 'in-progress' && (
-                  <View style={styles.modalProgressContainer}>
-                    <Text style={styles.modalProgressLabel}>
-                      Progress: {selectedTask.currentProgress}/{selectedTask.taskAmount}
-                    </Text>
-                    <View style={styles.modalProgressBarContainer}>
-                      <View
-                        style={[
-                          styles.modalProgressBar,
-                          { width: `${(selectedTask.currentProgress / selectedTask.taskAmount) * 100}%` }
-                        ]}
-                      />
-                    </View>
-                  </View>
-                )}
-
-                <View style={styles.modalButtonsContainer}>
-                  {selectedTask.status === 'pending' && !selectedTask.rewardClaimed && (
-                    <>
-                      <TouchableOpacity
-                        style={styles.modalPrimaryButton}
-                        onPress={() => acceptTask(selectedTask.id)}
-                        disabled={processingTask === selectedTask.id}
-                      >
-                        <Text style={styles.buttonText}>Start Task</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.modalSecondaryButton}
-                        onPress={() => {
-                          refreshSingleTask(selectedTask.id);
-                          setModalVisible(false);
-                        }}
-                        disabled={processingTask === selectedTask.id}
-                      >
-                        <Text style={styles.buttonText}>New Task</Text>
-                      </TouchableOpacity>
-                    </>
-                  )}
-
-                  {selectedTask.status === 'in-progress' && !selectedTask.rewardClaimed && (
-                    <>
-                      <TouchableOpacity
-                        style={styles.modalProgressButton}
-                        onPress={() => incrementProgress(selectedTask.id)}
-                        disabled={processingTask === selectedTask.id}
-                      >
-                        <Text style={styles.buttonText}>Count Progress</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.modalPrimaryButton}
-                        onPress={() => completeTask(selectedTask.id)}
-                        disabled={processingTask === selectedTask.id}
-                      >
-                        <Text style={styles.buttonText}>Complete</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.modalFailButton}
-                        onPress={() => {
-                          quitTask(selectedTask.id);
-                          setModalVisible(false);
-                        }}
-                        disabled={processingTask === selectedTask.id}
-                      >
-                        <Text style={styles.buttonText}>Quit</Text>
-                      </TouchableOpacity>
-                    </>
-                  )}
-
-                  {(selectedTask.status === 'completed' || selectedTask.status === 'failed' || selectedTask.rewardClaimed) && (
-                    <TouchableOpacity
-                      style={styles.modalRefreshButton}
-                      onPress={() => {
-                        refreshSingleTask(selectedTask.id);
-                        setModalVisible(false);
-                      }}
-                      disabled={processingTask === selectedTask.id}
-                    >
-                      <Text style={styles.buttonText}>New Task</Text>
-                    </TouchableOpacity>
-                  )}
-
-                  <TouchableOpacity
-                    style={styles.modalCloseButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.buttonText}>Close</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    );
-  }, [selectedTask, modalVisible]);
 
   return (
     <View style={styles.container}>
@@ -1328,9 +1237,6 @@ const TasksScreen = () => {
         updateCellsBatchingPeriod={50}
         removeClippedSubviews={true}
       />
-
-      {/* Task Detail Modal */}
-      <TaskDetailModal />
     </View>
   );
 };
@@ -1451,16 +1357,15 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
   },
-  listContainer: {
-    padding: 16,
-    flexGrow: 1,
-    paddingBottom: 20,
+  taskItemContainer: {
+    marginBottom: 16,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
   taskCard: {
     backgroundColor: '#f5f5f5',
     padding: 14,
     borderRadius: 10,
-    marginBottom: 12,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -1468,7 +1373,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     borderWidth: 2,
     borderColor: '#1c2d63',
-    position: 'relative',
+  },
+  taskHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   completedTaskCard: {
     borderColor: '#4CAF50',
@@ -1482,27 +1391,8 @@ const styles = StyleSheet.create({
   taskName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
     color: '#333',
-  },
-  taskBasicInfo: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  taskInfoItem: {
-    width: '48%',
-    marginBottom: 8,
-  },
-  taskInfoLabel: {
-    fontSize: 12,
-    color: '#888',
-    fontWeight: '500',
-  },
-  taskInfoValue: {
-    fontSize: 14,
-    color: '#444',
-    fontWeight: '600',
+    flex: 1,
   },
   taskStatusBadge: {
     position: 'absolute',
@@ -1526,84 +1416,37 @@ const styles = StyleSheet.create({
   inProgressStatus: {
     backgroundColor: '#2196F3',
   },
-  progressBarContainer: {
-    height: 14,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: 7,
-    marginTop: 10,
+  taskDetailsContainer: {
+    backgroundColor: '#f9f9f9',
     overflow: 'hidden',
-    position: 'relative',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#1c2d63',
   },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#2196F3',
-    position: 'absolute',
-    left: 0,
-    top: 0,
+  taskDetailsContent: {
+    padding: 16,
   },
-  progressText: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: 'white',
-    lineHeight: 14,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0.5, height: 0.5 },
-    textShadowRadius: 1,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    width: '85%',
-    maxWidth: 400,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#333',
-    textAlign: 'center',
-  },
-  modalInfoRow: {
+  taskInfoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
+    marginBottom: 12,
   },
-  modalInfoItem: {
+  taskInfoItem: {
     width: '48%',
   },
-  modalInfoLabel: {
+  taskInfoLabel: {
     fontSize: 14,
     color: '#888',
     fontWeight: '500',
-    marginBottom: 2,
+    marginBottom: 4,
   },
-  modalInfoValue: {
+  taskInfoValue: {
     fontSize: 16,
-    color: '#333',
+    color: '#444',
     fontWeight: '600',
-  },
-  modalStatusRow: {
-    marginBottom: 15,
-  },
-  modalStatusValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   completedText: {
     color: '#4CAF50',
@@ -1614,37 +1457,37 @@ const styles = StyleSheet.create({
   inProgressText: {
     color: '#2196F3',
   },
-  modalProgressContainer: {
-    marginVertical: 15,
+  progressContainer: {
+    marginVertical: 12,
   },
-  modalProgressLabel: {
+  progressLabel: {
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#444',
   },
-  modalProgressBarContainer: {
+  progressBarContainer: {
     height: 18,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
     borderRadius: 9,
     overflow: 'hidden',
     position: 'relative',
   },
-  modalProgressBar: {
+  progressBar: {
     height: '100%',
     backgroundColor: '#2196F3',
     position: 'absolute',
     left: 0,
     top: 0,
   },
-  modalButtonsContainer: {
-    marginTop: 20,
+  taskButtonsContainer: {
+    marginTop: 16,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: 10,
   },
-  modalPrimaryButton: {
+  primaryButton: {
     backgroundColor: '#1c2d63', 
     padding: 12,
     borderRadius: 8,
@@ -1652,7 +1495,7 @@ const styles = StyleSheet.create({
     minWidth: '48%',
     alignItems: 'center',
   },
-  modalSecondaryButton: {
+  secondaryButton: {
     backgroundColor: '#4CAF50',
     padding: 12,
     borderRadius: 8,
@@ -1660,7 +1503,7 @@ const styles = StyleSheet.create({
     minWidth: '48%',
     alignItems: 'center',
   },
-  modalProgressButton: {
+  progressButton: {
     backgroundColor: '#2196F3',
     padding: 12,
     borderRadius: 8,
@@ -1668,7 +1511,7 @@ const styles = StyleSheet.create({
     minWidth: '30%',
     alignItems: 'center',
   },
-  modalFailButton: {
+  failButton: {
     backgroundColor: '#F44336',
     padding: 12,
     borderRadius: 8,
@@ -1676,25 +1519,22 @@ const styles = StyleSheet.create({
     minWidth: '30%',
     alignItems: 'center',
   },
-  modalRefreshButton: {
+  refreshButton: {
     backgroundColor: '#4CAF50',
     padding: 12,
     borderRadius: 8,
     flex: 1,
     alignItems: 'center',
   },
-  modalCloseButton: {
-    backgroundColor: '#888',
-    padding: 12,
-    borderRadius: 8,
-    flex: 1,
-    minWidth: '48%',
-    alignItems: 'center',
-  },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  listContainer: {
+    padding: 16,
+    flexGrow: 1,
+    paddingBottom: 20,
   },
 });
 
