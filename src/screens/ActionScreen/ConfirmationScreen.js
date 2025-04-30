@@ -158,8 +158,8 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
             <View style={styles.quickMenu}>
               {numberArray.map((index) => (
-                <View key={index} style={styles.itemBox}>
-                  <Text> {index + 1} </Text>
+                <View key={index.id} style={styles.itemBox} onPress={()=> console.log('hi')}>
+                  <Text> {index.name} </Text>
                 </View>
               ))}
 
@@ -187,22 +187,19 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
           <Text style={styles.headTitle}> Daily </Text>
         </View>
 
+        
+
+
         <View style={styles.middleView}> 
-          <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
-          <Button title="Yes, Begin!" onPress={handleNextScreen}/>
-        </View>
-
-
-        <View style={styles.bottomView}> 
           
-          <TouchableOpacity style={[styles.slotOne, {top: 190,right: 125}]} onPress={() => handleMenu('Armor')}> 
+          <TouchableOpacity style={[styles.slotOne, {top: 280}]} onPress={() => handleMenu('Armor')}> 
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
             <Text style={styles.itemTitle}> {mainArmor?.name || 'None equipped'} </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.slotOne, {bottom: 0}]} onPress={() => {handleMenu('sword')}}> 
+          <TouchableOpacity style={[styles.slotOne, {top: 20}]} onPress={() => {handleMenu('sword')}}> 
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
@@ -212,7 +209,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
           </TouchableOpacity>
 
 
-          <TouchableOpacity style={[styles.slotOne, {bottom: 190, left: 122}]} onPress={() => handleMenu('Potion')}> 
+          <TouchableOpacity style={[styles.slotOne, {bottom: 240,}]} onPress={() => handleMenu('Potion')}> 
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Potion </Text>
@@ -221,6 +218,11 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
           </TouchableOpacity>
 
+        </View>
+
+        <View style={styles.bottomView}> 
+          <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
+          <Button title="Yes, Begin!" onPress={handleNextScreen}/>
         </View>
       
       </View>
@@ -258,32 +260,37 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       top: 20,
       height: 100,
       width: 400,
-      backgroundColor: 'lightblue',
+      backgroundColor: '#434',
     },
 
     headTitle: {
+      top:10,
       fontSize: 50,
-    },
-
-    middleView: {
-      padding: 16,
-      alignItems: 'center',
-      margin: 60,
+      fontWeight: 'bold',
+      color: 'white'
     },
 
     bottomView: {
+      padding: 16,
+      alignItems: 'center',
+      margin: 20,
+      backgroundColor: '#434',
+      width: 400,
+    },
+
+    middleView: {
       justifyContent: 'center',
       alignItems: 'center',
       height: 100,
       width: 390,
       flex: 1,
-      backgroundColor: 'lightblue',
+      
     },
 
     slotOne: {
       backgroundColor: 'white',
-      height: 190,
-      width: 110,
+      height: 120,
+      width: 300,
       borderColor: 'black',
       borderWidth: 5,
       borderRadius: 10,
@@ -306,6 +313,9 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     title: { 
       fontSize: 20, 
       marginBottom: 20,
+      color: 'white',
+      fontWeight: 'bold',
+      
     },
 
     equipIcon: {
