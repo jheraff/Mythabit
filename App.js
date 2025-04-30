@@ -483,7 +483,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainScreen" component={MainScreen} />
+        {/*<Stack.Screen name="MainScreen" component={MainScreen} />*/}
         {user ? (
           isFirstTimeUser ? (
             <Stack.Screen
@@ -493,6 +493,7 @@ export default function App() {
             </Stack.Screen>
           ) : (
             <>
+              <Stack.Screen name="MainScreen" component={MainScreen} />
               <Stack.Screen name="MainTab">
                 {props => <TabNavigator {...props} extraData={user} navigation={props.navigation} />}
               </Stack.Screen>
