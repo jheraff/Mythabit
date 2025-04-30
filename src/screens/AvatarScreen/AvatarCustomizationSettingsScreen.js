@@ -14,38 +14,8 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import LoadingModal from '../../utils/LoadingModal';
 
-// Local implementation of the missing functions
-const getAvatarFromFirebase = async (userId) => {
-  try {
-    const userRef = doc(db, 'users', userId);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      return userSnap.data().avatar;
-    } else {
-      console.log("No avatar data found");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error getting avatar:", error);
-    throw error;
-  }
-};
-
-const updateUserAvatar = async (userId, avatarData) => {
-  try {
-    const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, {
-      avatar: avatarData,
-      lastUpdated: new Date().toISOString()
-    });
-    console.log('Avatar updated for user:', userId);
-    return true;
-  } catch (error) {
-    console.error('Error updating avatar:', error);
-    throw error;
-  }
-};
+// Import the function to update user avatar
+import { updateUserAvatar } from '../../firebase/config';
 
 const AvatarCustomizationSettingsScreen = () => {
   const navigation = useNavigation();
@@ -56,13 +26,24 @@ const AvatarCustomizationSettingsScreen = () => {
   const [selectedFace, setSelectedFace] = useState(1);
   const [selectedOutfit, setSelectedOutfit] = useState(1);
   const [selectedAccessory, setSelectedAccessory] = useState(0);
+  
+  // Predefined avatar state
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [useCustomAvatar, setUseCustomAvatar] = useState(false);
+  
   const [originalAvatarState, setOriginalAvatarState] = useState({});
   
-  // Sample avatar options (you'll need your actual assets)
+  // Sample avatar options
   const hairStyles = [1, 2, 3, 4, 5];
   const faceStyles = [1, 2, 3, 4];
   const outfitStyles = [1, 2, 3, 4, 5, 6];
   const accessoryStyles = [0, 1, 2, 3];
+  
+  // Predefined avatar options from assets
+  const predefinedAvatars = [
+    { id: 'avatar1', source: require('../../../assets/avatars/bingus.jpg') },
+    // Add as many avatars as you have in your assets folder
+  ];
   
   // Load saved avatar settings on component mount
   useEffect(() => {
@@ -79,13 +60,24 @@ const AvatarCustomizationSettingsScreen = () => {
       }
       
       const userId = currentUser.uid;
-      const avatarData = await getAvatarFromFirebase(userId);
+      const userRef = doc(db, 'users', userId);
+      const userSnap = await getDoc(userRef);
       
-      if (avatarData) {
-        setSelectedHair(avatarData.hair || 1);
-        setSelectedFace(avatarData.face || 1);
-        setSelectedOutfit(avatarData.outfit || 1);
-        setSelectedAccessory(avatarData.accessory || 0);
+      if (userSnap.exists() && userSnap.data().avatar) {
+        const avatarData = userSnap.data().avatar;
+        
+        // If using predefined avatar
+        if (avatarData.useCustomAvatar) {
+          setUseCustomAvatar(true);
+          setSelectedAvatar(avatarData.avatarId || null);
+        } else {
+          // Using avatar generator
+          setUseCustomAvatar(false);
+          setSelectedHair(avatarData.hair || 1);
+          setSelectedFace(avatarData.face || 1);
+          setSelectedOutfit(avatarData.outfit || 1);
+          setSelectedAccessory(avatarData.accessory || 0);
+        }
         
         // Store original state to detect changes
         setOriginalAvatarState(avatarData);
@@ -113,13 +105,22 @@ const AvatarCustomizationSettingsScreen = () => {
       const userId = currentUser.uid;
       
       // Prepare new avatar data
-      const newAvatarData = {
-        hair: selectedHair,
-        face: selectedFace,
-        outfit: selectedOutfit,
-        accessory: selectedAccessory,
+      let newAvatarData = {
         lastUpdated: new Date().toISOString()
       };
+      
+      if (useCustomAvatar && selectedAvatar) {
+        // Using predefined avatar
+        newAvatarData.useCustomAvatar = true;
+        newAvatarData.avatarId = selectedAvatar;
+      } else {
+        // Using avatar generator
+        newAvatarData.useCustomAvatar = false;
+        newAvatarData.hair = selectedHair;
+        newAvatarData.face = selectedFace;
+        newAvatarData.outfit = selectedOutfit;
+        newAvatarData.accessory = selectedAccessory;
+      }
       
       // Update avatar in Firestore
       await updateUserAvatar(userId, newAvatarData);
@@ -140,12 +141,22 @@ const AvatarCustomizationSettingsScreen = () => {
   
   // Check if changes have been made
   const hasChanges = () => {
-    return (
-      selectedHair !== (originalAvatarState.hair || 1) ||
-      selectedFace !== (originalAvatarState.face || 1) ||
-      selectedOutfit !== (originalAvatarState.outfit || 1) ||
-      selectedAccessory !== (originalAvatarState.accessory || 0)
-    );
+    if (useCustomAvatar !== (originalAvatarState.useCustomAvatar || false)) {
+      return true;
+    }
+    
+    if (useCustomAvatar) {
+      // If using predefined avatar, check if selection changed
+      return selectedAvatar !== (originalAvatarState.avatarId || null);
+    } else {
+      // If using avatar generator, check if any options changed
+      return (
+        selectedHair !== (originalAvatarState.hair || 1) ||
+        selectedFace !== (originalAvatarState.face || 1) ||
+        selectedOutfit !== (originalAvatarState.outfit || 1) ||
+        selectedAccessory !== (originalAvatarState.accessory || 0)
+      );
+    }
   };
   
   // Cancel changes and go back
@@ -170,15 +181,24 @@ const AvatarCustomizationSettingsScreen = () => {
   // Preview component to show the current avatar selection
   const AvatarPreview = () => (
     <View style={styles.previewContainer}>
-      <Image 
-        source={require('../../../assets/avatars/placeholder.png')} // Replace with your actual avatar generation logic
-        style={styles.previewImage}
-      />
+      {useCustomAvatar && selectedAvatar ? (
+        // Show the selected predefined avatar
+        <Image
+          source={predefinedAvatars.find(avatar => avatar.id === selectedAvatar).source}
+          style={styles.previewImage}
+        />
+      ) : (
+        // Show generated avatar
+        <Image 
+          source={require('../../../assets/avatars/placeholder.png')}
+          style={styles.previewImage}
+        />
+      )}
       <Text style={styles.previewText}>Your Avatar</Text>
     </View>
   );
   
-  // Option selector component
+  // Option selector component for character builder
   const OptionSelector = ({ title, options, selectedOption, setSelectedOption, renderOption }) => (
     <View style={styles.selectorContainer}>
       <Text style={styles.selectorTitle}>{title}</Text>
@@ -217,37 +237,81 @@ const AvatarCustomizationSettingsScreen = () => {
         </TouchableOpacity>
       </View>
       
+      {/* Toggle between avatar types */}
+      <View style={styles.avatarTypeSelector}>
+        <TouchableOpacity 
+          style={[styles.avatarTypeButton, !useCustomAvatar && styles.activeAvatarTypeButton]}
+          onPress={() => setUseCustomAvatar(false)}
+        >
+          <Text style={[styles.avatarTypeText, !useCustomAvatar && styles.activeAvatarTypeText]}>
+            Avatar Builder
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.avatarTypeButton, useCustomAvatar && styles.activeAvatarTypeButton]}
+          onPress={() => setUseCustomAvatar(true)}
+        >
+          <Text style={[styles.avatarTypeText, useCustomAvatar && styles.activeAvatarTypeText]}>
+            Choose Avatar
+          </Text>
+        </TouchableOpacity>
+      </View>
+      
       <AvatarPreview />
       
-      <ScrollView style={styles.scrollContainer}>
-        <OptionSelector 
-          title="Hair Style" 
-          options={hairStyles} 
-          selectedOption={selectedHair} 
-          setSelectedOption={setSelectedHair} 
-        />
-        
-        <OptionSelector 
-          title="Face" 
-          options={faceStyles} 
-          selectedOption={selectedFace} 
-          setSelectedOption={setSelectedFace} 
-        />
-        
-        <OptionSelector 
-          title="Outfit" 
-          options={outfitStyles} 
-          selectedOption={selectedOutfit} 
-          setSelectedOption={setSelectedOutfit} 
-        />
-        
-        <OptionSelector 
-          title="Accessories" 
-          options={accessoryStyles} 
-          selectedOption={selectedAccessory} 
-          setSelectedOption={setSelectedAccessory} 
-        />
-      </ScrollView>
+      {useCustomAvatar ? (
+        // Show predefined avatars grid
+        <ScrollView style={styles.predefinedAvatarsContainer}>
+          <View style={styles.avatarGrid}>
+            {predefinedAvatars.map((avatar) => (
+              <TouchableOpacity
+                key={avatar.id}
+                style={[
+                  styles.avatarGridItem,
+                  selectedAvatar === avatar.id && styles.selectedAvatarGridItem,
+                ]}
+                onPress={() => setSelectedAvatar(avatar.id)}
+              >
+                <Image
+                  source={avatar.source}
+                  style={styles.avatarGridImage}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      ) : (
+        // Show character builder options
+        <ScrollView style={styles.scrollContainer}>
+          <OptionSelector 
+            title="Hair Style" 
+            options={hairStyles} 
+            selectedOption={selectedHair} 
+            setSelectedOption={setSelectedHair} 
+          />
+          
+          <OptionSelector 
+            title="Face" 
+            options={faceStyles} 
+            selectedOption={selectedFace} 
+            setSelectedOption={setSelectedFace} 
+          />
+          
+          <OptionSelector 
+            title="Outfit" 
+            options={outfitStyles} 
+            selectedOption={selectedOutfit} 
+            setSelectedOption={setSelectedOutfit} 
+          />
+          
+          <OptionSelector 
+            title="Accessories" 
+            options={accessoryStyles} 
+            selectedOption={selectedAccessory} 
+            setSelectedOption={setSelectedAccessory} 
+          />
+        </ScrollView>
+      )}
       
       <LoadingModal visible={isLoading} />
     </SafeAreaView>
@@ -281,6 +345,30 @@ const styles = StyleSheet.create({
   disabledButtonText: {
     color: '#c0c0c0',
   },
+  avatarTypeSelector: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F67B7B',
+  },
+  avatarTypeButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  activeAvatarTypeButton: {
+    backgroundColor: '#F67B7B',
+  },
+  avatarTypeText: {
+    fontWeight: '500',
+    color: '#F67B7B',
+  },
+  activeAvatarTypeText: {
+    color: 'white',
+  },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -299,6 +387,34 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 16,
     fontWeight: '500',
+  },
+  predefinedAvatarsContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  avatarGridItem: {
+    width: '30%',
+    aspectRatio: 1,
+    marginBottom: 16,
+    borderRadius: 8,
+    padding: 4,
+    backgroundColor: '#f0f0f0',
+  },
+  selectedAvatarGridItem: {
+    borderWidth: 3,
+    borderColor: '#F67B7B',
+    backgroundColor: '#e0f0ff',
+  },
+  avatarGridImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+    resizeMode: 'cover',
   },
   scrollContainer: {
     flex: 1,
