@@ -222,7 +222,8 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
         <View style={styles.bottomView}> 
           <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
-          <Button title="Yes, Begin!" onPress={handleNextScreen}/>
+          <Button title="Yes, Begin!" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
+
         </View>
       
       </View>

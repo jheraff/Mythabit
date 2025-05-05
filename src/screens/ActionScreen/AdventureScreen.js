@@ -7,9 +7,9 @@ function getRandomDelay() {
   return Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
 }
 
-export default function AdventureScreen(route, extraData) {
+export default function AdventureScreen({ route }) {
   const { selectedIndex } = route.params || {};
-  console.log(selectedIndex);
+  console.log('Selected index:', selectedIndex);
   const [playerStats, setPlayerStats] = useState({ agility: 0, arcane: 0, focus: 0, intellect: 0, strength: 0 });
   const [playerLevel, setPlayerLevel] = useState(1);
   const [playerHealth, setPlayerHealth] = useState(5);
@@ -22,11 +22,21 @@ export default function AdventureScreen(route, extraData) {
   const [adventureProgress, setAdventureProgress] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [battleLog, setBattleLog] = useState([]);
-
+  const [currentMonsterHP, setCurrentMonsterHP] = useState(0);
+  const [currentMonsterMaxHP, setCurrentMonsterMaxHP] = useState(0);
+  
   const borderColorAnim = useRef(new Animated.Value(0)).current;
   const [logColorTarget, setLogColorTarget] = useState('#555');
   const scrollViewRef = useRef(null);
+  const [floorData, setFloorData] = useState(null);
 
+  const monsterWeaknesses = {
+    squishy: 'strength',
+    range: 'focus',
+    medium: 'intellect',
+    tank: 'arcane',
+  };
+  
   const interpolatedBorderColor = borderColorAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['#555', logColorTarget],
@@ -36,15 +46,30 @@ export default function AdventureScreen(route, extraData) {
   const timerIdRef = useRef(null);
   const playerLootRef = useRef(0);
   const encounterListRef = useRef([]);
+  const playerHealthRef = useRef(5);
+
 
   const attackPulseAnim = useRef(new Animated.Value(0)).current;
 const hitFlashAnim = useRef(new Animated.Value(0)).current;
 const lowHealthShake = useRef(new Animated.Value(0)).current;
 const victoryGlowAnim = useRef(new Animated.Value(0)).current;
 
-function loadfloor(selectedIndex){
-  
+async function loadFloorData(index) {
+  const floorDocName = `floor${index + 1}`;
+  const docRef = doc(db, 'dungeonfloors', floorDocName);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    console.log('Floor data:', data);
+    return data;
+  } else {
+    console.warn('No such floor!');
+    return null;
+  }
 }
+
+
 
 function flashAttackEffect() {
   attackPulseAnim.setValue(0);
@@ -97,6 +122,7 @@ function shakeIfLowHealth(hp) {
       setPlayerStats(stats);
       setPlayerLevel(level);
       setPlayerHealth(level * 5);
+      playerHealthRef.current = level * 5; 
     }
   }
 
@@ -106,10 +132,14 @@ function shakeIfLowHealth(hp) {
       const monsters = docSnap.data();
       const names = Object.keys(monsters);
       const randomName = names[Math.floor(Math.random() * names.length)];
-      return { name: randomName, ...monsters[randomName] };
+      return {
+        name: randomName,
+        class: categoryName.toLowerCase(), // Infer class from document name
+        ...monsters[randomName],
+      };
     }
     return null;
-  }
+  }  
 
   async function getRandomBoss() {
     const docSnap = await getDoc(doc(db, 'monsters', 'Boss'));
@@ -125,31 +155,53 @@ function shakeIfLowHealth(hp) {
   async function giveLoot(playerLootCount) {
     try {
       const userId = auth.currentUser?.uid;
-      if (!userId) return;
-
+      if (!userId || !floorData) return;
+  
       const dungeonLootDoc = await getDoc(doc(db, 'items', 'dungeonloot'));
       if (!dungeonLootDoc.exists()) return;
-
+  
       const lootData = dungeonLootDoc.data();
-      const lootItems = Object.keys(lootData).map((key) => ({ id: key, ...lootData[key] }));
-      if (lootItems.length === 0) return;
-
+      const lootdrops = floorData.lootdrops;
+  
+      // Helper function to pick rarity based on percentage
+      function getRandomRarity(rarityMap) {
+        const entries = Object.entries(rarityMap);
+        const total = entries.reduce((sum, [, percent]) => sum + percent, 0);
+        const roll = Math.random() * total;
+        let cumulative = 0;
+  
+        for (const [rarity, percent] of entries) {
+          cumulative += percent;
+          if (roll <= cumulative) return rarity;
+        }
+        return 'Common'; // fallback
+      }
+  
       const rewards = [];
       for (let i = 0; i < playerLootCount; i++) {
-        const randomItem = lootItems[Math.floor(Math.random() * lootItems.length)];
-        rewards.push(randomItem);
+        const chosenRarity = getRandomRarity(lootdrops);
+        const filteredItems = Object.entries(lootData)
+          .filter(([_, item]) => item.rarity === chosenRarity)
+          .map(([id, item]) => ({ id, ...item }));
+  
+        if (filteredItems.length > 0) {
+          const randomItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
+          rewards.push(randomItem);
+        }
       }
-
+  
+      // Add rewards to player inventory
       const userDocRef = doc(db, 'users', userId);
       const userDocSnap = await getDoc(userDocRef);
       if (!userDocSnap.exists()) return;
       const userData = userDocSnap.data();
       const currentInventory = userData.inventory || [];
-
+  
       await updateDoc(userDocRef, {
         inventory: [...currentInventory, ...rewards],
       });
-
+  
+      // Summary
       const itemCounts = {};
       for (const item of rewards) {
         const key = item.name;
@@ -158,46 +210,94 @@ function shakeIfLowHealth(hp) {
         }
         itemCounts[key].count += 1;
       }
-
+  
       const rewardSummary = Object.entries(itemCounts)
-        .map(([name, data]) => `• ${data.count}x ${name}`)
+        .map(([name, data]) => `• ${data.count}x ${name} (${data.rarity})`)
         .join('\n');
-
+  
       alert(`You have received:\n${rewardSummary}`);
     } catch (error) {
       console.error('Error giving loot:', error);
     }
   }
+  
 
+  function getRandomMonsterClass(spawnRates) {
+    const total = Object.values(spawnRates).reduce((a, b) => a + b, 0);
+    const roll = Math.random() * total;
+    let cumulative = 0;
+    
+    for (const [type, percent] of Object.entries(spawnRates)) {
+      cumulative += percent;
+      if (roll <= cumulative) return type;
+    }
+    return 'squishy'; // fallback
+  }
+  
   async function simulateCombat(monster) {
     return new Promise(async (resolve) => {
-      let playerHP = playerHealth;
+      let playerHP = playerHealthRef.current;
       let monsterHP = monster.health;
-      const playerAttack = playerStats.strength + playerStats.agility;
+  
+      setCurrentMonsterHP(monster.health);
+      setCurrentMonsterMaxHP(monster.health);
+  
+      const playerAttackBase = playerStats.strength + playerStats.agility;
       const playerDefense = playerStats.focus + playerStats.intellect;
   
+      const monsterEvasion = monster.evasion || 0;
+      const monsterClass = monster.class?.toLowerCase() || 'unknown';
+      const weaknessStat = monsterWeaknesses[monsterClass];
+      const weaknessBonus = weaknessStat ? (playerStats[weaknessStat] || 0) * 0.2 : 0;
+  
+      const playerEvasionChance = Math.min(70, (playerStats.agility / 100) * 70);
+  
       while (playerHP > 0 && monsterHP > 0) {
-        // Player attacks
         await new Promise((r) => setTimeout(r, 700));
-        const damageToMonster = Math.max(0, playerAttack - monster.defense);
-        monsterHP -= damageToMonster;
-        flashAttackEffect();
-        setBattleLog((prev) => [...prev, `You hit ${monster.name} for ${damageToMonster} damage!`]);
+  
+        // --- Monster tries to evade player attack
+        if (Math.random() * 100 < monsterEvasion) {
+          setBattleLog((prev) => [...prev, `${monster.name} evaded your attack!`]);
+        } else {
+          const monsterDefenseFactor = monster.defense / (monster.defense + 50);
+          const damageToMonster = Math.max(
+            1,
+            Math.round((playerAttackBase + weaknessBonus) * (1 - monsterDefenseFactor))
+          );
+          monsterHP -= damageToMonster;
+          setCurrentMonsterHP(Math.max(0, monsterHP));
+          flashAttackEffect();
+          setBattleLog((prev) => [...prev, `You hit ${monster.name} for ${damageToMonster} damage!`]);
+        }
+  
         if (monsterHP <= 0) break;
   
-        // Monster attacks
         await new Promise((r) => setTimeout(r, 700));
-        const damageToPlayer = Math.max(0, monster.attack - playerDefense);
-        playerHP -= damageToPlayer;
-        flashHitEffect();
-        setBattleLog((prev) => [...prev, `${monster.name} hits you for ${damageToPlayer} damage!`]);
+  
+        // --- Player tries to evade monster attack
+        if (Math.random() * 100 < playerEvasionChance) {
+          setBattleLog((prev) => [...prev, `You evaded ${monster.name}'s attack!`]);
+        } else {
+          const playerDefenseFactor = playerDefense / (playerDefense + 50);
+          const damageToPlayer = Math.max(
+            1,
+            Math.round(monster.attack * (1 - playerDefenseFactor))
+          );
+          playerHP -= damageToPlayer;
+          flashHitEffect();
+          shakeIfLowHealth(playerHP);
+          setBattleLog((prev) => [...prev, `${monster.name} hits you for ${damageToPlayer} damage!`]);
+        }
       }
   
-      shakeIfLowHealth(playerHP);
-      resolve({ playerWins: playerHP > 0, remainingHP: Math.max(0, playerHP) });
+      resolve({
+        playerWins: playerHP > 0,
+        remainingHP: Math.max(0, playerHP),
+      });
     });
   }
   
+
 
   function animateLogBorder(color) {
     setLogColorTarget(color);
@@ -209,6 +309,11 @@ function shakeIfLowHealth(hp) {
     }).start();
   }
 
+  function getRandomInRangeFromMax(max) {
+    const min = Math.floor(max * 0.4);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   async function startAdventure() {
     await loadPlayerStats();
     setAdventureResult('in-progress');
@@ -216,11 +321,14 @@ function shakeIfLowHealth(hp) {
     setDisplayText('Adventure begins...');
     setBattleLog([]);
     animateLogBorder('#555');
-
-    const numMonsters = Math.floor(Math.random() * 4) + 5;
-    const numLoot = Math.floor(Math.random() * 3) + 1;
-    const numExploring = Math.floor(Math.random() * 4) + 2;
-    const numBoss = 1;
+    const fetchedFloorData = await loadFloorData(selectedIndex);
+    if (!fetchedFloorData) return;
+    setFloorData(fetchedFloorData);
+    
+    const numMonsters = getRandomInRangeFromMax(fetchedFloorData.maxEnemies);
+    const numLoot = getRandomInRangeFromMax(fetchedFloorData.maxLoot);
+    const numExploring =  getRandomInRangeFromMax(fetchedFloorData.maxExploring);
+    const numBoss = fetchedFloorData.maxBoss || 1;
     const totalEncounters = numMonsters + numLoot + numExploring + numBoss;
 
     const encounterQueue = [];
@@ -243,29 +351,37 @@ function shakeIfLowHealth(hp) {
   }
 
   useEffect(() => {
-    if (!isAdventureStarted) return;
+    if (!isAdventureStarted || !floorData) return;
 
-    async function doEncounter() {
+  async function doEncounter() {
       const type = encounterListRef.current?.[encounterRef.current];
       if (!type) return;
 
       setBattleLog([]);
 
       if (type === 'monster') {
-        const monster = await getRandomMonsterFromCategory('Squishy');
+        const classType = getRandomMonsterClass(floorData.enemyspawn); 
+        const monster = await getRandomMonsterFromCategory(classType.charAt(0).toUpperCase() + classType.slice(1));
         if (monster) {
           setDisplayText(`Encounter: ${monster.name}`);
           animateLogBorder('#8b0000');
-          const result = await simulateCombat(monster);
+          const result = await simulateCombat(monster, playerHealth);
+
 
           if (!result.playerWins) {
-            setDisplayText(`Defeated by ${monster.name}...`);
+            setBattleLog((prev) => [...prev, `You were defeated by ${monster.name}...`]);
+            setDisplayText(`You were defeated by ${monster.name}...`);
+            await new Promise((r) => setTimeout(r, 1500));
             setAdventureResult('lost');
             setIsAdventureStarted(false);
             return;
           }
 
+          await new Promise((r) => setTimeout(r, 500));
+          setBattleLog((prev) => [...prev, `You defeated the ${monster.name}!`]);
+          await new Promise((r) => setTimeout(r, 1000));
           setPlayerHealth(result.remainingHP);
+          playerHealthRef.current = result.remainingHP;
           setEnemies((e) => Math.max(0, e - 1));
         }
       } else if (type === 'loot') {
@@ -290,16 +406,28 @@ function shakeIfLowHealth(hp) {
         if (bossMonster) {
           setDisplayText(`Boss Encounter: ${bossMonster.name}`);
           animateLogBorder('#800080');
-          const result = await simulateCombat(bossMonster);
+          const result = await simulateCombat(bossMonster, playerHealth);
+
+          setPlayerHealth(result.remainingHP);
+          playerHealthRef.current = result.remainingHP;
+
+
+
 
           if (!result.playerWins) {
-            setDisplayText(`The boss ${bossMonster.name} defeated you!`);
+            setBattleLog((prev) => [...prev, `You were slain by the boss ${bossMonster.name}...`]);
+            setDisplayText(`You were slain by the boss ${bossMonster.name}...`);
+            await new Promise((r) => setTimeout(r, 1500));
             setAdventureResult('lost');
             setIsAdventureStarted(false);
             return;
           }
-
+          await new Promise((r) => setTimeout(r, 500));
+          setBattleLog((prev) => [...prev, `You defeated the boss ${bossMonster.name}!`]);
+          await new Promise((r) => setTimeout(r, 1500));
           setPlayerHealth(result.remainingHP);
+          playerHealthRef.current = result.remainingHP;
+
           setBoss((b) => Math.max(0, b - 1));
         }
       }
@@ -327,7 +455,7 @@ function shakeIfLowHealth(hp) {
     return () => {
       if (timerIdRef.current) clearTimeout(timerIdRef.current);
     };
-  }, [isAdventureStarted]);
+  }, [isAdventureStarted, floorData]);
 
   return (
     <View style={styles.container}>
