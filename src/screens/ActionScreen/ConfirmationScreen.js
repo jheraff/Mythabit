@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { doc, updateDoc,getDoc, getDocs, query, collection} from 'firebase/firestore';
+import { doc, updateDoc,getDoc, getDocs, query, collection, setDoc} from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
@@ -9,10 +9,14 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const { selectedIndex } = route.params || {};
     const [numberArray, setNumberArray] = useState([]);
 
-    const [mainWeapon, setMainWeapon] = useState(null); 
+    const [currSlot, setCurrSlot] = useState([]);
+
+
+    const [mainWeapon, setMainWeapon] = useState(null);
     const [mainArmor, setMainAmor] = useState(null);
     const [mainPotion, setMainPotion] = useState(null);
-    
+
+
     const [inventoryArmor, setInventoryArmor] = useState(null);
     const [inventoryWeapon, setInventoryWeapon] = useState(null);
     const [inventoryPotion, setInventoryPotion] = useState(null);
@@ -25,6 +29,20 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       fetchPotion();
       console.log('floor: ' + selectedIndex);
     }, []);
+
+
+   
+
+
+    const updateEquippedSlot = async (slot, itemData) => {
+      try {
+        await setDoc(doc(db, 'equippedItems', slot), itemData);
+        console.log('Updated ${slot} with', itemData);
+        fetchEquipped();
+      } catch (err) {
+        console.error('Failed to update', error);
+      }
+    };
 
     const fetchArmor = async () => {
       try {
@@ -114,11 +132,11 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     };
 
     const renderInventory = (category) => {
-      if (category == 'sword') {
+      if (category == 'weaponSlot') {
         setNumberArray(inventoryWeapon);
-      } else if (category == 'Potion') {
+      } else if (category == 'potionSlot') {
         setNumberArray(inventoryPotion);
-      } else if (category == 'Armor') {
+      } else if (category == 'armorSlot') {
         setNumberArray(inventoryArmor);
       
       }
@@ -135,6 +153,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const handleMenu = (value) => {
       renderInventory(value);
       console.log(value);
+      setCurrSlot(value);
       setVisible(true);
 
     };
@@ -148,6 +167,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       console.log('Updated inventory', inventoryWeapon);
 
     }, [inventoryWeapon]);
+
     
     
     return (
@@ -164,7 +184,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
           <Pressable style={styles.overlay} onPress={() => {setVisible(false); setTempItem(" "); }} />
           <View style={styles.menu}>
             <Pressable onPress={() => setVisible(false)}>
-              <Text style={{ color: 'blue', fontSize: 18 }}>Close</Text>
+              <Text style={{ color: 'white', fontSize: 18 }}>Close</Text>
             </Pressable>
 
             <View style={styles.quickMenu}>
@@ -179,16 +199,25 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             </View>
               
             <View style={styles.updateButton}> 
-              <Button title="Update Item" onPress={null}/>
+            <Button
+              title="Update Item?"
+              onPress={() => {
+                if (tempItem) {
+                  updateEquippedSlot(currSlot, tempItem);
+                } else {
+                  console.log('No item selected');
+                }
+              }}
+            />
             </View>
 
             <TouchableOpacity style ={[styles.itemBox ,{height: 100,width: 100, bottom: 160,left: 30, backgroundColor:'lightgrey'}]}
             onPress={() => {console.log('hi')} }>
-              <Text> Weapon selected: {tempItem?.name || 'No item selected'}</Text>
+              <Text> Item selected: {tempItem?.name || 'No item selected'}</Text>
             </TouchableOpacity>
 
             <View style ={[styles.itemBox ,{height: 100,width: 100, bottom: 275,left: 200,backgroundColor:'lightgrey'}]}>
-              <Text> Current Weapon:</Text>
+              <Text> Current Item:</Text>
               <Text> {mainWeapon?.name || 'None equipped'}</Text>
             </View>
 
@@ -207,14 +236,14 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
         <View style={styles.middleView}> 
           
-          <TouchableOpacity style={[styles.slotOne, {top: 280}]} onPress={() => handleMenu('Armor')}> 
+          <TouchableOpacity style={[styles.slotOne, {top: 280}]} onPress={() => handleMenu('armorSlot')}> 
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
             <Text style={styles.itemTitle}> {mainArmor?.name || 'None equipped'} </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.slotOne, {top: 20}]} onPress={() => {handleMenu('sword')}}> 
+          <TouchableOpacity style={[styles.slotOne, {top: 20}]} onPress={() => {handleMenu('weaponSlot')}}> 
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
@@ -224,7 +253,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
           </TouchableOpacity>
 
 
-          <TouchableOpacity style={[styles.slotOne, {bottom: 240,}]} onPress={() => handleMenu('Potion')}> 
+          <TouchableOpacity style={[styles.slotOne, {bottom: 240,}]} onPress={() => handleMenu('potionSlot')}> 
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Potion </Text>
