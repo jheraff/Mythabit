@@ -9,14 +9,15 @@ const TowerScreen = ({ navigation, extraData }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     
     const handlePress = (index) => {
-      setSelectedIndex(index );
+      setSelectedIndex(index);
       console.log('Pressed index:', index + 1);
       
     };
     return (
       <View style={styles.container}>
-
-        <Text style={{color: 'black', fontSize: 50}}>Daily Tower</Text>
+        <View style={styles.topView}> 
+          <Text style={{color: 'white', fontSize: 50}}>Daily Tower</Text> 
+        </View>
 
         <View style={styles.towerContainer}> 
           <ScrollView style={styles.towerView}> 
@@ -47,7 +48,7 @@ const TowerScreen = ({ navigation, extraData }) => {
           
 
         <View style={styles.bottomView}>
-          <Text>Choose a floor</Text>
+          <Text style={{color: 'white'}}>Choose a floor</Text>
           <Button 
             title="Proceed" 
             onPress={() => navigation.navigate('Confirmation',{selectedIndex})} 
@@ -64,6 +65,12 @@ const TowerScreen = ({ navigation, extraData }) => {
     container: { 
       flex: 1, 
       justifyContent: 'center', 
+      alignItems: 'center',
+    },
+
+    topView: {
+      backgroundColor: '#1c2d63',
+      width: 400,
       alignItems: 'center',
     },
 
@@ -101,11 +108,16 @@ const TowerScreen = ({ navigation, extraData }) => {
 
     bottomView: {
       marginTop: 20,
+      backgroundColor: '#1c2d63',
+      width: 400,
+      height: 90,
+      alignItems: 'center',
     },
 
     title: { 
       fontSize: 20, 
       marginBottom: 20,
+      
     },
 
   });
