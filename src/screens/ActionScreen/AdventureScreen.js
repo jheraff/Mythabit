@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
+import { useNavigation } from '@react-navigation/native';
 
 function getRandomDelay() {
   return Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
 }
 
+
 export default function AdventureScreen({ route }) {
+  const navigation = useNavigation();
   const { selectedIndex } = route.params || {};
   console.log('Selected index:', selectedIndex);
   const [playerStats, setPlayerStats] = useState({ agility: 0, arcane: 0, focus: 0, intellect: 0, strength: 0 });
@@ -24,12 +27,43 @@ export default function AdventureScreen({ route }) {
   const [battleLog, setBattleLog] = useState([]);
   const [currentMonsterHP, setCurrentMonsterHP] = useState(0);
   const [currentMonsterMaxHP, setCurrentMonsterMaxHP] = useState(0);
+  const [isLoadingScreen, setIsLoadingScreen] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const adventureStartedRef = useRef(false);
+
   
   const borderColorAnim = useRef(new Animated.Value(0)).current;
   const [logColorTarget, setLogColorTarget] = useState('#555');
   const scrollViewRef = useRef(null);
   const [floorData, setFloorData] = useState(null);
 
+  const simulateLoadingScreen = () => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 15) + 5;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setLoadingProgress(progress);
+  
+        // ✅ Run once only
+        if (!adventureStartedRef.current) {
+          adventureStartedRef.current = true;
+          setTimeout(() => {
+            setIsLoadingScreen(false);
+            setLoadingProgress(0);
+            startAdventure();
+          }, 300);
+        }
+      } else {
+        setLoadingProgress(progress);
+      }
+    }, 150);
+  };
+  
+  
+  
+  
   const monsterWeaknesses = {
     squishy: 'strength',
     range: 'focus',
@@ -44,7 +78,8 @@ export default function AdventureScreen({ route }) {
 
   const encounterRef = useRef(0);
   const timerIdRef = useRef(null);
-  const playerLootRef = useRef(0);
+  const playerLootRef = useRef({ items: [], count: 0 });
+
   const encounterListRef = useRef([]);
   const playerHealthRef = useRef(5);
 
@@ -152,56 +187,60 @@ function shakeIfLowHealth(hp) {
     return null;
   }
 
-  async function giveLoot(playerLootCount) {
+  function getRandomRarity(rarityMap) {
+    const entries = Object.entries(rarityMap).filter(([, percent]) => percent > 0);
+    const total = entries.reduce((sum, [, percent]) => sum + percent, 0);
+    const roll = Math.random() * total;
+    let cumulative = 0;
+  
+    for (const [rarity, percent] of entries) {
+      cumulative += percent;
+      if (roll <= cumulative) return rarity;
+    }
+    return 'Common'; // fallback
+  }
+  
+  async function getRandomLootItemByRarity(rarity) {
+    const dungeonLootDoc = await getDoc(doc(db, 'items', 'dungeonloot'));
+    if (!dungeonLootDoc.exists()) return null;
+  
+    const lootData = dungeonLootDoc.data();
+    const filteredItems = Object.entries(lootData)
+      .filter(([_, item]) => item.rarity === rarity)
+      .map(([id, item]) => ({ id, ...item }));
+  
+    if (filteredItems.length === 0) return null;
+    return filteredItems[Math.floor(Math.random() * filteredItems.length)];
+  }
+  
+
+  async function giveLoot() {
     try {
       const userId = auth.currentUser?.uid;
-      if (!userId || !floorData) return;
+      if (!userId) return;
   
-      const dungeonLootDoc = await getDoc(doc(db, 'items', 'dungeonloot'));
-      if (!dungeonLootDoc.exists()) return;
-  
-      const lootData = dungeonLootDoc.data();
-      const lootdrops = floorData.lootdrops;
-  
-      // Helper function to pick rarity based on percentage
-      function getRandomRarity(rarityMap) {
-        const entries = Object.entries(rarityMap);
-        const total = entries.reduce((sum, [, percent]) => sum + percent, 0);
-        const roll = Math.random() * total;
-        let cumulative = 0;
-  
-        for (const [rarity, percent] of entries) {
-          cumulative += percent;
-          if (roll <= cumulative) return rarity;
-        }
-        return 'Common'; // fallback
+      // Ensure playerLootRef.current.items is a valid array
+      if (!Array.isArray(playerLootRef.current.items)) {
+        console.error('playerLootRef.current.items is not an array:', playerLootRef.current.items);
+        return;
       }
   
-      const rewards = [];
-      for (let i = 0; i < playerLootCount; i++) {
-        const chosenRarity = getRandomRarity(lootdrops);
-        const filteredItems = Object.entries(lootData)
-          .filter(([_, item]) => item.rarity === chosenRarity)
-          .map(([id, item]) => ({ id, ...item }));
+      const rewards = playerLootRef.current.items;
+      if (rewards.length === 0) return;
   
-        if (filteredItems.length > 0) {
-          const randomItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
-          rewards.push(randomItem);
-        }
-      }
-  
-      // Add rewards to player inventory
       const userDocRef = doc(db, 'users', userId);
       const userDocSnap = await getDoc(userDocRef);
       if (!userDocSnap.exists()) return;
-      const userData = userDocSnap.data();
-      const currentInventory = userData.inventory || [];
   
+      const userData = userDocSnap.data();
+      const currentInventory = Array.isArray(userData.inventory) ? userData.inventory : [];
+  
+      // Update inventory
       await updateDoc(userDocRef, {
         inventory: [...currentInventory, ...rewards],
       });
   
-      // Summary
+      // Build reward summary
       const itemCounts = {};
       for (const item of rewards) {
         const key = item.name;
@@ -216,10 +255,17 @@ function shakeIfLowHealth(hp) {
         .join('\n');
   
       alert(`You have received:\n${rewardSummary}`);
+  
+      // Reset loot tracking
+      playerLootRef.current.items = [];
+      playerLootRef.current.count = 0;
     } catch (error) {
       console.error('Error giving loot:', error);
     }
   }
+  
+  
+  
   
 
   function getRandomMonsterClass(spawnRates) {
@@ -315,42 +361,52 @@ function shakeIfLowHealth(hp) {
   }
 
   async function startAdventure() {
+    setIsLoadingScreen(true);
+    setLoadingProgress(0);
+  
     await loadPlayerStats();
-    setAdventureResult('in-progress');
-    setAdventureProgress(0);
-    setDisplayText('Adventure begins...');
-    setBattleLog([]);
-    animateLogBorder('#555');
+    setLoadingProgress(20);
+  
     const fetchedFloorData = await loadFloorData(selectedIndex);
     if (!fetchedFloorData) return;
     setFloorData(fetchedFloorData);
-    
+    setLoadingProgress(50);
+  
     const numMonsters = getRandomInRangeFromMax(fetchedFloorData.maxEnemies);
     const numLoot = getRandomInRangeFromMax(fetchedFloorData.maxLoot);
-    const numExploring =  getRandomInRangeFromMax(fetchedFloorData.maxExploring);
+    const numExploring = getRandomInRangeFromMax(fetchedFloorData.maxExploring);
     const numBoss = fetchedFloorData.maxBoss || 1;
     const totalEncounters = numMonsters + numLoot + numExploring + numBoss;
-
+  
     const encounterQueue = [];
     for (let i = 0; i < numMonsters; i++) encounterQueue.push('monster');
     for (let i = 0; i < numLoot; i++) encounterQueue.push('loot');
     for (let i = 0; i < numExploring; i++) encounterQueue.push('explore');
     shuffleArray(encounterQueue);
     encounterQueue.push('boss');
-
+  
     encounterRef.current = 0;
     encounterListRef.current = encounterQueue;
     setLoot(numLoot);
     setEnemies(numMonsters);
     setBoss(numBoss);
     setEncounters(totalEncounters);
-
+    setLoadingProgress(100);
+  
     setTimeout(() => {
+      setIsLoadingScreen(false);
       setIsAdventureStarted(true);
-    }, 100);
+      setAdventureResult('in-progress');
+      setAdventureProgress(0);
+      setDisplayText('Adventure begins...');
+      setBattleLog([]);
+      animateLogBorder('#555');
+    }, 500);
   }
-
+  
+  //startAdventure();
   useEffect(() => {
+     simulateLoadingScreen(); // begin the loading bar
     if (!isAdventureStarted || !floorData) return;
 
   async function doEncounter() {
@@ -385,18 +441,22 @@ function shakeIfLowHealth(hp) {
           setEnemies((e) => Math.max(0, e - 1));
         }
       } else if (type === 'loot') {
-        const dungeonLootDoc = await getDoc(doc(db, 'items', 'dungeonloot'));
-        if (dungeonLootDoc.exists()) {
-          const lootData = dungeonLootDoc.data();
-          const lootItems = Object.keys(lootData).map((key) => ({ id: key, ...lootData[key] }));
-          if (lootItems.length > 0) {
-            const randomItem = lootItems[Math.floor(Math.random() * lootItems.length)];
-            setDisplayText(`Found loot: ${randomItem.name}`);
-            setBattleLog((prev) => [...prev, `You found ${randomItem.name}`]);
-            animateLogBorder('#d4af37');
+        if (!floorData || !floorData.lootdrops) return;
+      
+        const chosenRarity = getRandomRarity(floorData.lootdrops);
+        const lootItem = await getRandomLootItemByRarity(chosenRarity);
+      
+        if (lootItem) {
+          setDisplayText(`Found loot: ${lootItem.name}`);
+          setBattleLog((prev) => [...prev, `You found ${lootItem.name}`]);
+          animateLogBorder('#d4af37');
+      
+          if (!playerLootRef.current.items) {
+            playerLootRef.current.items = [];
           }
-        }
-        playerLootRef.current++;
+          playerLootRef.current.items.push(lootItem);
+          playerLootRef.current.count++;
+        }          
         setLoot((l) => Math.max(0, l - 1));
       } else if (type === 'explore') {
         setDisplayText('Exploring...');
@@ -433,19 +493,46 @@ function shakeIfLowHealth(hp) {
       }
 
       encounterRef.current++;
-      const progress = Math.min(100, Math.floor((encounterRef.current / encounters) * 100));
+      const total = encounterListRef.current.length || 1;
+      const progress = Math.floor((encounterRef.current / total) * 100);
       setAdventureProgress(progress);
 
-      if (encounterRef.current >= encounters) {
-        if (playerLootRef.current > 0) {
-          await giveLoot(playerLootRef.current);
-          playerLootRef.current = 0;
-        }
+      if (encounterRef.current >= total) {
+
+        let rewardSummary = '';
+      
+        if (playerLootRef.current.items.length > 0) {
+          await giveLoot(); 
+          const itemCounts = {};
+          for (const item of playerLootRef.current.items) {
+            const key = item.name;
+            if (!itemCounts[key]) {
+              itemCounts[key] = { count: 0, rarity: item.rarity };
+            }
+            itemCounts[key].count += 1;
+          }
+      
+          rewardSummary = Object.entries(itemCounts)
+          .map(([name, data]) => `• ${data.count}x ${name} (${data.rarity})`)
+          .join('\n');
+      
+        await giveLoot(); 
+      }
+      
         setAdventureResult('won');
         setDisplayText('Adventure complete!');
         setIsAdventureStarted(false);
+      
+        if (rewardSummary) {
+          setTimeout(() => {
+            alert(`Adventure complete!\nYou have received:\n${rewardSummary}`);
+          }, 500);
+        }
+      
         return;
       }
+      
+      
 
       timerIdRef.current = setTimeout(doEncounter, getRandomDelay());
     }
@@ -455,20 +542,36 @@ function shakeIfLowHealth(hp) {
     return () => {
       if (timerIdRef.current) clearTimeout(timerIdRef.current);
     };
-  }, [isAdventureStarted, floorData]);
-
+  }, [isLoadingScreen, isAdventureStarted, floorData]);
   return (
     <View style={styles.container}>
-      {!isAdventureStarted && adventureResult !== 'in-progress' ? (
+      {isLoadingScreen ? (
+        // 1. Loading Screen
         <View style={styles.startContainer}>
-          <Text style={styles.title}>Adventure</Text>
-          {adventureResult === 'won' && <Text style={styles.resultText}>You won!</Text>}
-          {adventureResult === 'lost' && <Text style={styles.resultText}>You lost!</Text>}
-          <TouchableOpacity style={styles.button} onPress={startAdventure}>
-            <Text style={styles.buttonText}>Start Adventure</Text>
+          <Text style={styles.title}>Loading Adventure...</Text>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: `${loadingProgress}%` }]} />
+            <Text style={styles.progressText}>{loadingProgress}%</Text>
+          </View>
+        </View>
+      ) : adventureResult === 'won' || adventureResult === 'lost' ? (
+        // 2. Result Screen
+        <View style={styles.startContainer}>
+          <Text style={styles.title}>
+            {adventureResult === 'won' ? 'You won!' : 'You lost!'}
+          </Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('Action', {
+              screen: 'ActionMain'
+            })}
+          >
+            <Text style={styles.buttonText}>Return</Text>
           </TouchableOpacity>
+
         </View>
       ) : (
+        // 3. Adventure In-Progress
         <View style={styles.adventureContainer}>
           <View style={styles.contentWrapper}>
             <Text style={styles.statusText}>{displayText}</Text>

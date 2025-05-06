@@ -5,8 +5,8 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
 
-const ActionScreen = () => {
-    const navigation = useNavigation();
+const ActionScreen = ({ navigation }) => {
+    //const navigation = useNavigation();
     const primaryColor = 'black';
     const secondaryColor = 'white';
     const [userStats, setUserStats] = useState({
