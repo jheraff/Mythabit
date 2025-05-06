@@ -1,419 +1,480 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
+import { View, Text, Button, StyleSheet, Pressable, Image, Modal, ScrollView } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { doc, updateDoc,getDoc, getDocs, query, collection, setDoc , onSnapshot} from 'firebase/firestore';
-import { db , auth } from '../../firebase/config';
+import { doc, updateDoc, getDoc, getDocs, query, collection, setDoc, onSnapshot } from 'firebase/firestore';
+import { db, auth } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
     const { selectedIndex } = route.params || {};
     const [numberArray, setNumberArray] = useState([]);
-
-    const [currSlot, setCurrSlot] = useState([]);
-
-
-
-
+    const [currSlot, setCurrSlot] = useState('');
     const [tempItem, setTempItem] = useState(null);
 
     const [userStats, setUserStats] = useState({
-            username: '',
-            level: 1,
-            xp: 0,
-            currency: 0,
-            avatar: null,
-            stats: {
-                strength: 1,
-                intellect: 1,
-                agility: 1,
-                arcane: 1,
-                focus: 1
-            },
-            
-
-            equip: {
-              weaponS: null,
-              armorS: null,
-              potionS: null,
-            },
-
-            inventory: {
-              weaponList: [null],
-              armorList: [null],
-              potionList: [null],
-            },
-        });
-
-        useEffect(() => {
-          console.log('userStats updated:', userStats);
-        }, [userStats]);
-
-        useEffect(() => {
-            const userId = auth.currentUser?.uid;
-            if (!userId) return;
-    
-            const unsubscribeUserStats = onSnapshot(
-                doc(db, 'users', userId),
-                (docSnapshot) => {
-                    if (docSnapshot.exists()) {
-                      console.log('Firestore snapshot received!');
-                        const userData = docSnapshot.data();
-                        
-    
-                        const completeUserStats = {
-                            username: userData.username || auth.currentUser?.displayName || 'New User',
-                            level: userData.level || 1,
-                            xp: userData.xp || 0,
-                            currency: userData.currency || 0,
-                            avatar: userData.avatar || null,
-                            stats: {
-                                strength: userData.stats?.strength || 1,
-                                intellect: userData.stats?.intellect || 1,
-                                agility: userData.stats?.agility || 1,
-                                arcane: userData.stats?.arcane || 1,
-                                focus: userData.stats?.focus || 1
-                            },
-                            equip: {
-                              weaponS: userData.equippedItems?.weaponSlot || null,
-                              armorS: userData.equippedItems?.armorSlot || null,
-                              potionS: userData.equippedItems?.potionSlot || null,
-
-                            },
-
-                            inventory: {
-                              weaponList: userData.inventory?.weaponList || null,
-                              armorList: userData.inventory?.armorList || null,
-                              potionList: userData.inventory?.potionList || null,
-                            }
-                            
-                        };
-                        
-                        setUserStats(completeUserStats);
-                        
-                    }
-                },
-                (error) => {
-                    console.error(error);
-                }
-            );
-    
-            return () => {
-                unsubscribeUserStats();
-            };
-        }, []);
-
-    
+        username: '',
+        level: 1,
+        xp: 0,
+        currency: 0,
+        avatar: null,
+        stats: {
+            strength: 1,
+            intellect: 1,
+            agility: 1,
+            arcane: 1,
+            focus: 1
+        },
+        equip: {
+            weaponS: null,
+            armorS: null,
+            potionS: null,
+        },
+        inventory: {
+            weaponList: [null],
+            armorList: [null],
+            potionList: [null],
+        },
+    });
 
     useEffect(() => {
-      
-      console.log('floor: ' + selectedIndex);
-      
+        console.log('userStats updated:', userStats);
+    }, [userStats]);
+
+    useEffect(() => {
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
+
+        const unsubscribeUserStats = onSnapshot(
+            doc(db, 'users', userId),
+            (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    console.log('Firestore snapshot received!');
+                    const userData = docSnapshot.data();
+
+                    const completeUserStats = {
+                        username: userData.username || auth.currentUser?.displayName || 'New User',
+                        level: userData.level || 1,
+                        xp: userData.xp || 0,
+                        currency: userData.currency || 0,
+                        avatar: userData.avatar || null,
+                        stats: {
+                            strength: userData.stats?.strength || 1,
+                            intellect: userData.stats?.intellect || 1,
+                            agility: userData.stats?.agility || 1,
+                            arcane: userData.stats?.arcane || 1,
+                            focus: userData.stats?.focus || 1
+                        },
+                        equip: {
+                            weaponS: userData.equippedItems?.weaponSlot || null,
+                            armorS: userData.equippedItems?.armorSlot || null,
+                            potionS: userData.equippedItems?.potionSlot || null,
+                        },
+                        inventory: {
+                            weaponList: userData.inventory?.weaponList || [null],
+                            armorList: userData.inventory?.armorList || [null],
+                            potionList: userData.inventory?.potionList || [null],
+                        }
+                    };
+
+                    setUserStats(completeUserStats);
+                }
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
+
+        return () => {
+            unsubscribeUserStats();
+        };
     }, []);
 
-  
+    useEffect(() => {
+        console.log('floor: ' + selectedIndex);
+    }, []);
 
     const updateEquippedSlot = async (slot, itemData) => {
-      const userId = auth.currentUser?.uid;
-      if (!userId) return;
-    
-      const userDocRef = doc(db, 'users', userId);
-    
-      try {
-        await updateDoc(userDocRef, {
-          [`equippedItems.${slot}`]: itemData  
-        });
-    
-        console.log(`Updated ${slot} with`, itemData);
-    
-        setUserStats((prev) => ({
-          ...prev,
-          equip: {
-            ...prev.equip,
-            [slot === 'weaponSlot' ? 'weaponS' : slot === 'armorSlot' ? 'armorS' : 'potionS']: itemData
-          }
-        }));
-    
-        setVisible(false);
-      } catch (err) {
-        console.error('Failed to update', err);
-      }
-    };
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
 
+        const userDocRef = doc(db, 'users', userId);
+
+        try {
+            await updateDoc(userDocRef, {
+                [`equippedItems.${slot}`]: itemData
+            });
+
+            console.log(`Updated ${slot} with`, itemData);
+
+            setUserStats((prev) => ({
+                ...prev,
+                equip: {
+                    ...prev.equip,
+                    [slot === 'weaponSlot' ? 'weaponS' : slot === 'armorSlot' ? 'armorS' : 'potionS']: itemData
+                }
+            }));
+
+            setVisible(false);
+            setTempItem(null);
+        } catch (err) {
+            console.error('Failed to update', err);
+        }
+    };
 
     const renderInventory = (category) => {
-      if (category == 'weaponSlot') {
-        setNumberArray(userStats.inventory.weaponList);
-      } else if (category == 'potionSlot') {
-        setNumberArray(userStats.inventory.potionList);
-      } else if (category == 'armorSlot') {
-        setNumberArray(userStats.inventory.armorList);
-      
-      }
-    
+        let inventoryItems = [];
+        switch (category) {
+            case 'weaponSlot':
+                inventoryItems = userStats.inventory.weaponList?.filter(item => item !== null) || [];
+                break;
+            case 'potionSlot':
+                inventoryItems = userStats.inventory.potionList?.filter(item => item !== null) || [];
+                break;
+            case 'armorSlot':
+                inventoryItems = userStats.inventory.armorList?.filter(item => item !== null) || [];
+                break;
+            default:
+                break;
+        }
+        setNumberArray(inventoryItems);
     };
 
-    
     const handleMenu = (value) => {
-      renderInventory(value);
-      console.log(value);
-      setCurrSlot(value);
-      setVisible(true);
-
+        setCurrSlot(value);
+        renderInventory(value);
+        setVisible(true);
     };
 
-    function switchTemp (index) {
-      setTempItem(index);
-
+    function switchTemp(index) {
+        setTempItem(index);
     };
 
-    
-    
+    const getCurrentEquippedItem = () => {
+        switch (currSlot) {
+            case 'weaponSlot':
+                return userStats.equip.weaponS;
+            case 'armorSlot':
+                return userStats.equip.armorS;
+            case 'potionSlot':
+                return userStats.equip.potionS;
+            default:
+                return null;
+        }
+    };
+
     return (
-
       <View style={styles.container}>
-
-
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={visible}
-          onRequestClose={() => setVisible(false)}
-        >
-          <Pressable style={styles.overlay} onPress={() => {setVisible(false); setTempItem(" "); }} />
-          <View style={styles.menu}>
-            <Pressable onPress={() => setVisible(false)}>
-              <Text style={{ color: 'white', fontSize: 18 }}>Close</Text>
-            </Pressable>
-
-            <View style={styles.quickMenu}>
-              {numberArray?.map((item, index) => (
-                <View key={index} style={styles.itemBox}>
-                  <Pressable onPress={() => {console.log(item.name); switchTemp(item);}}> 
-                    <Text> {item.name} </Text>
-                  </Pressable>
-                </View>
-              ))}
-
-            </View>
-              
-            <View style={styles.updateButton}> 
-            <Button
-              title="Update Item?"
-              onPress={() => {
-                if (tempItem) {
-                  console.log(tempItem);
-                  updateEquippedSlot(currSlot, tempItem);
-                  
-                } else {
-                  console.log('No item selected');
-                }
+          <Modal
+              animationType="slide"
+              transparent={true}
+              visible={visible}
+              onRequestClose={() => {
+                  setVisible(false);
+                  setTempItem(null);
               }}
-            />
+          >
+              <Pressable style={styles.overlay} onPress={() => { setVisible(false); setTempItem(null); }} />
+              <View style={styles.menuContainer}>
+                  <View style={styles.menuHeader}>
+                      <Text style={styles.menuTitle}>Select {currSlot.replace('Slot', '')}</Text>
+                      <Pressable onPress={() => { setVisible(false); setTempItem(null); }}>
+                          <Text style={styles.closeButton}>X</Text>
+                      </Pressable>
+                  </View>
+
+                  <ScrollView contentContainerStyle={styles.inventoryGrid}>
+                      {numberArray.map((item, index) => (
+                          <TouchableOpacity
+                              key={index}
+                              style={[
+                                  styles.itemBox,
+                                  tempItem?.id === item.id && styles.selectedItem // Changed to compare by id for more reliable selection
+                              ]}
+                              onPress={() => {
+                                  console.log("Selected item:", item);
+                                  switchTemp(item);
+                              }}
+                          >
+                              <Image
+                                  source={require('../../../assets/avatars/placeholder.png')}
+                                  style={styles.itemImage}
+                              />
+                              <Text style={styles.itemName}>{item.name}</Text>
+                              {tempItem?.id === item.id && ( // Added checkmark for selected item
+                                  <View style={styles.selectedIndicator}>
+                                      <Text style={styles.checkmark}>✓</Text>
+                                  </View>
+                              )}
+                          </TouchableOpacity>
+                      ))}
+                  </ScrollView>
+
+                    <View style={styles.selectionPanel}>
+                        <View style={styles.itemInfoBox}>
+                            <Text style={styles.infoTitle}>Current:</Text>
+                            <Text style={styles.infoText}>
+                                {getCurrentEquippedItem()?.name || 'None equipped'}
+                            </Text>
+                        </View>
+
+                        <View style={styles.itemInfoBox}>
+                            <Text style={styles.infoTitle}>Selected:</Text>
+                            <Text style={styles.infoText}>
+                                {tempItem?.name || 'None selected'}
+                            </Text>
+                        </View>
+
+                        <Button
+                            title="Equip Selected"
+                            onPress={() => {
+                                if (tempItem) {
+                                    updateEquippedSlot(currSlot, tempItem);
+                                } else {
+                                    console.log('No item selected');
+                                }
+                            }}
+                            disabled={!tempItem}
+                            color="#d4af37"
+                        />
+                    </View>
+                </View>
+            </Modal>
+
+            <View style={styles.topView}>
+                <Text style={styles.headTitle}>Items Equipped</Text>
             </View>
 
-            <TouchableOpacity style ={[styles.itemBox ,{height: 100,width: 100, bottom: 160,left: 30, backgroundColor:'lightgrey'}]}
-            onPress={() => {console.log('hi')} }>
-              <Text> Item selected: {tempItem?.name || 'No item selected'}</Text>
-            </TouchableOpacity>
+            <View style={styles.middleView}>
+                <TouchableOpacity style={styles.equipmentSlot} onPress={() => handleMenu('armorSlot')}>
+                    <Image source={require('../../../assets/avatars/placeholder.png')}
+                        style={styles.previewImage} />
+                    <Text style={styles.slotTitle}>Armor</Text>
+                    <Text style={styles.equippedItem}>{userStats.equip.armorS?.name || 'None equipped'}</Text>
+                </TouchableOpacity>
 
-            <View style ={[styles.itemBox ,{height: 100,width: 100, bottom: 275,left: 200,backgroundColor:'lightgrey'}]}>
-              <Text> Current Item:</Text>
-              {currSlot === 'weaponSlot' && (
-                <Text>{userStats.equip.weaponS.name|| 'None equipped'}</Text>
-              )}
-              
-              {currSlot === 'armorSlot' && (
-                <Text>{userStats.equip.armorS.name || 'None equipped'}</Text>
-              )}
+                <TouchableOpacity style={styles.equipmentSlot} onPress={() => handleMenu('weaponSlot')}>
+                    <Image source={require('../../../assets/avatars/placeholder.png')}
+                        style={styles.previewImage} />
+                    <Text style={styles.slotTitle}>Weapon</Text>
+                    <Text style={styles.equippedItem}>{userStats.equip.weaponS?.name || 'None equipped'}</Text>
+                </TouchableOpacity>
 
-              {currSlot === 'potionSlot' && (
-                <Text>{userStats.equip.potionS.name || 'None equipped'}</Text>
-              )}
+                <TouchableOpacity style={styles.equipmentSlot} onPress={() => handleMenu('potionSlot')}>
+                    <Image source={require('../../../assets/avatars/placeholder.png')}
+                        style={styles.previewImage} />
+                    <Text style={styles.slotTitle}>Potion</Text>
+                    <Text style={styles.equippedItem}>{userStats.equip.potionS?.name || 'None equipped'}</Text>
+                </TouchableOpacity>
             </View>
 
+            <View style={styles.bottomView}>
+                <Text style={styles.title}>Are these the items you want equipped?</Text>
+                <TouchableOpacity
+                    style={styles.darkFantasyButton}
+                    onPress={() => navigation.navigate('Adventure', { selectedIndex })}
+                >
+                    <Text style={styles.darkFantasyButtonText}>Yes</Text>
+                </TouchableOpacity>
 
-          </View>
-        </Modal>
-        
-       
-
-        <View style={styles.topView}> 
-          <Text style={styles.headTitle}> Items Equpped </Text>
+                <TouchableOpacity
+                    style={[styles.darkFantasyButton, { marginTop: 10, backgroundColor: '#2e2e2e' }]}
+                    onPress={() => navigation.navigate('Tower', { selectedIndex })}
+                >
+                    <Text style={styles.darkFantasyButtonText}>Go Back</Text>
+                </TouchableOpacity>
+            </View>
         </View>
-
-        
-
-
-        <View style={styles.middleView}> 
-          
-          <TouchableOpacity style={[styles.slotOne, {top: 280}]} onPress={() => handleMenu('armorSlot')}> 
-            <Image source={require('../../../assets/avatars/placeholder.png')}
-            style={styles.previewImageOne}/>
-            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
-            <Text style={styles.itemTitle}> {userStats.equip.armorS?.name || 'None equipped'} </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.slotOne, {top: 20}]} onPress={() => {handleMenu('weaponSlot')}}> 
-            <Image source={require('../../../assets/avatars/placeholder.png')}
-            style={styles.previewImageOne}/>
-            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
-            <Text style={[styles.itemTitle]}> {userStats.equip.weaponS?.name || 'None equipped'} </Text>
-            <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {''} </Text>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity style={[styles.slotOne, {bottom: 240,}]} onPress={() => handleMenu('potionSlot')}> 
-            <Image source={require('../../../assets/avatars/placeholder.png')}
-            style={styles.previewImageOne}/>
-            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Potion </Text>
-            <Text style={styles.itemTitle}>{(userStats.equip.potionS?.name || 'None equipped')}</Text>
-            
-
-          </TouchableOpacity>
-
-        </View>
-
-        <View style={styles.bottomView}> 
-          <Text style={styles.title}>Are these the items you want equipped?</Text>
-          <Button title="Yes" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
-          <Button title="Go Back" onPress={() => navigation.navigate('Tower', { selectedIndex })}/>
-        </View>
-      
-      </View>
     );
-  };
+};
 
-  const styles = StyleSheet.create({
-    
-    itemBox: {
-      borderColor: '#ccc',
-      borderWidth: 5,
-      backgroundColor: 'white',
-      marginHorizontal: 10,
-      marginVertical: 8,
-      height: 70,
-      width: 70,
-      zIndex: 10,
-      
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        backgroundColor: '#1a1a1a',
     },
-    quickMenu: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'flex-start',
-      backgroundColor: 'white',
-      
-      
-      height: 500,
-      width: 390,
-      right: 19,
-    },
-
-    updateButton: {
-      bottom: 175,
-    },
-
-    container: { 
-      flex: 1, 
-      alignItems: 'center',
-    },
-
     topView: {
-      alignItems: 'center',
-      top: 20,
-      height: 100,
-      width: 400,
-      backgroundColor: '#1c2d63',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 100,
+        width: '100%',
+        backgroundColor: '#1a1a1a',
+        borderBottomWidth: 2,
+        borderColor: '#444',
     },
-
     headTitle: {
-      top:10,
-      fontSize: 50,
-      fontWeight: 'bold',
-      color: 'white'
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#e0d8c3',
+        fontFamily: 'serif',
     },
-
-    bottomView: {
-      padding: 16,
-      alignItems: 'center',
-      margin: 20,
-      backgroundColor: '#1c2d63',
-      width: 400,
-    },
-
     middleView: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: 100,
-      width: 390,
-      flex: 1,
-      
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        width: '90%',
+        paddingVertical: 20,
     },
-
-    slotOne: {
-      backgroundColor: 'white',
-      height: 120,
-      width: 300,
-      borderColor: 'black',
-      borderWidth: 5,
-      borderRadius: 10,
-      alignItems: 'center',
-     
+    equipmentSlot: {
+        backgroundColor: '#2b2b2b',
+        height: 120,
+        width: '100%',
+        maxWidth: 300,
+        borderColor: '#666',
+        borderWidth: 2,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 10,
+        padding: 10,
     },
-
-    itemTitle: {
-      bottom: 75,
-      fontSize: 20,
+    previewImage: {
+        width: 45,
+        height: 45,
+        tintColor: '#c2baa6',
+        marginBottom: 5,
     },
-
-    previewImageOne: {
-      width: 55,
-      height: 55,
-      top: 25,
-      right: 100,
-      marginBottom: 30,
+    slotTitle: {
+        fontSize: 16,
+        fontFamily: 'serif',
+        color: '#d4af37',
+        fontWeight: 'bold',
     },
-
-    title: { 
-      fontSize: 20, 
-      marginBottom: 20,
-      color: 'white',
-      fontWeight: 'bold',
-      
+    equippedItem: {
+        fontSize: 14,
+        color: '#e0d8c3',
+        fontFamily: 'serif',
     },
-
-    equipIcon: {
-      borderColor: 'black',
-      width: 100,
-      height: 100,
-      alignItems: 'center',
-      
+    bottomView: {
+        padding: 16,
+        alignItems: 'center',
+        backgroundColor: '#1a1a1a',
+        width: '100%',
+        borderTopWidth: 2,
+        borderColor: '#444',
     },
-
+    title: {
+        fontSize: 18,
+        color: '#e0d8c3',
+        fontFamily: 'serif',
+        marginBottom: 12,
+    },
+    darkFantasyButton: {
+        backgroundColor: '#2e2e2e',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 6,
+        borderWidth: 1.5,
+        borderColor: '#888',
+        marginTop: 5,
+        width: '80%',
+        alignItems: 'center',
+    },
+    darkFantasyButtonText: {
+        color: '#e0d8c3',
+        fontSize: 16,
+        fontFamily: 'serif',
+    },
+    // Modal styles
     overlay: {
-      flex: 1,
-      justifyContent: 'flex-end',
-      backgroundColor: 'rgba(0, 0, 0, 0.3)',
-      maxHeight: '27%',
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
     },
-
-    previewText: {
+    menuContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#1a1a1a',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 20,
+        maxHeight: '70%',
+    },
+    menuHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    menuTitle: {
+        color: '#d4af37',
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    closeButton: {
+        color: '#e0d8c3',
+        fontSize: 20,
+        padding: 10,
+    },
+    inventoryGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+    },
+    itemBox: {
+        backgroundColor: '#2e2e2e',
+        borderWidth: 1,
+        borderColor: '#444',
+        borderRadius: 8,
+        padding: 10,
+        margin: 8,
+        width: 100,
+        alignItems: 'center',
+    },
+    selectedItem: {
+        borderColor: '#d4af37',
+        backgroundColor: '#3a3a3a',
+    },
+    itemImage: {
+        width: 40,
+        height: 40,
+        tintColor: '#c2baa6',
+        marginBottom: 5,
+    },
+    itemName: {
+        color: '#e0d8c3',
+        fontSize: 12,
+        textAlign: 'center',
+    },
+    selectionPanel: {
+        marginTop: 20,
+        paddingTop: 15,
+        borderTopWidth: 1,
+        borderTopColor: '#444',
+    },
+    itemInfoBox: {
+        marginBottom: 10,
+    },
+    infoTitle: {
+        color: '#d4af37',
+        fontWeight: 'bold',
+        marginBottom: 3,
+    },
+    infoText: {
+        color: '#e0d8c3',
+    },
+    selectedItem: {
+      borderColor: '#d4af37',
+      backgroundColor: '#3a3a3a',
+      transform: [{ scale: 1.05 }], // Slightly enlarge selected item
+  },
+  selectedIndicator: {
+      position: 'absolute',
+      top: 5,
+      right: 5,
+      backgroundColor: '#d4af37',
+      borderRadius: 10,
       width: 20,
       height: 20,
-    
-    },
-    menu: {
-      
-      maxHeight: '70%',
-      backgroundColor: '#1c2d63',
-      padding: 20,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      height: 75,
-    },
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  checkmark: {
+      color: '#1a1a1a',
+      fontWeight: 'bold',
+      fontSize: 14,
+  },
+});
 
-  });
-
-  
-  
-  export default ConfirmationScreen;
+export default ConfirmationScreen;

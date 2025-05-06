@@ -30,6 +30,13 @@ export default function AdventureScreen({ route }) {
   const [isLoadingScreen, setIsLoadingScreen] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const adventureStartedRef = useRef(false);
+  const animatedPlayerHealth = useRef(new Animated.Value(1)).current;
+  const animatedMonsterHealth = useRef(new Animated.Value(1)).current;
+  const playerHPAnim = useRef(new Animated.Value(1)).current;
+  const enemyHPAnim = useRef(new Animated.Value(1)).current;
+  const [currentMonsterName, setCurrentMonsterName] = useState('Enemy');
+  const [isBossFight, setIsBossFight] = useState(false);
+
 
   
   const borderColorAnim = useRef(new Animated.Value(0)).current;
@@ -104,6 +111,13 @@ async function loadFloorData(index) {
   }
 }
 
+function animateHealthBar(animatedValue, percent) {
+  Animated.timing(animatedValue, {
+    toValue: percent,
+    duration: 300,
+    useNativeDriver: false,
+  }).start();
+}
 
 
 function flashAttackEffect() {
@@ -285,23 +299,26 @@ function shakeIfLowHealth(hp) {
       let playerHP = playerHealthRef.current;
       let monsterHP = monster.health;
   
+      // Set enemy status
+      setCurrentMonsterName(monster.name);
+      setIsBossFight(monster.class?.toLowerCase() === 'boss');
       setCurrentMonsterHP(monster.health);
       setCurrentMonsterMaxHP(monster.health);
+      enemyHPAnim.setValue(1);
+      playerHPAnim.setValue(playerHP / (playerLevel * 5));
   
       const playerAttackBase = playerStats.strength + playerStats.agility;
       const playerDefense = playerStats.focus + playerStats.intellect;
-  
       const monsterEvasion = monster.evasion || 0;
       const monsterClass = monster.class?.toLowerCase() || 'unknown';
       const weaknessStat = monsterWeaknesses[monsterClass];
       const weaknessBonus = weaknessStat ? (playerStats[weaknessStat] || 0) * 0.2 : 0;
-  
       const playerEvasionChance = Math.min(70, (playerStats.agility / 100) * 70);
   
       while (playerHP > 0 && monsterHP > 0) {
         await new Promise((r) => setTimeout(r, 700));
   
-        // --- Monster tries to evade player attack
+        // Player attacks
         if (Math.random() * 100 < monsterEvasion) {
           setBattleLog((prev) => [...prev, `${monster.name} evaded your attack!`]);
         } else {
@@ -312,6 +329,11 @@ function shakeIfLowHealth(hp) {
           );
           monsterHP -= damageToMonster;
           setCurrentMonsterHP(Math.max(0, monsterHP));
+          Animated.timing(enemyHPAnim, {
+            toValue: Math.max(monsterHP / monster.health, 0),
+            duration: 300,
+            useNativeDriver: false,
+          }).start();
           flashAttackEffect();
           setBattleLog((prev) => [...prev, `You hit ${monster.name} for ${damageToMonster} damage!`]);
         }
@@ -320,7 +342,7 @@ function shakeIfLowHealth(hp) {
   
         await new Promise((r) => setTimeout(r, 700));
   
-        // --- Player tries to evade monster attack
+        // Monster attacks
         if (Math.random() * 100 < playerEvasionChance) {
           setBattleLog((prev) => [...prev, `You evaded ${monster.name}'s attack!`]);
         } else {
@@ -330,6 +352,12 @@ function shakeIfLowHealth(hp) {
             Math.round(monster.attack * (1 - playerDefenseFactor))
           );
           playerHP -= damageToPlayer;
+          setPlayerHealth(Math.max(0, playerHP));
+          Animated.timing(playerHPAnim, {
+            toValue: Math.max(playerHP / (playerLevel * 5), 0),
+            duration: 300,
+            useNativeDriver: false,
+          }).start();
           flashHitEffect();
           shakeIfLowHealth(playerHP);
           setBattleLog((prev) => [...prev, `${monster.name} hits you for ${damageToPlayer} damage!`]);
@@ -343,8 +371,7 @@ function shakeIfLowHealth(hp) {
     });
   }
   
-
-
+  
   function animateLogBorder(color) {
     setLogColorTarget(color);
     borderColorAnim.setValue(0);
@@ -410,7 +437,15 @@ function shakeIfLowHealth(hp) {
     if (!isAdventureStarted || !floorData) return;
 
   async function doEncounter() {
+    console.log(`Encounters: ${encounters}, Enemies: ${enemies}, Loot: ${loot}, Boss: ${boss}`);
       const type = encounterListRef.current?.[encounterRef.current];
+      if (type === 'loot' || type === 'explore') {
+        setCurrentMonsterName('Enemy');
+        setCurrentMonsterMaxHP(0);
+        setCurrentMonsterHP(0);
+        setIsBossFight(false);
+      }
+
       if (!type) return;
 
       setBattleLog([]);
@@ -580,9 +615,54 @@ function shakeIfLowHealth(hp) {
               <View style={[styles.progressBar, { width: `${adventureProgress}%` }]} />
               <Text style={styles.progressText}>{adventureProgress}%</Text>
             </View>
-            <Text style={styles.infoText}>Health: {playerHealth} | Enemies: {enemies} | Loot: {loot} | Boss: {boss}</Text>
-          </View>
-  
+
+</View>
+
+<View style={styles.healthBarsRow}>
+  {/* Player Health */}
+  <View style={styles.healthBarBlock}>
+    <Text style={styles.healthBarLabel}>
+      Avatar HP: {playerHealth} / {playerLevel * 5}
+    </Text>
+    <View style={styles.hpBar}>
+      <Animated.View
+        style={[
+          styles.hpBarFillEnemy,
+          {
+            backgroundColor: '#8b0000',
+            width: playerHPAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0%', '100%'],
+            }),
+          },
+        ]}
+      />
+    </View>
+  </View>
+
+  {/* Enemy Health */}
+  <View style={styles.enemyHealthBar}>
+    <Text style={styles.hpLabel}>
+      {currentMonsterName}: {currentMonsterHP} /{' '}
+      {currentMonsterMaxHP > 0 ? currentMonsterMaxHP : '???'}
+    </Text>
+    <View style={styles.hpBar}>
+      <Animated.View
+        style={[
+          styles.hpBarFillEnemy,
+          {
+            backgroundColor: isBossFight ? '#800080' : '#8b0000',
+            width: enemyHPAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0%', '100%'],
+            }),
+          },
+        ]}
+      />
+    </View>
+  </View>
+</View>
+
           <Animated.View
             style={[
               styles.logBox,
@@ -628,6 +708,7 @@ function shakeIfLowHealth(hp) {
               ))}
             </ScrollView>
           </Animated.View>
+
         </View>
       )}
     </View>
@@ -648,6 +729,24 @@ const styles = StyleSheet.create({
   progressBarContainer: {
     width: '80%', height: 20, backgroundColor: '#333', borderRadius: 10, overflow: 'hidden', marginVertical: 10,
   },
+  healthBarContainer: {
+    width: '80%',
+    backgroundColor: '#555',
+    borderRadius: 5,
+    marginTop: 10,
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  healthBarFill: {
+    height: 16,
+    backgroundColor: '#8b0000',
+  },
+  healthBarText: {
+    color: '#fff',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
+  },  
   progressBar: { height: '100%', backgroundColor: '#8b0000' },
   progressText: { position: 'absolute', width: '100%', textAlign: 'center', color: '#fff', fontWeight: 'bold', fontFamily: 'serif' },
   infoText: { fontSize: 14, marginTop: 5, color: '#c2baa6', fontFamily: 'serif' },
@@ -661,5 +760,102 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#222',
   },
+  fixedHealthBars: {
+    position: 'absolute',
+    width: '100%',
+    top: '38%', // adjust based on layout
+    zIndex: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  
+  playerHealthWrapper: {
+    width: '45%',
+    backgroundColor: '#555',
+    borderRadius: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  
+  enemyHealthWrapper: {
+    width: '45%',
+    backgroundColor: '#555',
+    borderRadius: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    alignItems: 'flex-end',
+  },
+  
+  healthBarText: {
+    fontSize: 12,
+    color: '#c2baa6',
+    textAlign: 'center',
+    marginTop: 2,
+  },  
+
+  fixedHealthBars: {
+    position: 'absolute',
+    top: 150, // adjust if needed
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    zIndex: 10,
+  },
+  healthBarsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  
+  healthBarBlock: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  
+  healthBarLabel: {
+    fontSize: 12,
+    color: '#fff',
+    marginBottom: 2,
+    textAlign: 'left',
+    fontFamily: 'serif',
+  },
+  
+  healthBarFill: {
+    height: 8,
+    backgroundColor: '#8b0000',
+    borderRadius: 4,
+  },
+  
+  enemyHealthBar: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  
+  hpLabel: {
+    fontSize: 12,
+    color: '#fff',
+    marginBottom: 2,
+    textAlign: 'right',
+    fontFamily: 'serif',
+  },
+  
+  hpBar: {
+    height: 8,
+    backgroundColor: '#444',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  
+  hpBarFillEnemy: {
+    height: 8,
+    borderRadius: 4,
+  },  
+  
   logEntry: { fontSize: 14, marginBottom: 4, color: '#c7c2b6', fontFamily: 'serif' },
 });
