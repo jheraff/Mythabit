@@ -20,12 +20,6 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  headerTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-  },
   headerContainer: {
     backgroundColor: '#1c2d63',
     paddingVertical: 15,
@@ -36,6 +30,12 @@ export const globalStyles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 5,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 5,
   },
   profileButton: {
     padding: 5,

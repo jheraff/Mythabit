@@ -20,6 +20,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import CoopQuestsModal from '../tasks/CoopQuestsModal';
 import { globalStyles } from '../../../styles/globalStyles';
+import Avatar from '../AvatarScreen/Avatar';
 
 const UserProfileScreen = ({ route, navigation }) => {
     const [userData, setUserData] = useState(null);
@@ -247,30 +248,15 @@ const UserProfileScreen = ({ route, navigation }) => {
     };
 
     const renderAvatar = () => {
-        try {
-            if (!userData || !userData.avatar) {
-                return (
-                    <View style={styles.avatarPlaceholder}>
-                        <Ionicons name="person" size={40} color="#666" />
-                    </View>
-                );
-            }
-
-            return (
-                <Image
-                    source={require('../../../assets/avatars/default_pfp.jpg')}
-                    style={styles.avatarImage}
-                    resizeMode="contain"
+        return (
+            <View style={styles.avatarWrapper}>
+                <Avatar 
+                    size={80}
+                    style={styles.profileAvatar}
+                    userId={userId}
                 />
-            );
-        } catch (error) {
-            console.error("Error rendering avatar:", error);
-            return (
-                <View style={styles.avatarPlaceholder}>
-                    <Ionicons name="person" size={40} color="#666" />
-                </View>
-            );
-        }
+            </View>
+        );
     };
 
     const renderStatItem = (statName, value) => {
@@ -688,6 +674,16 @@ const styles = StyleSheet.create({
         color: '#afe8ff',
         fontSize: 14,
         fontWeight: '500',
+    },
+    avatarWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    profileAvatar: {
+        borderWidth: 2,
+        borderColor: '#1c2d63',
     }
 });
 

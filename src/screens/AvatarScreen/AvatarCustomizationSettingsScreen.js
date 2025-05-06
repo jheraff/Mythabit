@@ -27,9 +27,9 @@ const AvatarCustomizationSettingsScreen = () => {
   const [selectedOutfit, setSelectedOutfit] = useState(1);
   const [selectedAccessory, setSelectedAccessory] = useState(0);
   
-  // Predefined avatar state
-  const [selectedAvatar, setSelectedAvatar] = useState(null);
-  const [useCustomAvatar, setUseCustomAvatar] = useState(false);
+  // Predefined avatar state - Changed default to true to show Choose Avatar first
+  const [selectedAvatar, setSelectedAvatar] = useState('avatar1');
+  const [useCustomAvatar, setUseCustomAvatar] = useState(true);
   
   const [originalAvatarState, setOriginalAvatarState] = useState({});
   
@@ -42,7 +42,10 @@ const AvatarCustomizationSettingsScreen = () => {
   // Predefined avatar options from assets
   const predefinedAvatars = [
     { id: 'avatar1', source: require('../../../assets/avatars/bingus.jpg') },
-    // Add as many avatars as you have in your assets folder
+    { id: 'avatar2', source: require('../../../assets/avatars/thumbs_up.jpg') },
+    { id: 'avatar3', source: require('../../../assets/avatars/thumbs_up1.jpg') },
+    { id: 'avatar4', source: require('../../../assets/avatars/male.png') },
+    { id: 'avatar5', source: require('../../../assets/avatars/female.png') },
   ];
   
   // Load saved avatar settings on component mount
@@ -69,7 +72,7 @@ const AvatarCustomizationSettingsScreen = () => {
         // If using predefined avatar
         if (avatarData.useCustomAvatar) {
           setUseCustomAvatar(true);
-          setSelectedAvatar(avatarData.avatarId || null);
+          setSelectedAvatar(avatarData.avatarId || 'avatar1');
         } else {
           // Using avatar generator
           setUseCustomAvatar(false);
@@ -237,22 +240,22 @@ const AvatarCustomizationSettingsScreen = () => {
         </TouchableOpacity>
       </View>
       
-      {/* Toggle between avatar types */}
+      {/* Toggle between avatar types - Swapped order to make Choose Avatar first */}
       <View style={styles.avatarTypeSelector}>
-        <TouchableOpacity 
-          style={[styles.avatarTypeButton, !useCustomAvatar && styles.activeAvatarTypeButton]}
-          onPress={() => setUseCustomAvatar(false)}
-        >
-          <Text style={[styles.avatarTypeText, !useCustomAvatar && styles.activeAvatarTypeText]}>
-            Avatar Builder
-          </Text>
-        </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.avatarTypeButton, useCustomAvatar && styles.activeAvatarTypeButton]}
           onPress={() => setUseCustomAvatar(true)}
         >
           <Text style={[styles.avatarTypeText, useCustomAvatar && styles.activeAvatarTypeText]}>
             Choose Avatar
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.avatarTypeButton, !useCustomAvatar && styles.activeAvatarTypeButton]}
+          onPress={() => setUseCustomAvatar(false)}
+        >
+          <Text style={[styles.avatarTypeText, !useCustomAvatar && styles.activeAvatarTypeText]}>
+            Avatar Builder
           </Text>
         </TouchableOpacity>
       </View>
