@@ -27,7 +27,7 @@ const HomeScreen = () => {
     inventory: {
       armor: null,
       weapon: null,
-      gear: null
+      gear: null,
     }
   });
 
@@ -39,8 +39,10 @@ const HomeScreen = () => {
       doc(db, 'users', userId),
       (docSnapshot) => {
         if (docSnapshot.exists()) {
+          
           const userData = docSnapshot.data();
-
+          console.log(userData);
+          console.log("it EXISTSSSSSSSS");
           // Create complete user stats object, ensuring all fields exist
           // Handle legacy data structure or create new simplified structure
           let armorItem = userData.inventory?.armor;
@@ -73,7 +75,7 @@ const HomeScreen = () => {
               focus: userData.stats?.focus || 1
             },
             inventory: {
-              armor: armorItem,
+              armor: "hi",
               weapon: userData.inventory?.weapon || null,
               gear: userData.inventory?.gear || null
             }
@@ -94,6 +96,7 @@ const HomeScreen = () => {
   }, []);
 
   const initializeNewUser = async (userId) => {
+
     // Initialize new user stats
     const initialStats = {
       username: auth.currentUser?.displayName || 'New User',
@@ -113,11 +116,26 @@ const HomeScreen = () => {
         weapon: null,
         gear: null
       },
+      equippedItems: {
+        weaponSlot: {
+          name: 'tree branch',
+          id: "000",
+        },
+        armorSlot: {
+          name: 'shirt',
+          id: '100',
+        },
+        potionSlot: {
+          name: 'sprite',
+          id: '200',
+        },
+      },
       lastUpdated: new Date().toISOString()
     };
 
+
     try {
-      await setDoc(doc(db, 'users', userId), initialStats);
+      await setDoc(doc(db, 'users', userId), initialStats);  
       setUserStats(initialStats);
     } catch (error) {
       console.error('Error initializing new user:', error);

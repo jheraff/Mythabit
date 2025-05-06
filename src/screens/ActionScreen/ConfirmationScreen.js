@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Pressable, Image, Modal} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { doc, updateDoc,getDoc, getDocs, query, collection, setDoc} from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { doc, updateDoc,getDoc, getDocs, query, collection, setDoc , onSnapshot} from 'firebase/firestore';
+import { db , auth } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
@@ -12,141 +12,144 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [currSlot, setCurrSlot] = useState([]);
 
 
-    const [mainWeapon, setMainWeapon] = useState(null);
-    const [mainArmor, setMainAmor] = useState(null);
-    const [mainPotion, setMainPotion] = useState(null);
 
 
-    const [inventoryArmor, setInventoryArmor] = useState(null);
-    const [inventoryWeapon, setInventoryWeapon] = useState(null);
-    const [inventoryPotion, setInventoryPotion] = useState(null);
     const [tempItem, setTempItem] = useState(null);
 
+    const [userStats, setUserStats] = useState({
+            username: '',
+            level: 1,
+            xp: 0,
+            currency: 0,
+            avatar: null,
+            stats: {
+                strength: 1,
+                intellect: 1,
+                agility: 1,
+                arcane: 1,
+                focus: 1
+            },
+            
+
+            equip: {
+              weaponS: null,
+              armorS: null,
+              potionS: null,
+            },
+
+            inventory: {
+              weaponList: [null],
+              armorList: [null],
+              potionList: [null],
+            },
+        });
+
+        useEffect(() => {
+          console.log('userStats updated:', userStats);
+        }, [userStats]);
+
+        useEffect(() => {
+            const userId = auth.currentUser?.uid;
+            if (!userId) return;
+    
+            const unsubscribeUserStats = onSnapshot(
+                doc(db, 'users', userId),
+                (docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                      console.log('Firestore snapshot received!');
+                        const userData = docSnapshot.data();
+                        
+    
+                        const completeUserStats = {
+                            username: userData.username || auth.currentUser?.displayName || 'New User',
+                            level: userData.level || 1,
+                            xp: userData.xp || 0,
+                            currency: userData.currency || 0,
+                            avatar: userData.avatar || null,
+                            stats: {
+                                strength: userData.stats?.strength || 1,
+                                intellect: userData.stats?.intellect || 1,
+                                agility: userData.stats?.agility || 1,
+                                arcane: userData.stats?.arcane || 1,
+                                focus: userData.stats?.focus || 1
+                            },
+                            equip: {
+                              weaponS: userData.equippedItems?.weaponSlot || null,
+                              armorS: userData.equippedItems?.armorSlot || null,
+                              potionS: userData.equippedItems?.potionSlot || null,
+
+                            },
+
+                            inventory: {
+                              weaponList: userData.inventory?.weaponList || null,
+                              armorList: userData.inventory?.armorList || null,
+                              potionList: userData.inventory?.potionList || null,
+                            }
+                            
+                        };
+                        
+                        setUserStats(completeUserStats);
+                        
+                    }
+                },
+                (error) => {
+                    console.error(error);
+                }
+            );
+    
+            return () => {
+                unsubscribeUserStats();
+            };
+        }, []);
+
+    
+
     useEffect(() => {
-      fetchEquipped();
-      fetchArmor();
-      fetchWeapon();
-      fetchPotion();
+      
       console.log('floor: ' + selectedIndex);
+      
     }, []);
 
-
-   
-
+  
 
     const updateEquippedSlot = async (slot, itemData) => {
+      const userId = auth.currentUser?.uid;
+      if (!userId) return;
+    
+      const userDocRef = doc(db, 'users', userId);
+    
       try {
-        await setDoc(doc(db, 'equippedItems', slot), itemData);
-        console.log('Updated ${slot} with', itemData);
-        fetchEquipped();
-      } catch (err) {
-        console.error('Failed to update', error);
-      }
-    };
-
-    const fetchArmor = async () => {
-      try {
-        const armor = collection(db, 'inventory_armor');
-        const snapshot = await getDocs(armor);
-    
-        const armorItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-    
-        setInventoryArmor(armorItems);
-      } catch (error) {
-        console.error('Error loading armor:', error);
-      }
-    };
-
-    
-
-    const fetchWeapon = async () => {
-      try {
-        const weapon = collection(db, 'inventory_weapons');
-        const snapshot = await getDocs(weapon);
-    
-        const weaponItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-    
-        setInventoryWeapon(weaponItems);
-      } catch (error) {
-        console.error('Error loading weapons:', error);
-      }
-    };
-
-    const fetchPotion = async () => {
-      try {
-        const potion = collection(db, 'inventory_potions');
-        const snapshot = await getDocs(potion);
-    
-        const potionItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-    
-        setInventoryPotion(potionItems);
-      } catch (error) {
-        console.error('Error loading potions:', error);
-      }
-    };
-
-    const fetchEquipped = async () => {
-      try {
-        const slots = ['weaponSlot','potionSlot','armorSlot']
-        const promises = slots.map(slot => getDoc(doc(db,'equippedItems',slot)))
-        const docs = await Promise.all(promises);
-
-        
-        const equippedItems = docs.map((docSnap, index) => {
-          if (docSnap.exists()) {
-            if (docSnap.id === 'weaponSlot') {
-              setMainWeapon(docSnap.data());
-            } else if (docSnap.id === 'armorSlot') {
-              setMainAmor(docSnap.data());
-            }  else if (docSnap.id === 'potionSlot') {
-              setMainPotion(docSnap.data());
-            } 
-
-            return {
-              slot: slots[index],
-              ...docSnap.data()
-             
-            };
-          } else {
-            return {
-              slot: slots[index],
-              name: null
-            };
-          }
+        await updateDoc(userDocRef, {
+          [`equippedItems.${slot}`]: itemData  
         });
     
-        return equippedItems; // [{slot: 'weapon', name: 'dagger'}, ...]
+        console.log(`Updated ${slot} with`, itemData);
+    
+        setUserStats((prev) => ({
+          ...prev,
+          equip: {
+            ...prev.equip,
+            [slot === 'weaponSlot' ? 'weaponS' : slot === 'armorSlot' ? 'armorS' : 'potionS']: itemData
+          }
+        }));
+    
+        setVisible(false);
       } catch (err) {
-        console.log('Error fetching equipped items:', err);
-        return [];
+        console.error('Failed to update', err);
       }
     };
+
 
     const renderInventory = (category) => {
       if (category == 'weaponSlot') {
-        setNumberArray(inventoryWeapon);
+        setNumberArray(userStats.inventory.weaponList);
       } else if (category == 'potionSlot') {
-        setNumberArray(inventoryPotion);
+        setNumberArray(userStats.inventory.potionList);
       } else if (category == 'armorSlot') {
-        setNumberArray(inventoryArmor);
+        setNumberArray(userStats.inventory.armorList);
       
       }
     
-    };
-
-    const handleNextScreen = () => {
-      setVisible;
-      console.log('next: ');
-      navigation.navigate('Adventure', { selectedIndex, extraData });
     };
 
     
@@ -162,11 +165,6 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       setTempItem(index);
 
     };
-
-    useEffect(() => {
-      console.log('Updated inventory', inventoryWeapon);
-
-    }, [inventoryWeapon]);
 
     
     
@@ -188,10 +186,10 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             </Pressable>
 
             <View style={styles.quickMenu}>
-              {numberArray.map((index) => (
-                <View key={index.id} style={styles.itemBox}>
-                  <Pressable onPress={() => {console.log(index.name); switchTemp(index);}}> 
-                    <Text> {index.name} </Text>
+              {numberArray?.map((item, index) => (
+                <View key={index} style={styles.itemBox}>
+                  <Pressable onPress={() => {console.log(item.name); switchTemp(item);}}> 
+                    <Text> {item.name} </Text>
                   </Pressable>
                 </View>
               ))}
@@ -203,7 +201,9 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
               title="Update Item?"
               onPress={() => {
                 if (tempItem) {
+                  console.log(tempItem);
                   updateEquippedSlot(currSlot, tempItem);
+                  
                 } else {
                   console.log('No item selected');
                 }
@@ -218,7 +218,17 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
             <View style ={[styles.itemBox ,{height: 100,width: 100, bottom: 275,left: 200,backgroundColor:'lightgrey'}]}>
               <Text> Current Item:</Text>
-              <Text> {mainWeapon?.name || 'None equipped'}</Text>
+              {currSlot === 'weaponSlot' && (
+                <Text>{userStats.equip.weaponS.name|| 'None equipped'}</Text>
+              )}
+              
+              {currSlot === 'armorSlot' && (
+                <Text>{userStats.equip.armorS.name || 'None equipped'}</Text>
+              )}
+
+              {currSlot === 'potionSlot' && (
+                <Text>{userStats.equip.potionS.name || 'None equipped'}</Text>
+              )}
             </View>
 
 
@@ -228,7 +238,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
        
 
         <View style={styles.topView}> 
-          <Text style={styles.headTitle}> Daily </Text>
+          <Text style={styles.headTitle}> Items Equpped </Text>
         </View>
 
         
@@ -240,15 +250,15 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
-            <Text style={styles.itemTitle}> {mainArmor?.name || 'None equipped'} </Text>
+            <Text style={styles.itemTitle}> {userStats.equip.armorS?.name || 'None equipped'} </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.slotOne, {top: 20}]} onPress={() => {handleMenu('weaponSlot')}}> 
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
-            <Text style={[styles.itemTitle]}> {mainWeapon?.name || 'None equipped'} </Text>
-            <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {'+ ' + mainWeapon?.damage || 'None equipped'} </Text>
+            <Text style={[styles.itemTitle]}> {userStats.equip.weaponS?.name || 'None equipped'} </Text>
+            <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {''} </Text>
 
           </TouchableOpacity>
 
@@ -257,7 +267,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             <Image source={require('../../../assets/avatars/placeholder.png')}
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Potion </Text>
-            <Text style={styles.itemTitle}>{(mainPotion?.name || 'None equipped')}</Text>
+            <Text style={styles.itemTitle}>{(userStats.equip.potionS?.name || 'None equipped')}</Text>
             
 
           </TouchableOpacity>
@@ -265,9 +275,9 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         </View>
 
         <View style={styles.bottomView}> 
-          <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
-          <Button title="Yes, Begin!" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
-
+          <Text style={styles.title}>Are these the items you want equipped?</Text>
+          <Button title="Yes" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
+          <Button title="Go Back" onPress={() => navigation.navigate('Tower', { selectedIndex })}/>
         </View>
       
       </View>

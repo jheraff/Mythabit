@@ -35,11 +35,14 @@ const ItemScreen = () => {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        const sanitized = (userData.inventory || []).map(item => ({
+
+       
+        const inventoryItems = Object.values(userData.inventory || {}).flat().map(item => ({
           ...item,
-          rarity: item.rarity?.toLowerCase() || 'common',
+          rarity: item.rarity?.toLowerCase() || 'common', 
         }));
-        setInventory(sanitized);
+
+        setInventory(inventoryItems);
       }
     } catch (error) {
       console.error('Error loading inventory:', error);
@@ -52,7 +55,7 @@ const ItemScreen = () => {
   const totalSpacing = itemSpacing * (numColumns + 1);
   const itemSize = (screenWidth - totalSpacing) / numColumns;
 
-  const filteredItems = selectedRarity 
+  const filteredItems = selectedRarity
     ? inventory.filter(item => item.rarity === selectedRarity)
     : inventory;
 
