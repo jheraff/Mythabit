@@ -131,19 +131,51 @@ export default function ShopScreen() {
     try {
       const userId = auth.currentUser?.uid;
       if (!userId) return;
-
+  
       const userRef = doc(db, 'users', userId);
+  
+      // Get current inventory
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) return;
+  
+      const userData = userDoc.data();
+      const currentInventory = userData.inventory || {
+        weaponList: [],
+        armorList: [],
+        potionList: []
+      };
+  
       const newGoldAmount = userGold - item.cost;
-      const newInventory = [...inventory, item];
+  
+      // Determine item type and where to store it
+      let updatedInventory = { ...currentInventory };
 
+      console.log(item.slot);
+  
+      switch (item.slot) {
+        case 'Weapon':
+          updatedInventory.weaponList.push(item);
+          break;
+        case 'Armor':
+          updatedInventory.armorList.push(item);
+          break;
+        case 'Potion':
+          updatedInventory.potionList.push(item);
+          break;
+        default:
+          Alert.alert('Error', 'Unknown item type');
+          return;
+      }
+  
+      // Save updated data
       await updateDoc(userRef, {
         currency: newGoldAmount,
-        inventory: newInventory,
+        inventory: updatedInventory,
       });
-
+  
       setUserGold(newGoldAmount);
-      setInventory(newInventory);
-
+      setInventory(updatedInventory);
+  
       Alert.alert('Purchase Successful', `You bought ${item.name}!`);
     } catch (error) {
       console.error('Error purchasing item:', error);
