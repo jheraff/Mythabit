@@ -292,22 +292,28 @@ export const initializeUserProfile = async (userId, username) => {
       },
       equippedItems: {
         weaponSlot: {
-          name: 'tree branch',
+          name: 'Wooden Sword',
           id: "000",
+          type: "weapon",
+          rarity: 'common',
           stat: {
             strength: 1,
           }
         },
         armorSlot: {
-          name: 'shirt',
+          name: 'Leather Armor',
           id: '100',
+          type: 'armor',
+          rarity: 'common',
           stat: {
             agility: 1,
           }
         },
         potionSlot: {
-          name: 'sprite',
+          name: 'Magic Potion',
           id: '200',
+          type: 'potion',
+          rarity: 'common',
           stat: {
             focus: 1,
           }
@@ -315,14 +321,14 @@ export const initializeUserProfile = async (userId, username) => {
       },
       inventory: {
         weaponList: [
-          {name: 'tree branch', id: "000"}
+          {name: 'Wooden Sword', id: "000", type: "weapon"}
         ], 
 
         armorList: [
-          {name: 'shirt', id: '100'}
+          {name: 'Leather Armor', id: '100', type: "armor"}
         ],
         potionList: [
-          {name: 'sprite', id: '200'}
+          {name: 'Magic Potion', id: '200', type: "potion"}
         ],
       },
       tasks: [],
