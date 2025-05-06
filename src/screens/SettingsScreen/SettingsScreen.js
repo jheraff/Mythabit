@@ -65,7 +65,7 @@ const SettingsScreen = ({ navigation }) => {
             <Text style={styles.optionText}>Profile Settings</Text>
             <Ionicons name="chevron-forward" size={24} color="#6b7280" />
           </TouchableOpacity>
-
+{/*
           <TouchableOpacity 
             style={styles.option} 
             onPress={navigateToPreferences}
@@ -92,6 +92,7 @@ const SettingsScreen = ({ navigation }) => {
             <Text style={styles.optionText}>Privacy</Text>
             <Ionicons name="chevron-forward" size={24} color="#6b7280" />
           </TouchableOpacity>
+*/}
         </View>
 
         <View style={styles.section}>

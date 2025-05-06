@@ -210,10 +210,10 @@ const MessageListScreen = ({ navigation, route }) => {
                 {/* Top row of header with back button, title */}
                 <View style={styles.headerTopRow}>
                     <TouchableOpacity
-                        style={styles.backButton}
+                        style={globalStyles.backButton}
                         onPress={() => navigation.goBack()}
                     >
-                        <Ionicons name="arrow-back" size={24} color="#afe8ff" />
+                        <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
 
                     <Text style={styles.headerTitle}>Messages</Text>
@@ -253,16 +253,10 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         justifyContent: 'space-between',
     },
-    backButton: {
-        padding: 5,
-        backgroundColor: '#152551',
-        borderRadius: 5,
-        borderWidth: 2,
-        borderColor: '#afe8ff',
-    },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 24,
+        //fontWeight: 'bold',
+        fontFamily: 'morris-roman',
         color: '#ffffff',
     },
     loadingContainer: {
@@ -300,7 +294,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 15,
         marginBottom: 10,
         borderRadius: 8,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#d3d3d3',
         borderWidth: 1,
         borderColor: '#e0e0e0',
         shadowColor: '#000',
@@ -340,8 +334,9 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     username: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 22,
+        //fontWeight: 'bold',
+        fontFamily: 'morris-roman',
         color: '#1c2d63',
     },
     timeAgo: {

@@ -259,10 +259,20 @@ const UserProfileScreen = ({ route, navigation }) => {
         );
     };
 
+    const statColors = {
+        STR: '#D62828',
+        INT: '#1D4ED8',
+        AGI: '#059669',
+        ARC: '#7C3AED',
+        FOC: '#FBBF24',
+    };
+
     const renderStatItem = (statName, value) => {
         try {
+            const color = statColors[statName] || '#1c2d63';
+
             return (
-                <View style={styles.statItemBox}>
+                <View style={[globalStyles.statItemBox, { borderColor: color}]}>
                     <Text style={styles.statItemLabel}>{statName}</Text>
                     <Text style={styles.statItemValue}>{value}</Text>
                 </View>
@@ -289,7 +299,7 @@ const UserProfileScreen = ({ route, navigation }) => {
     const renderShowcasedAchievements = () => {
         if (!showcasedAchievements || showcasedAchievements.length === 0) {
             return (
-                <View style={styles.noAchievementsContainer}>
+                <View style={globalStyles.noAchievementsContainer}>
                     <Text style={styles.noAchievementsText}>No achievements showcased</Text>
                 </View>
             );
@@ -329,10 +339,10 @@ const UserProfileScreen = ({ route, navigation }) => {
                 {/* Top row of header with back button, username, level */}
                 <View style={globalStyles.headerTopRow}>
                     <TouchableOpacity
-                        style={styles.backButton}
+                        style={globalStyles.backButton}
                         onPress={() => navigation.goBack()}
                     >
-                        <Ionicons name="arrow-back" size={24} color="#afe8ff" />
+                        <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
 
                     <Text style={globalStyles.username}>{userData.username}</Text>
@@ -357,7 +367,7 @@ const UserProfileScreen = ({ route, navigation }) => {
             </View>
             
             <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
-                <View style={styles.profileSection}>
+                <View style={globalStyles.profileSection}>
                     {/* Left side: Avatar */}
                     <View style={styles.avatarSection}>
                         <View style={styles.avatarContainer}>
@@ -405,7 +415,7 @@ const UserProfileScreen = ({ route, navigation }) => {
                 </View>
                 
                 {/* Stats Section */}
-                <View style={styles.statsContainer}>
+                <View style={globalStyles.statsContainer}>
                     <Text style={styles.sectionTitle}>Character Stats</Text>
                     <View style={styles.statsList}>
                         {renderStatItem('STR', userData.stats?.strength || 1)}
@@ -417,7 +427,7 @@ const UserProfileScreen = ({ route, navigation }) => {
                 </View>
                 
                 {/* Achievements Section */}
-                <View style={styles.achievementsContainer}>
+                <View style={globalStyles.achievementsContainer}>
                     <View style={styles.achievementsHeader}>
                         <Text style={styles.sectionTitle}>Showcased Achievements</Text>
                     </View>
@@ -438,14 +448,6 @@ const UserProfileScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    backButton: {
-        padding: 5,
-        marginRight: 10,
-        backgroundColor: '#152551',
-        borderRadius: 5,
-        borderWidth: 2,
-        borderColor: '#afe8ff',
-    },
     scrollContainer: {
         flex: 1,
     },
@@ -457,13 +459,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#fff'
-    },
-    profileSection: {
-        flexDirection: 'row',
-        padding: 20,
-        backgroundColor: '#f5f5f5',
-        borderBottomWidth: 1, 
-        borderBottomColor: '#e0e0e0',
     },
     avatarSection: {
         alignItems: 'center',
@@ -527,8 +522,9 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     sectionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 20,
+        fontFamily: 'morris-roman',
+        //fontWeight: 'bold',
         color: '#1c2d63',
         marginBottom: 10,
     },
@@ -552,20 +548,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-    statItemBox: {
-        width: 55,
-        height: 55,
-        paddingVertical: 8,
-        paddingHorizontal: 6,
-        backgroundColor: 'white',
-        borderRadius: 8,
-        borderWidth: 2,
-        borderColor: '#1c2d63',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     statItemLabel: {
-        fontSize: 12,
+        fontSize: 16,
+        fontFamily: 'morris-roman',
         color: '#666',
         fontWeight: '500',
         marginBottom: 3,
@@ -574,21 +559,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: '#1c2d63',
-    },
-    achievementsContainer: {
-        marginHorizontal: 15,
-        marginBottom: 15,
-        padding: 15,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 3,
     },
     achievementsHeader: {
         flexDirection: 'row',
@@ -602,14 +572,6 @@ const styles = StyleSheet.create({
     showcasedAchievementContainer: {
         marginBottom: 8,
     },
-    noAchievementsContainer: {
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        marginBottom: 10,
-    },
     noAchievementsText: {
         color: '#666',
         fontSize: 14,
@@ -617,7 +579,7 @@ const styles = StyleSheet.create({
     },
     achievementCard: {
         padding: 12,
-        backgroundColor: '#fff',
+        backgroundColor: '#D3D3D3',
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#1c2d63',
@@ -650,6 +612,8 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         marginRight: 5,
+        borderWidth: 1,
+        borderColor: '#afe8ff',
     },
     followingButton: {
         backgroundColor: '#34C759',
@@ -671,7 +635,7 @@ const styles = StyleSheet.create({
         borderColor: '#afe8ff',
     },
     messageButtonText: {
-        color: '#afe8ff',
+        color: '#fff',
         fontSize: 14,
         fontWeight: '500',
     },
