@@ -16,11 +16,11 @@ const ItemScreen = () => {
   const [selectedRarity, setSelectedRarity] = useState(null);
 
   const rarityConfig = {
-    common: { label: 'Common', color: '#C0C0C0' },
-    uncommon: { label: 'Uncommon', color: '#008000' },
-    rare: { label: 'Rare', color: '#0000FF' },
-    epic: { label: 'Epic', color: '#800080' },
-    legendary: { label: 'Legendary', color: '#FFD700' },
+    common: { label: 'Common', color: '#C0C0C0', darkColor: '#8a8a8a' },
+    uncommon: { label: 'Uncommon', color: '#008000', darkColor: '#006400' },
+    rare: { label: 'Rare', color: '#0000FF', darkColor: '#00008b' },
+    epic: { label: 'Epic', color: '#800080', darkColor: '#4b0082' },
+    legendary: { label: 'Legendary', color: '#FFD700', darkColor: '#daa520' },
   };
 
   useEffect(() => {
@@ -36,7 +36,6 @@ const ItemScreen = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
 
-       
         const inventoryItems = Object.values(userData.inventory || {}).flat().map(item => ({
           ...item,
           rarity: item.rarity?.toLowerCase() || 'common', 
@@ -75,12 +74,14 @@ const ItemScreen = () => {
           key={rarity}
           style={[
             styles.filterButton,
-            { borderColor: config.color },
+            { borderColor: config.darkColor },
             selectedRarity === rarity && styles.filterButtonSelected
           ]}
           onPress={() => setSelectedRarity(rarity)}
         >
-          <Text style={styles.filterButtonText}>{config.label}</Text>
+          <Text style={[styles.filterButtonText, { color: config.darkColor }]}>
+            {config.label}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -88,16 +89,18 @@ const ItemScreen = () => {
 
   const renderItem = ({ item }) => {
     const rarityKey = typeof item.rarity === 'string' ? item.rarity.toLowerCase() : 'common';
-    const rarityInfo = rarityConfig[rarityKey] || { label: 'Unknown', color: '#999' };
+    const rarityInfo = rarityConfig[rarityKey] || { label: 'Unknown', color: '#999', darkColor: '#666' };
 
     return (
       <TouchableOpacity
         style={[styles.itemBox, { width: itemSize }]}
         onPress={() => handleItemPress(item)}
       >
-        <View style={[styles.itemRarity, { backgroundColor: rarityInfo.color }]} />
+        <View style={[styles.itemRarity, { backgroundColor: rarityInfo.darkColor }]} />
         <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemRarityText}>{rarityInfo.label}</Text>
+        <Text style={[styles.itemRarityText, { color: rarityInfo.darkColor }]}>
+          {rarityInfo.label}
+        </Text>
         {item.description && (
           <Text style={styles.itemDescription} numberOfLines={2}>
             {item.description}
@@ -113,7 +116,8 @@ const ItemScreen = () => {
     Alert.alert(
       item.name,
       `${item.description}\n\nRarity: ${rarityLabel}`,
-      [{ text: 'Close' }]
+      [{ text: 'Close', style: 'cancel' }],
+      { cancelable: true }
     );
   };
 
@@ -150,13 +154,13 @@ const ItemScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1a1a1a',
   },
   header: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#2b2b2b',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#444',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -164,50 +168,55 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#e0d8c3',
+    fontFamily: 'morris-roman',
   },
   count: {
     fontSize: 16,
-    color: '#666',
+    color: '#c2baa6',
+    fontFamily: 'morris-roman',
   },
   filterContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 12,
     gap: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#2b2b2b',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#444',
   },
   filterButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
+    borderColor: '#666',
+    backgroundColor: '#2b2b2b',
   },
   filterButtonSelected: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#3a3a3a',
   },
   filterButtonText: {
     fontSize: 14,
-    color: '#333',
+    fontFamily: 'morris-roman',
   },
   list: {
     padding: 12,
     gap: 12,
   },
   itemBox: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: '#2b2b2b',
+    borderRadius: 8,
     padding: 12,
     margin: 6,
+    borderWidth: 1,
+    borderColor: '#444',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 3.84,
     elevation: 5,
   },
@@ -220,22 +229,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: '#e0d8c3',
+    fontFamily: 'morris-roman',
   },
   itemRarityText: {
     fontSize: 12,
-    color: '#666',
     marginBottom: 4,
+    fontFamily: 'morris-roman',
+    fontWeight: 'bold',
   },
   itemDescription: {
     fontSize: 12,
-    color: '#666',
+    color: '#c2baa6',
     lineHeight: 16,
+    fontFamily: 'morris-roman',
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 40,
-    color: '#666',
+    color: '#c2baa6',
     fontSize: 16,
+    fontFamily: 'morris-roman',
   },
 });
 
