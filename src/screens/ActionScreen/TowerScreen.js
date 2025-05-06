@@ -1,128 +1,159 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
-const TowerScreen = ({ navigation, extraData }) => {
+const TowerScreen = ({ navigation }) => {
+  const [floorSelected, setFloorSelected] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const scrollViewRef = useRef();
 
-
-    const [floorSelected, setFloorSelected] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState(null);
-    
-    const handlePress = (index) => {
-      setSelectedIndex(index);
-      console.log('Pressed index:', index + 1);
-      
-    };
-    return (
-      <View style={styles.container}>
-        <View style={styles.topView}> 
-          <Text style={{color: 'white', fontSize: 50}}>Daily Tower</Text> 
-        </View>
-
-        <View style={styles.towerContainer}> 
-          <ScrollView style={styles.towerView}> 
-            {Array.from({ length: 20 }).map((_, index) => (
-              <TouchableOpacity key={index} 
-                
-                onPress={() => {
-                  setFloorSelected(true);
-                  handlePress(index);
-                  
-                }}
-                
-                style={[
-                  styles.floorLayout,
-                  {
-                    backgroundColor: selectedIndex === index ? 'white' : 'skyblue',
-                  },
-                ]} > 
-
-                <Text style={{ color: 'black', fontSize: 18 }}>Floor {index + 1}</Text>          
-              </TouchableOpacity>
-
-              
-              ))}
-          </ScrollView>
-        </View> 
-        
-          
-
-        <View style={styles.bottomView}>
-          <Text style={{color: 'white'}}>Choose a floor</Text>
-          <Button 
-            title="Proceed" 
-            onPress={() => navigation.navigate('Confirmation',{selectedIndex})} 
-            disabled ={!floorSelected}
-          />    
-          <Button title="Go Back" onPress={() => navigation.navigate('Action', {screen: 'ActionMain'})}/>
-        </View>
-      </View>
-    );
+  const handlePress = (index) => {
+    setSelectedIndex(index);
+    setFloorSelected(true);
   };
 
-  const styles = StyleSheet.create({
+  useEffect(() => {
+    // Auto-scroll to bottom
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: false });
+    }, 100);
+  }, []);
 
+  return (
+    <View style={styles.container}>
+      <View style={styles.topView}>
+        <Text style={styles.titleText}>Daily Tower</Text>
+      </View>
 
-    container: { 
-      flex: 1, 
-      justifyContent: 'center', 
-      alignItems: 'center',
-    },
+      <View style={styles.towerContainer}>
+        <ScrollView
+          ref={scrollViewRef}
+          contentContainerStyle={styles.scrollViewContent}
+        >
+          {Array.from({ length: 20 }).map((_, index) => {
+            const floorNum = 20 - index;
+            return (
+              <TouchableOpacity
+                key={floorNum}
+                onPress={() => handlePress(floorNum - 1)}
+                style={[
+                  styles.floorButton,
+                  selectedIndex === floorNum - 1 && styles.floorButtonSelected,
+                ]}
+              >
+                <Text style={styles.floorText}>Floor {floorNum}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
 
-    topView: {
-      backgroundColor: '#1c2d63',
-      width: 400,
-      alignItems: 'center',
-    },
+      <View style={styles.bottomView}>
+        <Text style={styles.promptText}>Choose a floor</Text>
+        <TouchableOpacity
+          style={[
+            styles.darkFantasyButton,
+            !floorSelected && styles.disabledButton,
+          ]}
+          onPress={() => navigation.navigate('Confirmation', { selectedIndex })}
+          disabled={!floorSelected}
+        >
+          <Text style={styles.darkFantasyButtonText}>Proceed</Text>
+        </TouchableOpacity>
 
-    towerContainer:{ //2
-   
-      alignItems: 'center',
-      top: 10,
-      backgroundColor: 'black',
-      width: 300,
-      height: 500,
-      
-    },  
+        <TouchableOpacity
+          style={[styles.darkFantasyButton, { marginTop: 10 }]}
+          onPress={() => navigation.navigate('Action', { screen: 'ActionMain' })}
+        >
+          <Text style={styles.darkFantasyButtonText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
-    towerView: { //2.1
-      backgroundColor: 'lightblue',
-      height: 200,
-      width: 200,
-      flex: 0.5,
-      position: 'center',  
-    
-    },
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#1a1a1a',
+    alignItems: 'center',
+  },
+  topView: {
+    width: '100%',
+    padding: 20,
+    backgroundColor: '#222',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#444',
+  },
+  titleText: {
+    fontSize: 36,
+    color: '#e0d8c3',
+    fontFamily: 'serif',
+  },
+  towerContainer: {
+    flex: 1,
+    width: '90%',
+    backgroundColor: '#2a2a2a',
+    borderWidth: 2,
+    borderColor: '#444',
+    borderRadius: 10,
+    marginVertical: 20,
+    paddingVertical: 10,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+  },
+  floorButton: {
+    backgroundColor: '#3a3a3a',
+    borderColor: '#888',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginVertical: 6,
+    padding: 12,
+    alignItems: 'center',
+  },
+  floorButtonSelected: {
+    backgroundColor: '#d4af37',
+    borderColor: '#fff',
+  },
+  floorText: {
+    fontSize: 18,
+    color: '#e0d8c3',
+    fontFamily: 'serif',
+  },
+  bottomView: {
+    width: '100%',
+    padding: 16,
+    backgroundColor: '#222',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: '#444',
+  },
+  promptText: {
+    color: '#e0d8c3',
+    fontSize: 16,
+    fontFamily: 'serif',
+    marginBottom: 10,
+  },
+  darkFantasyButton: {
+    backgroundColor: '#333',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#888',
+  },
+  darkFantasyButtonText: {
+    color: '#e0d8c3',
+    fontSize: 16,
+    fontFamily: 'serif',
+    textAlign: 'center',
+  },
+  disabledButton: {
+    opacity: 0.4,
+  },
+});
 
-    floorLayout: {
-      //padding: 30,
-      //position: 'center',
-      
-      
-      margin: 10,
-      padding: 10,
-      borderRadius: 8,
-      alignItems: 'center',
-      
-      
-    },
-
-    bottomView: {
-      marginTop: 20,
-      backgroundColor: '#1c2d63',
-      width: 400,
-      height: 90,
-      alignItems: 'center',
-    },
-
-    title: { 
-      fontSize: 20, 
-      marginBottom: 20,
-      
-    },
-
-  });
-  
-
-
-  export default TowerScreen;
+export default TowerScreen;
