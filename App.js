@@ -10,6 +10,9 @@ import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { decode, encode } from 'base-64';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 
+// Import the AvatarProvider
+import { AvatarProvider } from './src/screens/AvatarScreen/AvatarContext';
+
 // Import directly without the AvatarProvider
 import MainScreen from './src/screens/MainScreen/MainScreen';
 import LoginScreen from './src/screens/LoginScreen/LoginScreen';
@@ -483,45 +486,47 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainScreen" component={MainScreen} />
-        {user ? (
-          isFirstTimeUser ? (
-            <Stack.Screen
-              name="Onboarding"
-              options={{ gestureEnabled: false }}>
-              {props => <OnboardingStackNavigator {...props} userId={user.id} />}
-            </Stack.Screen>
+    <AvatarProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {user ? (
+            isFirstTimeUser ? (
+              <Stack.Screen
+                name="Onboarding"
+                options={{ gestureEnabled: false }}>
+                {props => <OnboardingStackNavigator {...props} userId={user.id} />}
+              </Stack.Screen>
+            ) : (
+              <>
+                <Stack.Screen name="MainScreen" component={MainScreen} />
+                <Stack.Screen name="MainTab">
+                  {props => <TabNavigator {...props} extraData={user} navigation={props.navigation} />}
+                </Stack.Screen>
+                
+                <Stack.Group screenOptions={{ presentation: 'containedModal' }}>
+                  <Stack.Screen name="SettingsStack">
+                    {props => <SettingsStackNavigator {...props} extraData={user} />}
+                  </Stack.Screen>
+                  <Stack.Screen name="GuildStack">
+                    {props => <GuildStackNavigator {...props} extraData={user} />}
+                  </Stack.Screen>
+                  <Stack.Screen name="MessageStack">
+                    {props => <MessageStackNavigator {...props} extraData={user} />}
+                  </Stack.Screen>
+                  <Stack.Screen name="AchievementStack">
+                    {props => <AchievementStackNavigator {...props} extraData={user} />}
+                  </Stack.Screen>
+                </Stack.Group>
+              </>
+            )
           ) : (
             <>
-              <Stack.Screen name="MainTab">
-                {props => <TabNavigator {...props} extraData={user} navigation={props.navigation} />}
-              </Stack.Screen>
-              
-              <Stack.Group screenOptions={{ presentation: 'containedModal' }}>
-                <Stack.Screen name="SettingsStack">
-                  {props => <SettingsStackNavigator {...props} extraData={user} />}
-                </Stack.Screen>
-                <Stack.Screen name="GuildStack">
-                  {props => <GuildStackNavigator {...props} extraData={user} />}
-                </Stack.Screen>
-                <Stack.Screen name="MessageStack">
-                  {props => <MessageStackNavigator {...props} extraData={user} />}
-                </Stack.Screen>
-                <Stack.Screen name="AchievementStack">
-                  {props => <AchievementStackNavigator {...props} extraData={user} />}
-                </Stack.Screen>
-              </Stack.Group>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Registration" component={RegistrationScreen} />
             </>
-          )
-        ) : (
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Registration" component={RegistrationScreen} />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AvatarProvider>
   );
 }

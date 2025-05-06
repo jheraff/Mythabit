@@ -4,10 +4,12 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
+import Avatar from '../AvatarScreen/Avatar'; // Import your Avatar component
+import { useAvatar } from '../AvatarScreen/AvatarContext'; // Import your avatar context
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const { avatar, loading } = useAvatar(); // Use your avatar context
   const [userStats, setUserStats] = useState({
     username: '',
     level: 1,
@@ -22,10 +24,7 @@ const HomeScreen = () => {
       focus: 1
     },
     inventory: {
-      helmet: null,
-      chestplate: null,
-      leggings: null,
-      boots: null,
+      armor: null,
       weapon: null,
       gear: null
     }
@@ -42,6 +41,23 @@ const HomeScreen = () => {
           const userData = docSnapshot.data();
 
           // Create complete user stats object, ensuring all fields exist
+          // Handle legacy data structure or create new simplified structure
+          let armorItem = userData.inventory?.armor;
+          
+          // If we're migrating from the old system, check if any armor pieces exist
+          // and use the first one found as the armor item
+          if (!armorItem) {
+            if (userData.inventory?.helmet) {
+              armorItem = userData.inventory.helmet;
+            } else if (userData.inventory?.chestplate) {
+              armorItem = userData.inventory.chestplate;
+            } else if (userData.inventory?.leggings) {
+              armorItem = userData.inventory.leggings;
+            } else if (userData.inventory?.boots) {
+              armorItem = userData.inventory.boots;
+            }
+          }
+          
           const completeUserStats = {
             username: userData.username || auth.currentUser?.displayName || 'New User',
             level: userData.level || 1,
@@ -56,10 +72,7 @@ const HomeScreen = () => {
               focus: userData.stats?.focus || 1
             },
             inventory: {
-              helmet: userData.inventory?.helmet || null,
-              chestplate: userData.inventory?.chestplate || null,
-              leggings: userData.inventory?.leggings || null,
-              boots: userData.inventory?.boots || null,
+              armor: armorItem,
               weapon: userData.inventory?.weapon || null,
               gear: userData.inventory?.gear || null
             }
@@ -95,10 +108,7 @@ const HomeScreen = () => {
         focus: 1
       },
       inventory: {
-        helmet: null,
-        chestplate: null,
-        leggings: null,
-        boots: null,
+        armor: null,
         weapon: null,
         gear: null
       },
@@ -110,61 +120,6 @@ const HomeScreen = () => {
       setUserStats(initialStats);
     } catch (error) {
       console.error('Error initializing new user:', error);
-    }
-  };
-
-  const processCompletedTasks = async (completedTasks) => {
-    const userId = auth.currentUser?.uid;
-    if (!userId) return;
-
-    const userDocRef = doc(db, 'users', userId);
-    const activeTasksRef = doc(db, 'activeTasks', userId);
-
-    try {
-      // Get current user stats
-      const userDoc = await getDoc(userDocRef);
-      if (!userDoc.exists()) return;
-
-      const currentStats = userDoc.data();
-      let updatedStats = { ...currentStats };
-      let totalXpGained = 0;
-
-      completedTasks.forEach(task => {
-        totalXpGained += task.xpReward || 0;
-
-        // Increase the corresponding stat based on statType
-        const statToUpdate = task.statType.toLowerCase();
-        if (updatedStats.stats && statToUpdate in updatedStats.stats) {
-          updatedStats.stats[statToUpdate] += task.taskAmount || 1;
-        }
-      });
-
-      // Add XP and check for level up
-      updatedStats.xp += totalXpGained;
-      const levelsGained = Math.floor(updatedStats.xp / 1000);
-      if (levelsGained > 0) {
-        updatedStats.level += levelsGained;
-        updatedStats.xp = updatedStats.xp % 1000;
-      }
-
-      await setDoc(userDocRef, {
-        ...updatedStats,
-        lastUpdated: new Date().toISOString()
-      });
-
-      const activeTasksDoc = await getDoc(activeTasksRef);
-      if (!activeTasksDoc.exists()) return;
-
-      const currentTasks = activeTasksDoc.data().tasks;
-      const updatedTasks = currentTasks.map(task => ({
-        ...task,
-        processed: task.status === 'completed' ? true : task.processed
-      }));
-
-      await setDoc(activeTasksRef, { tasks: updatedTasks });
-
-    } catch (error) {
-      console.error('Error processing completed tasks:', error);
     }
   };
 
@@ -187,73 +142,79 @@ const HomeScreen = () => {
     </View>
   );
 
-  // Function to render the avatar based on the customization options
+  // Avatar component function
   const renderAvatar = () => {
-    if (!userStats.avatar) {
-      return (
-        <View style={styles.avatarPlaceholder}>
-          <Ionicons name="person" size={80} color="#666" />
-        </View>
-      );
-    }
-
     return (
-      <Image
-        source={require('../../../assets/avatars/default_pfp.jpg')}
-        style={styles.avatarImage}
-        resizeMode="contain"
-      />
+      <View style={styles.avatarWrapper}>
+        <Avatar 
+          size={180}
+          style={styles.homeScreenAvatar}
+          userId={auth.currentUser?.uid}
+        />
+      </View>
     );
   };
 
-  const renderInventorySlot = (slotType, slotName) => {
+  // Render equipment slots (just armor, weapon, and gear)
+  const renderEquipmentSlots = () => {
+    // Only show the main equipment types (armor, weapon, gear)
+    const equipmentTypes = [
+      { id: 'armor', name: 'Armor', icon: 'shield-outline' },
+      { id: 'weapon', name: 'Weapon', icon: 'flash-outline' },
+      { id: 'gear', name: 'Gear', icon: 'cog-outline' }
+    ];
+    
+    return (
+      <View style={styles.inventorySlotsContainer}>
+        {equipmentTypes.map(type => renderInventorySlot(type.id, type.name, type.icon))}
+      </View>
+    );
+  };
+
+  const renderInventorySlot = (slotType, slotName, iconName) => {
     const item = userStats.inventory[slotType];
     
     return (
       <TouchableOpacity 
+        key={slotType}
         style={styles.inventorySlot}
-        onPress={() => navigation.navigate('ItemScreen', { activeSlot: slotType })}
+        onPress={() => navigation.navigate('Items', { activeSlot: slotType })}
       >
         {item ? (
-          <Image 
-            source={{ uri: item.imageUri }}
-            style={styles.itemImage}
-            resizeMode="contain"
-          />
+          <View style={styles.equippedItemContainer}>
+            <Image 
+              source={{ uri: item.imageUri }}
+              style={styles.itemImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.equippedItemName}>{item.name}</Text>
+            <View style={[styles.rarityIndicator, { backgroundColor: getRarityColor(item.rarity) }]} />
+          </View>
         ) : (
           <View style={styles.emptySlot}>
             <Ionicons 
-              name={getSlotIcon(slotType)} 
+              name={iconName} 
               size={24} 
               color="#aaa" 
             />
+            <Text style={styles.addItemText}>Add {slotName}</Text>
           </View>
         )}
-        <Text style={styles.slotName}>{slotName}</Text>
       </TouchableOpacity>
     );
   };
 
-  const getSlotIcon = (slotType) => {
-    switch(slotType) {
-      case 'helmet':
-        return 'shield-outline';
-      case 'chestplate':
-        return 'shirt-outline';
-      case 'leggings':
-        return 'resize-outline';
-      case 'boots':
-        return 'footsteps-outline';
-      case 'weapon':
-        return 'flash-outline';
-      case 'gear':
-        return 'cog-outline';
-      default:
-        return 'help-outline';
-    }
+  const getRarityColor = (rarity) => {
+    const rarityColors = {
+      common: '#C0C0C0',
+      uncommon: '#008000',
+      rare: '#0000FF',
+      epic: '#800080',
+      legendary: '#FFD700'
+    };
+    
+    return rarityColors[rarity?.toLowerCase()] || '#C0C0C0';
   };
-
-
 
   return (
     <ScrollView style={styles.container}
@@ -316,21 +277,23 @@ const HomeScreen = () => {
         {renderStatBar('Focus', userStats.stats.focus)}
       </View>
 
-      {/* Inventory Section */}
-      <View style={styles.inventoryContainer}>
-        <Text style={styles.inventoryHeader}>Equipment</Text>
-        <View style={styles.inventorySlotsContainer}>
-          {renderInventorySlot('helmet', 'Helmet')}
-          {renderInventorySlot('chestplate', 'Chest')}
-          {renderInventorySlot('leggings', 'Legs')}
-          {renderInventorySlot('boots', 'Boots')}
-          {renderInventorySlot('weapon', 'Weapon')}
-          {renderInventorySlot('gear', 'Gear')}
+      {/* Equipment Section */}
+      <View style={styles.equipmentContainer}>
+        <View style={styles.equipmentHeaderRow}>
+          <Text style={styles.equipmentHeader}>Equipment</Text>
+          <TouchableOpacity 
+            style={styles.viewAllButton}
+            onPress={() => navigation.navigate('ItemScreen')}
+          >
+            <Text style={styles.viewAllText}>View All Items</Text>
+          </TouchableOpacity>
         </View>
+        {renderEquipmentSlots()}
       </View>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -341,7 +304,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 20,
   },
-
   headerContainer: {
     backgroundColor: '#1c2d63',
     paddingVertical: 15,
@@ -466,21 +428,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  avatarBox: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#1c2d63',
-    overflow: 'hidden',
+  avatarWrapper: {
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+  },
+  homeScreenAvatar: {
+    borderWidth: 0, // Remove border as the avatarBox already has one
   },
   avatarPlaceholder: {
     alignItems: 'center',
@@ -566,6 +521,88 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     marginTop: 4,
+  },
+  equipmentContainer: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  equipmentHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  equipmentHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  viewAllButton: {
+    padding: 6,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  viewAllText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  inventorySlotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+  inventorySlot: {
+    width: '30%',
+    aspectRatio: 1,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+    padding: 8,
+    overflow: 'hidden',
+  },
+  emptySlot: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  addItemText: {
+    fontSize: 10,
+    color: '#999',
+    marginTop: 6,
+    textAlign: 'center',
+  },
+  equippedItemContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  itemImage: {
+    width: '100%',
+    height: '70%',
+    marginBottom: 4,
+  },
+  equippedItemName: {
+    fontSize: 10,
+    textAlign: 'center',
+    color: '#333',
+    fontWeight: '500',
+  },
+  rarityIndicator: {
+    height: 3,
+    width: '80%',
+    borderRadius: 1.5,
+    position: 'absolute',
+    bottom: 0,
   },
 });
 

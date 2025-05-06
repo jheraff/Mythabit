@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import {
   StyleSheet,
   View,
@@ -19,6 +18,7 @@ export default function ShopScreen() {
   const navigation = useNavigation();
   const [userGold, setUserGold] = useState(0);
   const [inventory, setInventory] = useState([]);
+  const [shopItems, setShopItems] = useState([]);
   const [userStats, setUserStats] = useState({
     username: '',
     level: 1,
@@ -30,14 +30,14 @@ export default function ShopScreen() {
       intellect: 1,
       agility: 1,
       arcane: 1,
-      focus: 1
-    }
+      focus: 1,
+    },
   });
 
   useEffect(() => {
     loadUserData();
-    
-    // Set up real-time listener for user stats
+    loadShopItems();
+
     const userId = auth.currentUser?.uid;
     if (!userId) return;
 
@@ -46,8 +46,6 @@ export default function ShopScreen() {
       (docSnapshot) => {
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
-
-          // Create complete user stats object, ensuring all fields exist
           const completeUserStats = {
             username: userData.username || auth.currentUser?.displayName || 'New User',
             level: userData.level || 1,
@@ -59,33 +57,24 @@ export default function ShopScreen() {
               intellect: userData.stats?.intellect || 1,
               agility: userData.stats?.agility || 1,
               arcane: userData.stats?.arcane || 1,
-              focus: userData.stats?.focus || 1
-            }
+              focus: userData.stats?.focus || 1,
+            },
           };
           setUserStats(completeUserStats);
           setUserGold(userData.currency || 0);
           setInventory(userData.inventory || []);
         }
       },
-      (error) => {
-        console.error(error);
-      }
+      (error) => console.error(error)
     );
 
-    return () => {
-      unsubscribeUserStats();
-    };
+    return () => unsubscribeUserStats();
   }, []);
-
-  const calculateXpProgress = () => {
-    return (userStats.xp / 1000) * 100;
-  };
 
   const loadUserData = async () => {
     try {
       const userId = auth.currentUser?.uid;
       if (!userId) return;
-
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
         const userData = userDoc.data();
@@ -97,47 +86,45 @@ export default function ShopScreen() {
     }
   };
 
-  // Define the items array with shop items
-  const items = [
-    { id: 1, name: 'Wooden Sword', rarity: 'common', description: 'A basic training sword' },
-    { id: 2, name: 'Iron Shield', rarity: 'uncommon', description: 'Reliable protection' },
-    { id: 3, name: 'Health Potion', rarity: 'rare', description: 'Restores vitality' },
-    { id: 4, name: 'Dragon Helm', rarity: 'epic', description: 'Forged in dragon fire' },
-    { id: 5, name: 'Crystal Boots', rarity: 'legendary', description: 'Mystical footwear' },
-    { id: 6, name: 'Silver Ring', rarity: 'common', description: 'A simple band' },
-  ];
-
-  const rarityColors = {
-    common: '#C0C0C0',     // Silver
-    uncommon: '#008000',   // Green
-    rare: '#0000FF',       // Blue
-    epic: '#800080',       // Purple
-    legendary: '#FFD700',  // Gold
+  const loadShopItems = async () => {
+    try {
+      const shopRotationDoc = await getDoc(doc(db, 'shop', 'shop_rotation'));
+      if (!shopRotationDoc.exists()) return;
+  
+      const shopData = shopRotationDoc.data();
+      const itemIds = shopData.items;
+  
+      const shopLootDoc = await getDoc(doc(db, 'items', 'itemshoploot'));
+      if (!shopLootDoc.exists()) return;
+  
+      const lootMap = shopLootDoc.data(); // This is a key:value map like { bronze_armor: {...}, iron_sword: {...} }
+  
+      const selectedItems = itemIds
+        .map((id) => {
+          const item = lootMap[id];
+          if (!item) return null;
+          return {
+            id,
+            ...item,
+            rarity: item.rarity?.toLowerCase() || 'common',
+          };
+        })
+        .filter(Boolean);
+  
+      setShopItems(selectedItems);
+    } catch (error) {
+      console.error('Error loading shop items:', error);
+    }
   };
-
-  const rarityBaseCosts = {
-    common: 100,
-    uncommon: 250,
-    rare: 500,
-    epic: 1000,
-    legendary: 2000,
-  };
-
-  const shopItems = items.map((item) => {
-    const baseCost = rarityBaseCosts[item.rarity];
-    const randomVariation = Math.floor(Math.random() * baseCost * 0.2);
-    const cost = baseCost + randomVariation;
-    return {
-      ...item,
-      cost,
-    };
-  });
+  
 
   const screenWidth = Dimensions.get('window').width;
   const numColumns = 2;
   const itemSpacing = 16;
   const totalSpacing = itemSpacing * (numColumns + 1);
   const itemSize = (screenWidth - totalSpacing) / numColumns;
+
+  const calculateXpProgress = () => (userStats.xp / 1000) * 100;
 
   const purchaseItem = async (item) => {
     try {
@@ -150,17 +137,13 @@ export default function ShopScreen() {
 
       await updateDoc(userRef, {
         currency: newGoldAmount,
-        inventory: newInventory
+        inventory: newInventory,
       });
 
       setUserGold(newGoldAmount);
       setInventory(newInventory);
 
-      Alert.alert(
-        'Purchase Successful',
-        `You have purchased ${item.name}!`,
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Purchase Successful', `You bought ${item.name}!`);
     } catch (error) {
       console.error('Error purchasing item:', error);
       Alert.alert('Error', 'Failed to purchase item. Please try again.');
@@ -171,17 +154,14 @@ export default function ShopScreen() {
     if (userGold >= item.cost) {
       Alert.alert(
         'Confirm Purchase',
-        `Would you like to buy ${item.name} for ${item.cost} gold?\n\n${item.description}`,
+        `Buy ${item.name} for ${item.cost} gold?\n\n${item.description}`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Buy', onPress: () => purchaseItem(item) }
+          { text: 'Buy', onPress: () => purchaseItem(item) },
         ]
       );
     } else {
-      Alert.alert(
-        'Insufficient Funds',
-        `You need ${item.cost - userGold} more gold to buy this item.`
-      );
+      Alert.alert('Not enough gold', `You need ${item.cost - userGold} more.`);
     }
   };
 
@@ -199,9 +179,7 @@ export default function ShopScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header Container */}
       <View style={styles.headerContainer}>
-        {/* Top row of header with profile, username, level, and currency */}
         <View style={styles.headerTopRow}>
           <TouchableOpacity
             style={styles.profileButton}
@@ -209,31 +187,18 @@ export default function ShopScreen() {
           >
             <Ionicons name="person-circle-outline" size={30} color="white" />
           </TouchableOpacity>
-
           <Text style={styles.username}>{userStats.username}</Text>
-
           <View style={styles.levelContainer}>
             <Text style={styles.levelText}>Level {userStats.level}</Text>
           </View>
-
           <View style={styles.currencyContainer}>
-            <Image
-              source={require('../../../assets/coin.png')}
-              style={styles.currencyIcon}
-            />
+            <Image source={require('../../../assets/coin.png')} style={styles.currencyIcon} />
             <Text style={styles.currencyText}>{userStats.currency}</Text>
           </View>
         </View>
-
-        {/* XP bar row with text inside */}
         <View style={styles.xpContainer}>
           <View style={styles.xpBarContainer}>
-            <View
-              style={[
-                styles.xpBar,
-                { width: `${calculateXpProgress()}%` }
-              ]}
-            />
+            <View style={[styles.xpBar, { width: `${calculateXpProgress()}%` }]} />
             <Text style={styles.xpText}>XP: {userStats.xp} / 1000</Text>
           </View>
         </View>
@@ -247,7 +212,7 @@ export default function ShopScreen() {
         <FlatList
           data={shopItems}
           renderItem={renderItem}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           numColumns={numColumns}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
@@ -256,17 +221,21 @@ export default function ShopScreen() {
     </View>
   );
 }
+const rarityColors = {
+  common: '#C0C0C0',     // gray/silver
+  uncommon: '#008000',   // green
+  rare: '#0000FF',       // blue
+  epic: '#800080',       // purple
+  legendary: '#FFD700',  // gold
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
   headerContainer: {
     backgroundColor: '#1c2d63',
     paddingVertical: 15,
     borderBottomWidth: 4,
-    borderBottomColor: '#afe8ff', 
+    borderBottomColor: '#afe8ff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -360,7 +329,7 @@ const styles = StyleSheet.create({
   },
   xpBar: {
     height: '100%',
-    backgroundColor: '#4287f5', 
+    backgroundColor: '#4287f5',
     position: 'absolute',
     left: 0,
     top: 0,
@@ -378,14 +347,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#1c2d63',
   },
-  balanceContainer: {
-    alignItems: 'center',
-  },
-  balanceText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#666',
-  },
   itemsContainer: {
     flex: 1,
     padding: 16,
@@ -399,10 +360,7 @@ const styles = StyleSheet.create({
     padding: 16,
     margin: 8,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,

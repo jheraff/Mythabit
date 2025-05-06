@@ -3,51 +3,56 @@ import { Image, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
+import { useAvatar } from '../AvatarScreen/AvatarContext';
 
 const Avatar = ({ size = 50, style, userId, onPress }) => {
-  const [avatar, setAvatar] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { avatar, loading: contextLoading } = useAvatar();
+  const [localLoading, setLocalLoading] = useState(true);
+  const [localAvatar, setLocalAvatar] = useState(null);
   
   // Predefined avatar images mapping
   const avatarImages = {
     'avatar1': require('../../../assets/avatars/bingus.jpg'),
-    // Add as many avatars as you have in your assets folder
+    'avatar2': require('../../../assets/avatars/thumbs_up.jpg'),
+    'avatar3': require('../../../assets/avatars/thumbs_up1.jpg'),
+    'avatar4': require('../../../assets/avatars/male.png'),
+    'avatar5': require('../../../assets/avatars/female.png'),
   };
   
-  // Fetch the user's avatar data when the component mounts
+  // If userId is provided, fetch that specific avatar
+  // otherwise use the avatar from context
   useEffect(() => {
-    const fetchAvatar = async () => {
+    const fetchSpecificAvatar = async () => {
+      if (!userId || userId === auth.currentUser?.uid) {
+        // If it's the current user, use the avatar from context
+        setLocalAvatar(avatar);
+        setLocalLoading(contextLoading);
+        return;
+      }
+      
       try {
-        setLoading(true);
-        // If no userId is provided, use the current user's ID
-        const uid = userId || (auth.currentUser ? auth.currentUser.uid : null);
-        
-        if (!uid) {
-          console.log('No user ID available to fetch avatar');
-          setLoading(false);
-          return;
-        }
-        
-        const userRef = doc(db, 'users', uid);
+        setLocalLoading(true);
+        const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
         
         if (userSnap.exists() && userSnap.data().avatar) {
-          setAvatar(userSnap.data().avatar);
+          setLocalAvatar(userSnap.data().avatar);
         } else {
-          console.log('No avatar data found');
+          console.log('No avatar data found for user ID:', userId);
+          setLocalAvatar(null);
         }
       } catch (error) {
-        console.error('Error fetching avatar:', error);
+        console.error('Error fetching avatar for specific user:', error);
       } finally {
-        setLoading(false);
+        setLocalLoading(false);
       }
     };
     
-    fetchAvatar();
-  }, [userId]);
+    fetchSpecificAvatar();
+  }, [userId, avatar, contextLoading]);
   
   // Show loading indicator while fetching avatar data
-  if (loading) {
+  if (localLoading) {
     return (
       <View 
         style={[
@@ -61,8 +66,11 @@ const Avatar = ({ size = 50, style, userId, onPress }) => {
     );
   }
   
+  // Check if we have avatar data
+  const avatarData = localAvatar;
+  
   // Show default placeholder if no avatar data is available
-  if (!avatar) {
+  if (!avatarData) {
     return (
       <View 
         style={[
@@ -77,10 +85,25 @@ const Avatar = ({ size = 50, style, userId, onPress }) => {
   }
   
   // Render predefined avatar if selected
-  if (avatar.useCustomAvatar && avatar.avatarId && avatarImages[avatar.avatarId]) {
+  if (avatarData.useCustomAvatar && avatarData.avatarId && avatarImages[avatarData.avatarId]) {
     return (
       <Image
-        source={avatarImages[avatar.avatarId]}
+        source={avatarImages[avatarData.avatarId]}
+        style={[
+          styles.avatar,
+          { width: size, height: size, borderRadius: size / 2 },
+          style
+        ]}
+      />
+    );
+  }
+  
+  // If using custom uploaded image
+  if (avatarData.useCustomImage && avatarData.imageUrl) {
+    console.log("Rendering custom image avatar:", avatarData.imageUrl);
+    return (
+      <Image
+        source={{ uri: avatarData.imageUrl }}
         style={[
           styles.avatar,
           { width: size, height: size, borderRadius: size / 2 },
@@ -92,6 +115,8 @@ const Avatar = ({ size = 50, style, userId, onPress }) => {
   
   // Render generated avatar (when implementation is available)
   // For now, use the placeholder image
+  console.log("Rendering generated avatar with properties:", 
+    avatarData.hair, avatarData.face, avatarData.outfit, avatarData.accessory);
   return (
     <Image
       source={require('../../../assets/avatars/placeholder.png')}
