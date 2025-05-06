@@ -5,6 +5,7 @@ import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import achievementsData from '../../data/achievements/achievements.json';
+import { globalStyles } from '../../../styles/globalStyles';
 
 const AchievementsScreen = () => {
   const navigation = useNavigation();
@@ -276,7 +277,7 @@ const AchievementsScreen = () => {
               <View style={styles.rewardItem}>
                 <Image
                   source={require('../../../assets/coin.png')}
-                  style={styles.currencyIcon}
+                  style={globalStyles.currencyIcon}
                 />
                 <Text style={styles.rewardValue}>{item.currencyReward}</Text>
               </View>
@@ -303,11 +304,11 @@ const AchievementsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       {/* Header Container */}
       <View style={styles.headerContainer}>
         {/* Top row of header with profile, username, level, and currency */}
-        <View style={styles.headerTopRow}>
+        <View style={globalStyles.headerTopRow}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
@@ -324,7 +325,7 @@ const AchievementsScreen = () => {
           <View style={styles.currencyContainer}>
             <Image
               source={require('../../../assets/coin.png')}
-              style={styles.currencyIcon}
+              style={globalStyles.currencyIcon}
             />
             <Text style={styles.currencyText}>{userStats.currency}</Text>
           </View>
@@ -338,7 +339,7 @@ const AchievementsScreen = () => {
                 { width: `${calculateXpProgress()}%` }
               ]}
             />
-            <Text style={styles.xpText}>XP: {userStats.xp} / 1000</Text>
+            <Text style={globalStyles.xpText}>XP: {userStats.xp} / 1000</Text>
           </View>
         </View>
       </View>
@@ -389,19 +390,9 @@ const AchievementsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   headerContainer: {
     backgroundColor: '#434',
     paddingVertical: 10,
-  },
-  headerTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 5,
   },
   backButton: {
     padding: 5,
@@ -433,11 +424,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 20,
   },
-  currencyIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 5,
-  },
   currencyText: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -446,23 +432,6 @@ const styles = StyleSheet.create({
   xpContainer: {
     paddingHorizontal: 16,
     paddingVertical: 5,
-  },
-  xpText: {
-    fontSize: 12,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    padding: 2,
-    zIndex: 1,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
   },
   xpBarContainer: {
     height: 20,

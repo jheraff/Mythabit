@@ -437,6 +437,9 @@ export default function App() {
     const loadFonts = async () => {
       await Font.loadAsync({
         'pixel-regular': require('./assets/fonts/PressStart2P-Regular.ttf'),
+        'beyond-wonderland': require('./assets/fonts/Beyond Wonderland.ttf'),
+        'black-cherry': require('./assets/fonts/BLKCHCRY.ttf'),
+        'morris-roman': require('./assets/fonts/MorrisRoman-Black.ttf'),
       });
       setFontsLoaded(true);
     };
