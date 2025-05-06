@@ -58,7 +58,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
                     if (docSnapshot.exists()) {
                       console.log('Firestore snapshot received!');
                         const userData = docSnapshot.data();
-                        console.log('User data:', userData);
+                        
     
                         const completeUserStats = {
                             username: userData.username || auth.currentUser?.displayName || 'New User',
@@ -110,18 +110,34 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       
     }, []);
 
-
+  
 
     const updateEquippedSlot = async (slot, itemData) => {
+      const userId = auth.currentUser?.uid;
+      if (!userId) return;
+    
+      const userDocRef = doc(db, 'users', userId);
+    
       try {
-        await setDoc(doc(db, 'users',userId, 'equippedItems', slot), itemData);
-        console.log('Updated ${slot} with', itemData);
-        fetchEquipped();
+        await updateDoc(userDocRef, {
+          [`equippedItems.${slot}`]: itemData  
+        });
+    
+        console.log(`Updated ${slot} with`, itemData);
+    
+        setUserStats((prev) => ({
+          ...prev,
+          equip: {
+            ...prev.equip,
+            [slot === 'weaponSlot' ? 'weaponS' : slot === 'armorSlot' ? 'armorS' : 'potionS']: itemData
+          }
+        }));
+    
+        setVisible(false);
       } catch (err) {
-        console.error('Failed to update', error);
+        console.error('Failed to update', err);
       }
     };
-
 
 
     const renderInventory = (category) => {
@@ -129,7 +145,6 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         setNumberArray(userStats.inventory.weaponList);
       } else if (category == 'potionSlot') {
         setNumberArray(userStats.inventory.potionList);
-        console.log('numberArraySGSGSGSGSGSG:', userStats.inventory.potionList);
       } else if (category == 'armorSlot') {
         setNumberArray(userStats.inventory.armorList);
       
@@ -186,7 +201,9 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
               title="Update Item?"
               onPress={() => {
                 if (tempItem) {
+                  console.log(tempItem);
                   updateEquippedSlot(currSlot, tempItem);
+                  
                 } else {
                   console.log('No item selected');
                 }
