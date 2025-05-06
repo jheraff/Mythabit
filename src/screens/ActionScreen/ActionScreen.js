@@ -7,9 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { globalStyles } from '../../../styles/globalStyles';
 
 const ActionScreen = ({ navigation }) => {
-    //const navigation = useNavigation();
-    const primaryColor = 'black';
-    const secondaryColor = 'white';
     const [userStats, setUserStats] = useState({
         username: '',
         level: 1,
@@ -67,9 +64,9 @@ const ActionScreen = ({ navigation }) => {
     };
 
     const routes = [
-        { name: 'Adventure', route: 'Tower' },
-        { name: 'Items', route: 'Items' },
-        { name: 'Shop', route: 'Shop' }
+        { name: 'Adventure', route: 'Tower', icon: 'sword' },
+        { name: 'Items', route: 'Items', icon: 'bag' },
+        { name: 'Shop', route: 'Shop', icon: 'cart' }
     ];
 
     return (
@@ -80,7 +77,7 @@ const ActionScreen = ({ navigation }) => {
                         style={globalStyles.profileButton}
                         onPress={() => navigation.navigate('Home', { screen: 'ProfileScreen' })}
                     >
-                        <Ionicons name="person-circle-outline" size={30} color="white" />
+                        <Ionicons name="person-circle-outline" size={30} color="#e0d8c3" />
                     </TouchableOpacity>
 
                     <Text style={globalStyles.username}>{userStats.username}</Text>
@@ -111,24 +108,21 @@ const ActionScreen = ({ navigation }) => {
                 </View>
             </View>
 
-            <View style={[globalStyles.container, { justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }]}>
-                <Text style={styles.title}>Action</Text>
+            <View style={styles.contentContainer}>
+                <Text style={styles.title}>Choose Your Path</Text>
                 <View style={styles.buttonContainer}>
                     {routes.map((item) => (
                         <TouchableOpacity
                             key={item.route}
-                            style={[
-                                styles.button,
-                                { backgroundColor: '#d3d3d3' }
-                            ]}
-                            onPress={() => navigation.navigate(item.route)}
+                            style={styles.button}
                         >
-                            <Text
-                                style={[
-                                    styles.buttonText,
-                                    { color: primaryColor }
-                                ]}
-                            >
+                            <Ionicons 
+                                name={item.icon} 
+                                size={24} 
+                                color="#d4af37" 
+                                style={styles.buttonIcon}
+                            />
+                            <Text style={styles.buttonText}>
                                 {item.name}
                             </Text>
                         </TouchableOpacity>
@@ -140,35 +134,53 @@ const ActionScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+    contentContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#1a1a1a',
+        paddingHorizontal: 16,
+    },
     buttonContainer: {
         width: '80%',
         alignItems: 'stretch',
     },
     title: {
-        fontSize: 35,
-        //fontWeight: 'bold',
-        fontFamily: 'morris-roman',
-        marginBottom: 20,
-        color: '#52B2BF', 
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginBottom: 30,
+        color: '#e0d8c3',
+        fontFamily: 'serif',
+        textShadowColor: 'rgba(212, 175, 55, 0.5)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 3,
     },
     button: {
-        paddingVertical: 12,
+        paddingVertical: 16,
         paddingHorizontal: 24,
         borderRadius: 8,
-        marginVertical: 10,
-        borderWidth: 2, 
-        borderColor: '#1c2d63',
+        marginVertical: 12,
+        borderWidth: 2,
+        borderColor: '#d4af37',
+        backgroundColor: '#2b2b2b',
         alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
     },
     buttonText: {
-        fontSize: 23,
-        fontFamily: 'morris-roman',
-        //fontWeight: '600',
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#e0d8c3',
+        fontFamily: 'serif',
+        marginLeft: 10,
+    },
+    buttonIcon: {
+        marginRight: 10,
     }
 });
 

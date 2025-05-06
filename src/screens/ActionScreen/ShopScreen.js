@@ -35,6 +35,15 @@ export default function ShopScreen() {
     },
   });
 
+  // Dark fantasy rarity colors
+  const rarityColors = {
+    common: '#8a8a8a',      // Dark gray
+    uncommon: '#006400',    // Dark green
+    rare: '#00008b',        // Dark blue
+    epic: '#4b0082',        // Indigo
+    legendary: '#daa520',   // Goldenrod
+  };
+
   useEffect(() => {
     loadUserData();
     loadShopItems();
@@ -205,8 +214,13 @@ export default function ShopScreen() {
     >
       <View style={[styles.itemRarity, { backgroundColor: rarityColors[item.rarity] }]} />
       <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemRarityText}>{item.rarity.toUpperCase()}</Text>
-      <Text style={styles.itemCost}>{item.cost} Gold</Text>
+      <Text style={[styles.itemRarityText, { color: rarityColors[item.rarity] }]}>
+        {item.rarity.toUpperCase()}
+      </Text>
+      <View style={styles.costContainer}>
+        <Image source={require('../../../assets/coin.png')} style={styles.coinIcon}/>
+        <Text style={styles.itemCost}>{item.cost}</Text>
+      </View>
     </TouchableOpacity>
   );
 
@@ -218,7 +232,7 @@ export default function ShopScreen() {
             style={globalStyles.profileButton}
             onPress={() => navigation.navigate('Home', { screen: 'ProfileScreen' })}
           >
-            <Ionicons name="person-circle-outline" size={30} color="white" />
+            <Ionicons name="person-circle-outline" size={30} color="#e0d8c3" />
           </TouchableOpacity>
           <Text style={globalStyles.username}>{userStats.username}</Text>
           <View style={globalStyles.levelContainer}>
@@ -254,31 +268,24 @@ export default function ShopScreen() {
     </View>
   );
 }
-const rarityColors = {
-  common: '#C0C0C0',     // gray/silver
-  uncommon: '#008000',   // green
-  rare: '#0000FF',       // blue
-  epic: '#800080',       // purple
-  legendary: '#FFD700',  // gold
-};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1a1a1a',
   },
   topContainer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#2b2b2b',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#444',
   },
   shopkeeperText: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
-    color: '#1c2d63',
+    color: '#e0d8c3',
+    fontFamily: 'morris-roman',
   },
   itemsContainer: {
     flex: 1,
@@ -288,17 +295,17 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   itemBox: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: '#2b2b2b',
+    borderRadius: 8,
     padding: 16,
     margin: 8,
+    borderWidth: 1,
+    borderColor: '#444',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.3,
     shadowRadius: 3.84,
     elevation: 5,
-    borderWidth: 1,
-    borderColor: '#ddd',
   },
   itemRarity: {
     height: 4,
@@ -309,15 +316,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: '#e0d8c3',
+    fontFamily: 'morris-roman',
   },
   itemRarityText: {
     fontSize: 12,
-    color: '#666',
     marginBottom: 8,
+    fontWeight: 'bold',
+    fontFamily: 'morris-roman',
+  },
+  costContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  coinIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 5,
+    tintColor: '#d4af37',
   },
   itemCost: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000',
+    color: '#d4af37',
+    fontFamily: 'morris-roman',
   },
 });
