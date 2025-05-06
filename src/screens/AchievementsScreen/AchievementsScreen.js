@@ -306,40 +306,40 @@ const AchievementsScreen = () => {
   return (
     <View style={globalStyles.container}>
       {/* Header Container */}
-      <View style={styles.headerContainer}>
+      <View style={[globalStyles.headerContainer, { backgroundColor: '#434', borderBottomColor: 'rgb(238, 198, 182)' }]}>
         {/* Top row of header with profile, username, level, and currency */}
         <View style={globalStyles.headerTopRow}>
           <TouchableOpacity
-            style={styles.backButton}
+            style={[globalStyles.backButton, { backgroundColor: 'rgb(109, 85, 109)', borderColor: 'rgb(238, 198, 182)' }]}
             onPress={() => navigation.goBack()}
           >
             <Ionicons name="arrow-back" size={28} color="white" />
           </TouchableOpacity>
 
-          <Text style={styles.username}>{userStats.username}</Text>
+          <Text style={globalStyles.username}>{userStats.username}</Text>
 
-          <View style={styles.levelContainer}>
-            <Text style={styles.levelText}>Level {userStats.level}</Text>
+          <View style={[globalStyles.levelContainer, { backgroundColor: 'rgb(109, 85, 109)', borderColor: 'rgb(238, 198, 182)' }]}>
+            <Text style={globalStyles.levelText}>Level {userStats.level}</Text>
           </View>
 
-          <View style={styles.currencyContainer}>
+          <View style={[globalStyles.currencyContainer, { backgroundColor: 'rgb(109, 85, 109)', borderColor: 'rgb(238, 198, 182)' }]}>
             <Image
               source={require('../../../assets/coin.png')}
               style={globalStyles.currencyIcon}
             />
-            <Text style={styles.currencyText}>{userStats.currency}</Text>
+            <Text style={globalStyles.currencyText}>{userStats.currency}</Text>
           </View>
         </View>
 
-        <View style={styles.xpContainer}>
-          <View style={styles.xpBarContainer}>
+        <View style={globalStyles.xpContainer}>
+          <View style={[globalStyles.xpBarContainer, { backgroundColor: 'rgba(255, 255, 255, 0.3)', borderColor: 'rgb(92, 255, 113)' }]}>
             <View
               style={[
-                styles.xpBar,
-                { width: `${calculateXpProgress()}%` }
+                globalStyles.xpBar,
+                { width: `${calculateXpProgress()}%`, backgroundColor: '#4CAF50' }
               ]}
             />
-            <Text style={globalStyles.xpText}>XP: {userStats.xp} / 1000</Text>
+            <Text style={[globalStyles.xpText, { color: '#f3f3f3' }]}>XP: {userStats.xp} / 1000</Text>
           </View>
         </View>
       </View>
@@ -390,63 +390,6 @@ const AchievementsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    backgroundColor: '#434',
-    paddingVertical: 10,
-  },
-  backButton: {
-    padding: 5,
-    marginRight: 10,
-  },
-  username: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    flex: 1,
-  },
-  levelContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    marginRight: 10,
-  },
-  levelText: {
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: '500',
-  },
-  currencyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-  },
-  currencyText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  xpContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-  },
-  xpBarContainer: {
-    height: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 10,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  xpBar: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    position: 'absolute',
-    left: 0,
-    top: 0,
-  },
   titleContainer: {
     padding: 16,
     borderBottomWidth: 1,
@@ -456,9 +399,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 30,
+    //fontWeight: 'bold',
+    fontFamily: 'morris-roman',
+    color: '#f3f3f3',
   },
   filterButton: {
     paddingVertical: 6,
@@ -533,12 +477,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   achievementName: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
+    //fontWeight: 'bold',
+    fontFamily: 'morris-roman',
     color: '#333',
   },
   achievementDescription: {
-    fontSize: 14,
+    fontSize: 18,
+    fontFamily: 'morris-roman',
     color: '#666',
     marginTop: 2,
   },

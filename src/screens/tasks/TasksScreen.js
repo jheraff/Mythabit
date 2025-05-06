@@ -1190,7 +1190,7 @@ const TasksScreen = () => {
 
           <Text style={globalStyles.username}>{userStats.username}</Text>
 
-          <View style={styles.levelContainer}>
+          <View style={globalStyles.levelContainer}>
             <Text style={globalStyles.levelText}>Level {userStats.level}</Text>
           </View>
 
@@ -1243,22 +1243,13 @@ const TasksScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  levelContainer: {
-    backgroundColor: '#152551',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    marginRight: 10,
-    borderWidth: 2,
-    borderColor: '#afe8ff',
-  },
   achievementsButton: {
     padding: 5,
     marginRight: 10,
-    backgroundColor: '#152551',
+    backgroundColor: 'rgb(206, 175, 0)',
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: '#afe8ff',
+    borderColor: 'rgb(240, 220, 108)',
   },
   taskItemContainer: {
     marginBottom: 16,
@@ -1266,7 +1257,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   taskCard: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#E5C9A3',
     padding: 14,
     borderRadius: 10,
     elevation: 2,
@@ -1292,8 +1283,9 @@ const styles = StyleSheet.create({
     borderColor: '#2196F3',
   },
   taskName: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
+    //fontWeight: 'bold',
+    fontFamily: 'morris-roman',
     color: '#333',
     flex: 1,
   },
@@ -1320,7 +1312,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196F3',
   },
   taskDetailsContainer: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: 'rgb(255, 232, 169)',
     overflow: 'hidden',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
@@ -1342,14 +1334,15 @@ const styles = StyleSheet.create({
   },
   taskInfoLabel: {
     fontSize: 14,
-    color: '#888',
+    color: '#777',
     fontWeight: '500',
     marginBottom: 4,
   },
   taskInfoValue: {
-    fontSize: 16,
+    fontSize: 19,
     color: '#444',
-    fontWeight: '600',
+    fontFamily: 'morris-roman',
+    //fontWeight: '600',
   },
   completedText: {
     color: '#4CAF50',

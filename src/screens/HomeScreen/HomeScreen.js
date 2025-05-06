@@ -146,20 +146,35 @@ const HomeScreen = () => {
     return (userStats.xp / 1000) * 100;
   };
 
-  const renderStatBar = (statName, value) => (
-    <View style={styles.statContainer}>
-      <Text style={styles.statLabel}>{statName}</Text>
-      <View style={styles.statBarContainer}>
-        <View
-          style={[
-            styles.statBar,
-            { width: `${(value / 100) * 100}%` }
-          ]}
-        />
-        <Text style={styles.statValue}>{value}</Text>
+  const statColors = {
+    Strength: '#D62828',  // red
+    Intellect: '#1D4ED8', // blue
+    Agility: '#059669',   // green
+    Arcane: '#7C3AED',    // purple
+    Focus: '#FBBF24',     // yellow
+  };
+
+  const renderStatBar = (statName, value) => {
+    const barColor = statColors[statName] || '#ccc';
+  
+    return (
+      <View style={styles.statContainer}>
+        <Text style={styles.statLabel}>{statName}</Text>
+        <View style={styles.statBarContainer}>
+          <View
+            style={[
+              styles.statBar,
+              {
+                width: `${(value / 100) * 100}%`,
+                backgroundColor: barColor
+              }
+            ]}
+          />
+          <Text style={styles.statValue}>{value}</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   // Avatar component function
   const renderAvatar = () => {
@@ -249,7 +264,7 @@ const HomeScreen = () => {
             style={globalStyles.profileButton}
             onPress={() => navigation.navigate('ProfileScreen')}
           >
-            <Ionicons name="person-circle-outline" size={30} color="#afe8ff" />
+            <Ionicons name="person-circle-outline" size={30} color="white" />
           </TouchableOpacity>
 
           <Text style={globalStyles.username}>{userStats.username}</Text>
@@ -288,7 +303,7 @@ const HomeScreen = () => {
       </View>
 
       <View style={styles.statsContainer}>
-        <Text style={styles.statsHeader}>STATS</Text>
+        <Text style={styles.statsHeader}>Stats</Text>
         {renderStatBar('Strength', userStats.stats.strength)}
         {renderStatBar('Intellect', userStats.stats.intellect)}
         {renderStatBar('Agility', userStats.stats.agility)}
@@ -361,20 +376,24 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   statsHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 40,
+    color: '#e0d8c3',
+    fontFamily: 'morris-roman',
+    //fontWeight: 'bold',
     marginBottom: 16,
   },
   statContainer: {
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 20,
+    fontFamily: 'morris-roman',
+    color: '#e0d8c3',
     marginBottom: 2,
   },
   statBarContainer: {
     height: 12,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#330000',
     borderRadius: 6,
     overflow: 'hidden',
     flexDirection: 'row',
@@ -445,8 +464,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   equipmentHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontFamily: 'morris-roman',
+    color: '#e0d8c3',
+    //fontWeight: 'bold',
   },
   viewAllButton: {
     padding: 6,

@@ -115,7 +115,6 @@ const ActionScreen = ({ navigation }) => {
                         <TouchableOpacity
                             key={item.route}
                             style={styles.button}
-                            onPress={() => navigation.navigate(item.route)}
                         >
                             <Ionicons 
                                 name={item.icon} 

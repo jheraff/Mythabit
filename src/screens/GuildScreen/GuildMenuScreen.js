@@ -425,11 +425,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 30,
+        //fontWeight: 'bold',
+        fontFamily: 'morris-roman',
         textAlign: 'center',
         marginBottom: 15,
-        color: '#333',
+        color: '#f3f3f3',
     },
     searchInput: {
         width: '100%',
@@ -472,7 +473,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 15,
         marginBottom: 15,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#E5C9A3',
         borderRadius: 10,
         alignItems: 'center',
         shadowColor: '#000',
@@ -490,8 +491,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     guildName: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 21,
+        fontFamily: 'morris-roman',
+        //fontWeight: '600',
         marginBottom: 4,
     },
     currentGuildText: {

@@ -727,8 +727,9 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     guildName: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 28,
+        //fontWeight: 'bold',
+        fontFamily: 'morris-roman',
         textAlign: 'center',
         color: '#333',
         marginBottom: 5,
@@ -781,7 +782,7 @@ const styles = StyleSheet.create({
     membersTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#333',
+        color: '#f3f3f3',
     },
     listContent: {
         paddingBottom: 80, 
@@ -791,7 +792,7 @@ const styles = StyleSheet.create({
         padding: 15,
         marginHorizontal: 15,
         marginTop: 10,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#E5C9A3',
         borderRadius: 10,
         alignItems: 'center',
         shadowColor: '#000',
@@ -809,8 +810,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     username: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 20,
+        fontFamily: 'morris-roman',
+        //fontWeight: '600',
         marginBottom: 4,
     },
     currentUserText: {
