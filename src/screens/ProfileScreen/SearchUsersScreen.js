@@ -49,7 +49,7 @@ const SearchUsersScreen = ({ navigation }) => {
         <View style={globalStyles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="arrow-back" size={24} color="#fff" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Search Users</Text>
             </View>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#fff',
     },
     searchContainer: {
         flexDirection: 'row',
@@ -173,9 +173,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     userItemUsername: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#333',
+        fontSize: 20,
+        //fontWeight: '500',
+        fontFamily: 'morris-roman',
+        color: '#fff',
         marginBottom: 4,
     },
     userItemLevel: {

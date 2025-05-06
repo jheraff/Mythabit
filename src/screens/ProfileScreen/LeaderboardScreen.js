@@ -177,11 +177,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 5,
-        color: '#333',
+        color: '#fff',
     },
     subTitle: {
         fontSize: 16,
-        color: '#666',
+        color: '#777',
         marginBottom: 10,
     },
     currentRankText: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 15,
         marginBottom: 10,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#d3d3d3',
         borderRadius: 10,
         alignItems: 'center',
         shadowColor: '#000',
@@ -239,8 +239,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     username: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 22,
+        fontFamily: 'morris-roman',
+        //fontWeight: '600',
         marginBottom: 4,
     },
     currentUserText: {
@@ -251,9 +252,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     levelText: {
-        fontSize: 16,
+        fontSize: 17,
         color: '#444',
-        fontWeight: '500',
+        //fontWeight: '500',
+        fontFamily: 'morris-roman',
     },
     xpText: {
         fontSize: 14,

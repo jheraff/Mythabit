@@ -111,7 +111,7 @@ const ActionScreen = ({ navigation }) => {
                 </View>
             </View>
 
-            <View style={styles.contentContainer}>
+            <View style={[globalStyles.container, { justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }]}>
                 <Text style={styles.title}>Action</Text>
                 <View style={styles.buttonContainer}>
                     {routes.map((item) => (
@@ -119,7 +119,7 @@ const ActionScreen = ({ navigation }) => {
                             key={item.route}
                             style={[
                                 styles.button,
-                                { backgroundColor: secondaryColor }
+                                { backgroundColor: '#d3d3d3' }
                             ]}
                             onPress={() => navigation.navigate(item.route)}
                         >
@@ -140,22 +140,16 @@ const ActionScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    contentContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-        paddingHorizontal: 16,
-    },
     buttonContainer: {
         width: '80%',
         alignItems: 'stretch',
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 35,
+        //fontWeight: 'bold',
+        fontFamily: 'morris-roman',
         marginBottom: 20,
-        color: '#1c2d63', 
+        color: '#52B2BF', 
     },
     button: {
         paddingVertical: 12,
@@ -172,8 +166,9 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     buttonText: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 23,
+        fontFamily: 'morris-roman',
+        //fontWeight: '600',
     }
 });
 

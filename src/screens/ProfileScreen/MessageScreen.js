@@ -41,6 +41,8 @@ const MessageScreen = ({ route, navigation }) => {
         "Nice to meet you!",
         "Do you want to quest together?",
         "Congratulations on leveling up!",
+        "Yes!",
+        "No.",
     ];
 
     const partnerId = route.params?.userId;
@@ -257,10 +259,10 @@ const MessageScreen = ({ route, navigation }) => {
                 {/* Top row of header with back button, title, and profile button */}
                 <View style={styles.headerTopRow}>
                     <TouchableOpacity
-                        style={styles.backButton}
+                        style={[globalStyles.backButton, { marginRight: 0}]}
                         onPress={() => navigation.goBack()}
                     >
-                        <Ionicons name="arrow-back" size={24} color="#afe8ff" />
+                        <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
 
                     <Text style={styles.headerTitle}>
@@ -268,10 +270,10 @@ const MessageScreen = ({ route, navigation }) => {
                     </Text>
 
                     <TouchableOpacity
-                        style={styles.profileButton}
+                        style={[globalStyles.profileButton, { marginRight: 0 }]}
                         onPress={() => navigation.navigate('UserProfile', { userId: partnerId })}
                     >
-                        <Ionicons name="person-circle-outline" size={24} color="#afe8ff" />
+                        <Ionicons name="person-circle-outline" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -401,16 +403,10 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         justifyContent: 'space-between',
     },
-    backButton: {
-        padding: 5,
-        backgroundColor: '#152551',
-        borderRadius: 5,
-        borderWidth: 2,
-        borderColor: '#afe8ff',
-    },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 22,
+        //fontWeight: 'bold',
+        fontFamily: 'morris-roman',
         color: '#ffffff',
     },
     profileButton: {
@@ -433,7 +429,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#1c2d63',
         overflow: 'hidden',
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#d3d3d3',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -496,7 +492,7 @@ const styles = StyleSheet.create({
     },
     messageOptionsContainer: {
         padding: 10,
-        backgroundColor: '#fff',
+        backgroundColor: '#1a1a1a',
         borderTopWidth: 1,
         borderTopColor: '#ddd',
     },
