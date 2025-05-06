@@ -21,7 +21,7 @@ const TowerScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.topView}>
-        <Text style={styles.titleText}>Daily Tower</Text>
+        <Text style={styles.titleText}>The Tower</Text>
       </View>
 
       <View style={styles.towerContainer}>
