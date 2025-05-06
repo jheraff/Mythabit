@@ -369,7 +369,8 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'pixel-regular',
+    //fontWeight: 'bold',
     color: '#ffffff',
     flex: 1,
   },

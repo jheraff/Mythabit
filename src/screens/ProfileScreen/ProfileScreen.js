@@ -499,7 +499,8 @@ const styles = StyleSheet.create({
     },
     headerUsername: {
         fontSize: 18,
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
+        fontFamily: 'pixel-regular',
         color: '#ffffff',
         flex: 1,
     },

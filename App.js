@@ -10,6 +10,9 @@ import { getFirestore, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { decode, encode } from 'base-64';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 
+//Font importation
+import * as Font from 'expo-font';
+
 // Import directly without the AvatarProvider
 import MainScreen from './src/screens/MainScreen/MainScreen';
 import LoginScreen from './src/screens/LoginScreen/LoginScreen';
@@ -428,6 +431,18 @@ export default function App() {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [needsAvatarSetup, setNeedsAvatarSetup] = useState(false);
   const [needsTaskSetup, setNeedsTaskSetup] = useState(false);
+  const[fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        'pixel-regular': require('./assets/fonts/PressStart2P-Regular.ttf'),
+      });
+      setFontsLoaded(true);
+    };
+  
+    loadFonts();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -478,7 +493,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  if (loading) {
+  if (loading || !fontsLoaded) {
     return <LoadingScreen />;
   }
 
