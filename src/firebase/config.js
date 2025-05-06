@@ -290,7 +290,47 @@ export const initializeUserProfile = async (userId, username) => {
         arcane: 1,
         focus: 1,
       },
-      inventory: [],
+      equippedItems: {
+        weaponSlot: {
+          name: 'Wooden Sword',
+          id: "000",
+          type: "weapon",
+          rarity: 'common',
+          stat: {
+            strength: 1,
+          }
+        },
+        armorSlot: {
+          name: 'Leather Armor',
+          id: '100',
+          type: 'armor',
+          rarity: 'common',
+          stat: {
+            agility: 1,
+          }
+        },
+        potionSlot: {
+          name: 'Magic Potion',
+          id: '200',
+          type: 'potion',
+          rarity: 'common',
+          stat: {
+            focus: 1,
+          }
+        },
+      },
+      inventory: {
+        weaponList: [
+          {name: 'Wooden Sword', id: "000", type: "weapon"}
+        ], 
+
+        armorList: [
+          {name: 'Leather Armor', id: '100', type: "armor"}
+        ],
+        potionList: [
+          {name: 'Magic Potion', id: '200', type: "potion"}
+        ],
+      },
       tasks: [],
       currency: 0,
       showcasedAchievements: [],
