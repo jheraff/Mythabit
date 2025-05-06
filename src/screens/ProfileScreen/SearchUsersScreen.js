@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { db, auth, searchUsers } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
+import { globalStyles } from '../../../styles/globalStyles';
 
 const SearchUsersScreen = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -45,7 +46,7 @@ const SearchUsersScreen = ({ navigation }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#333" />
@@ -111,10 +112,6 @@ const SearchUsersScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',

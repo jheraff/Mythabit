@@ -18,6 +18,8 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
+import { globalStyles } from '../../../styles/globalStyles';
+import Avatar from '../AvatarScreen/Avatar';
 
 const MessageListScreen = ({ navigation, route }) => {
     const [conversations, setConversations] = useState([]);
@@ -129,30 +131,15 @@ const MessageListScreen = ({ navigation, route }) => {
     };
     
     const renderAvatar = (userData) => {
-        try {
-            if (!userData || !userData.avatar) {
-                return (
-                    <View style={styles.avatarPlaceholder}>
-                        <Ionicons name="person" size={24} color="#666" />
-                    </View>
-                );
-            }
-            
-            return (
-                <Image
-                    source={require('../../../assets/avatars/default_pfp.jpg')}
-                    style={styles.avatarImage}
-                    resizeMode="contain"
+        return (
+            <View style={styles.avatarWrapper}>
+                <Avatar 
+                    size={50}
+                    style={styles.profileAvatar}
+                    userId={userData.id}
                 />
-            );
-        } catch (error) {
-            console.error("Error rendering avatar:", error);
-            return (
-                <View style={styles.avatarPlaceholder}>
-                    <Ionicons name="person" size={24} color="#666" />
-                </View>
-            );
-        }
+            </View>
+        );
     };
     
     const formatTimeAgo = (timestamp) => {
@@ -217,9 +204,9 @@ const MessageListScreen = ({ navigation, route }) => {
     }
     
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             {/* Header Container with updated styling */}
-            <View style={styles.headerContainer}>
+            <View style={globalStyles.headerContainer}>
                 {/* Top row of header with back button, title */}
                 <View style={styles.headerTopRow}>
                     <TouchableOpacity
@@ -259,21 +246,6 @@ const MessageListScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    headerContainer: {
-        backgroundColor: '#1c2d63', 
-        paddingVertical: 15,
-        borderBottomWidth: 4,
-        borderBottomColor: '#afe8ff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        elevation: 5,
-    },
     headerTopRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -379,6 +351,16 @@ const styles = StyleSheet.create({
     lastMessage: {
         fontSize: 14,
         color: '#666',
+    },
+    avatarWrapper: {
+        width: 50,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    profileAvatar: {
+        borderWidth: 1,
+        borderColor: '#1c2d63',
     }
 });
 

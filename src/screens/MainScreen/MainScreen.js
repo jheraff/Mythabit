@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image, Platform } from 'react-native';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import { globalStyles } from '../../../styles/globalStyles';
 
 const MainScreen = () => {
   const navigation = useNavigation();
@@ -44,7 +45,7 @@ const MainScreen = () => {
       </View>
 
       {/* Pixel 3D Title */}
-      <Text style={styles.shadowText}>Mythabit</Text>
+      <Text style={globalStyles.pixelTitle}>Mythabit</Text>
 
       {/* Subtext */}
       <Text style={styles.subtitle}>Tap anywhere to start</Text>
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     fontSize: 16,
     color: '#ccc',
+    fontFamily: 'pixel-regular',
     fontStyle: 'italic',
   },
   loadingText: {

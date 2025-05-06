@@ -4,9 +4,13 @@ import { db, auth } from '../../firebase/config';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { globalStyles } from '../../../styles/globalStyles';
+import Avatar from '../AvatarScreen/Avatar';
+import { useAvatar } from '../AvatarScreen/AvatarContext';
 
 const ProfileScreen = () => {
     const navigation = useNavigation();
+    const { avatar, refreshAvatar } = useAvatar();
     const [userData, setUserData] = useState({
         username: '',
         level: 1,
@@ -30,6 +34,7 @@ const ProfileScreen = () => {
         React.useCallback(() => {
             loadUserData();
             loadUserAchievements();
+            refreshAvatar();
             return () => {};
         }, [])
     );
@@ -199,30 +204,18 @@ const ProfileScreen = () => {
     };
 
     const renderAvatar = () => {
-        try {
-            if (!userData || !userData.avatar) {
-                return (
-                    <View style={styles.avatarPlaceholder}>
-                        <Ionicons name="person" size={40} color="#666" />
-                    </View>
-                );
-            }
-
-            return (
-                <Image
-                    source={require('../../../assets/avatars/default_pfp.jpg')}
-                    style={styles.avatarImage}
-                    resizeMode="contain"
+        const userId = auth.currentUser?.uid;
+        return (
+            <View style={styles.avatarWrapper}>
+                <Avatar 
+                    size={80}
+                    style={styles.profileAvatar}
+                    userId={userId}
+                    // Force refresh with a key that changes when avatar updates
+                    key={avatar ? JSON.stringify(avatar) : 'no-avatar'}
                 />
-            );
-        } catch (error) {
-            console.error("Error rendering avatar:", error);
-            return (
-                <View style={styles.avatarPlaceholder}>
-                    <Ionicons name="person" size={40} color="#666" />
-                </View>
-            );
-        }
+            </View>
+        );
     };
 
     const renderStatItem = (statName, value) => {
@@ -343,35 +336,35 @@ const ProfileScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             {/* Header Container with updated styling */}
-            <View style={styles.headerContainer}>
+            <View style={globalStyles.headerContainer}>
                 {/* Top row of header with profile, username, level, and currency */}
-                <View style={styles.headerTopRow}>
+                <View style={globalStyles.headerTopRow}>
                     <TouchableOpacity
-                        style={styles.profileButton}
+                        style={globalStyles.profileButton}
                         onPress={() => navigation.goBack()}
                     >
                         <Ionicons name="arrow-back" size={24} color="#afe8ff" />
                     </TouchableOpacity>
 
-                    <Text style={styles.headerUsername}>{userData.username}</Text>
+                    <Text style={globalStyles.username}>{userData.username}</Text>
 
-                    <View style={styles.levelContainer}>
-                        <Text style={styles.levelText}>Level {userData.level}</Text>
+                    <View style={globalStyles.levelContainer}>
+                        <Text style={globalStyles.levelText}>Level {userData.level}</Text>
                     </View>
                 </View>
 
                 {/* XP bar row with text inside */}
-                <View style={styles.xpContainer}>
-                    <View style={styles.xpBarContainer}>
+                <View style={globalStyles.xpContainer}>
+                    <View style={globalStyles.xpBarContainer}>
                         <View
                             style={[
-                                styles.xpBar,
+                                globalStyles.xpBar,
                                 { width: `${calculateXpProgress()}%` }
                             ]}
                         />
-                        <Text style={styles.xpText}>XP: {userData.xp} / 1000</Text>
+                        <Text style={globalStyles.xpText}>XP: {userData.xp} / 1000</Text>
                     </View>
                 </View>
             </View>
@@ -468,93 +461,6 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    headerContainer: {
-        backgroundColor: '#1c2d63',
-        paddingVertical: 15,
-        borderBottomWidth: 4,
-        borderBottomColor: '#afe8ff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        elevation: 5,
-    },
-    headerTopRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 5,
-    },
-    profileButton: {
-        padding: 5,
-        marginRight: 10,
-        backgroundColor: '#152551',
-        borderRadius: 5,
-        borderWidth: 2,
-        borderColor: '#afe8ff',
-    },
-    headerUsername: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#ffffff',
-        flex: 1,
-    },
-    levelContainer: {
-        backgroundColor: '#152551',
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 6,
-        marginRight: 10,
-        borderWidth: 2,
-        borderColor: '#afe8ff',
-    },
-    levelText: {
-        fontSize: 14,
-        color: '#ffffff',
-        fontWeight: '700',
-    },
-    xpContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        marginTop: 5,
-    },
-    xpText: {
-        fontSize: 12,
-        color: '#ffffff',
-        fontWeight: 'bold',
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        padding: 2,
-        zIndex: 1,
-        textShadowColor: 'rgba(0, 0, 0, 0.5)',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 2,
-    },
-    xpBarContainer: {
-        height: 20,
-        backgroundColor: '#152551',
-        borderRadius: 4,
-        overflow: 'hidden',
-        position: 'relative',
-        borderWidth: 2,
-        borderColor: '#afe8ff',
-    },
-    xpBar: {
-        height: '100%',
-        backgroundColor: '#4287f5',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-    },
     scrollContainer: {
         flex: 1,
     },
@@ -865,6 +771,16 @@ const styles = StyleSheet.create({
         color: '#afe8ff',
         fontSize: 16,
         fontWeight: '600',
+    },
+    avatarWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    profileAvatar: {
+        borderWidth: 2,
+        borderColor: '#1c2d63',
     },
 });
 

@@ -11,6 +11,7 @@ import {
 import { collection, getDocs, query, limit, orderBy } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { useFocusEffect } from '@react-navigation/native';
+import { globalStyles } from '../../../styles/globalStyles';
 
 const LeaderboardScreen = ({ navigation }) => {
     const [users, setUsers] = useState([]);
@@ -134,7 +135,7 @@ const LeaderboardScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             <FlatList
                 data={users}
                 renderItem={renderUserItem}
@@ -157,10 +158,6 @@ const LeaderboardScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',

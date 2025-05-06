@@ -26,9 +26,9 @@ const AvatarCustomizationRegisterScreen = ({ navigation, route }) => {
     const [selectedOutfit, setSelectedOutfit] = useState(1);
     const [selectedAccessory, setSelectedAccessory] = useState(0);
     
-    // New state for predefined avatars
-    const [selectedAvatar, setSelectedAvatar] = useState(null);
-    const [useCustomAvatar, setUseCustomAvatar] = useState(false);
+    // Changed initial state to default to predefined avatars
+    const [selectedAvatar, setSelectedAvatar] = useState('avatar1');
+    const [useCustomAvatar, setUseCustomAvatar] = useState(true);
 
     // Sample avatar options for the character builder
     const hairStyles = [1, 2, 3, 4, 5];
@@ -39,6 +39,10 @@ const AvatarCustomizationRegisterScreen = ({ navigation, route }) => {
     // Predefined avatar options from assets
     const predefinedAvatars = [
         { id: 'avatar1', source: require('../../../assets/avatars/bingus.jpg') },
+        { id: 'avatar2', source: require('../../../assets/avatars/thumbs_up.jpg') },
+        { id: 'avatar3', source: require('../../../assets/avatars/thumbs_up1.jpg') },
+        { id: 'avatar4', source: require('../../../assets/avatars/male.png') },
+        { id: 'avatar5', source: require('../../../assets/avatars/female.png') },
     ];
 
     // Save avatar choices and navigate to task customization
@@ -71,7 +75,10 @@ const AvatarCustomizationRegisterScreen = ({ navigation, route }) => {
 
             console.log('Avatar customization completed successfully');
 
-            // Navigate to the next screen in the Onboarding stack
+            console.log('Navigating to TaskCustomizationRegister with userId:', userId);
+            
+            // From looking at your App.js, I can see TaskCustomizationRegister 
+            // is defined in the same OnboardingStack as AvatarCustomizationRegister
             navigation.navigate('TaskCustomizationRegister', { userId });
         } catch (error) {
             console.error('Error saving avatar:', error);
@@ -129,22 +136,22 @@ const AvatarCustomizationRegisterScreen = ({ navigation, route }) => {
             <Text style={styles.title}>Customize Your Avatar</Text>
             <Text style={styles.subtitle}>This will be your character in the app</Text>
 
-            {/* Toggle between avatar types */}
+            {/* Toggle between avatar types - Swapped order to make Choose Avatar first */}
             <View style={styles.avatarTypeSelector}>
-                <TouchableOpacity 
-                    style={[styles.avatarTypeButton, !useCustomAvatar && styles.activeAvatarTypeButton]}
-                    onPress={() => setUseCustomAvatar(false)}
-                >
-                    <Text style={[styles.avatarTypeText, !useCustomAvatar && styles.activeAvatarTypeText]}>
-                        Use Avatar Builder
-                    </Text>
-                </TouchableOpacity>
                 <TouchableOpacity 
                     style={[styles.avatarTypeButton, useCustomAvatar && styles.activeAvatarTypeButton]}
                     onPress={() => setUseCustomAvatar(true)}
                 >
                     <Text style={[styles.avatarTypeText, useCustomAvatar && styles.activeAvatarTypeText]}>
                         Choose Avatar
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.avatarTypeButton, !useCustomAvatar && styles.activeAvatarTypeButton]}
+                    onPress={() => setUseCustomAvatar(false)}
+                >
+                    <Text style={[styles.avatarTypeText, !useCustomAvatar && styles.activeAvatarTypeText]}>
+                        Use Avatar Builder
                     </Text>
                 </TouchableOpacity>
             </View>

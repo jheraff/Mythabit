@@ -2,7 +2,7 @@
   "tasks": [
     {
       "taskName": "Eat a balanced Meal (Carbs + Meat + Veggies)",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 20,
       "statType": ["arcane", "focus"],
       "status": "pending",
@@ -12,7 +12,7 @@
     },
     {
       "taskName": "Eat Apple",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["arcane"],
       "status": "pending",
@@ -22,7 +22,7 @@
     },
     {
       "taskName": "Eat Orange",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["arcane"],
       "status": "pending",
@@ -32,7 +32,7 @@
     },
     {
       "taskName": "Eat Banana",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["arcane"],
       "status": "pending",
@@ -42,7 +42,7 @@
     },
     {
       "taskName": "Eat Strawberry",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["arcane"],
       "status": "pending",
@@ -52,7 +52,7 @@
     },
     {
       "taskName": "Eat Pineapple",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["arcane"],
       "status": "pending",
@@ -62,7 +62,7 @@
     },
     {
       "taskName": "Eat Cucumber",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["arcane"],
       "status": "pending",
@@ -172,7 +172,7 @@
     },
     {
       "taskName": "Drink 2 Glasses of Water",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 2,
       "statType": ["arcane"],
       "status": "pending",
@@ -182,7 +182,7 @@
     },
     {
       "taskName": "Take a Nap",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 30,
       "statType": ["focus"],
       "status": "pending",
@@ -192,7 +192,7 @@
     },
     {
       "taskName": "Stand up and Stretch",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["focus"],
       "status": "pending",
@@ -202,7 +202,7 @@
     },
     {
       "taskName": "Deep Breathing Exercises",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 5,
       "statType": ["focus"],
       "status": "pending",
@@ -212,13 +212,43 @@
     },
     {
       "taskName": "Consume Protein",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 10,
       "statType": ["arcane", "strength"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "health",
       "xpReward": 50
+    },
+    {
+      "taskName": "Give a compliment to a stranger",
+      "difficulty": "Medium",
+      "duration": 5,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 60
+    },
+    {
+      "taskName": "Try a New Healthy Recipe",
+      "difficulty": "Medium",
+      "duration": 30,
+      "statType": ["arcane", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 85
+    },
+    {
+      "taskName": "Take a Cold Shower",
+      "difficulty": "Medium",
+      "duration": 10,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "health",
+      "xpReward": 75
     }
   ]
 }
