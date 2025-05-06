@@ -275,6 +275,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             <Text style={styles.darkFantasyButtonText}>Yes</Text>
           </TouchableOpacity>
 
+
           <TouchableOpacity
             style={[styles.darkFantasyButton, { marginTop: 10, backgroundColor: '#2e2e2e' }]}
             onPress={() => navigation.navigate('Tower', { selectedIndex })}
