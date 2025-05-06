@@ -23,6 +23,7 @@ import {
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
 import CoopQuestsModal from '../tasks/CoopQuestsModal';
+import { globalStyles } from '../../../styles/globalStyles';
 
 const MessageScreen = ({ route, navigation }) => {
     const [loading, setLoading] = useState(true);
@@ -239,7 +240,7 @@ const MessageScreen = ({ route, navigation }) => {
 
     if (!partnerData) {
         return (
-            <View style={styles.container}>
+            <View style={globalStyles.container}>
                 <Text>User not found</Text>
             </View>
         );
@@ -247,12 +248,12 @@ const MessageScreen = ({ route, navigation }) => {
 
     return (
         <KeyboardAvoidingView
-            style={styles.container}
+            style={globalStyles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : null}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
             {/* Header Container with updated styling */}
-            <View style={styles.headerContainer}>
+            <View style={globalStyles.headerContainer}>
                 {/* Top row of header with back button, title, and profile button */}
                 <View style={styles.headerTopRow}>
                     <TouchableOpacity
@@ -393,21 +394,6 @@ const MessageScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    headerContainer: {
-        backgroundColor: '#1c2d63',
-        paddingVertical: 15,
-        borderBottomWidth: 4,
-        borderBottomColor: '#afe8ff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        elevation: 5,
-    },
     headerTopRow: {
         flexDirection: 'row',
         alignItems: 'center',
