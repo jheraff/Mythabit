@@ -4,9 +4,12 @@ import { db, auth } from '../../firebase/config';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../AvatarScreen/Avatar';
+import { useAvatar } from '../AvatarScreen/AvatarContext';
 
 const ProfileScreen = () => {
     const navigation = useNavigation();
+    const { avatar, refreshAvatar } = useAvatar();
     const [userData, setUserData] = useState({
         username: '',
         level: 1,
@@ -30,6 +33,7 @@ const ProfileScreen = () => {
         React.useCallback(() => {
             loadUserData();
             loadUserAchievements();
+            refreshAvatar();
             return () => {};
         }, [])
     );
@@ -199,30 +203,18 @@ const ProfileScreen = () => {
     };
 
     const renderAvatar = () => {
-        try {
-            if (!userData || !userData.avatar) {
-                return (
-                    <View style={styles.avatarPlaceholder}>
-                        <Ionicons name="person" size={40} color="#666" />
-                    </View>
-                );
-            }
-
-            return (
-                <Image
-                    source={require('../../../assets/avatars/default_pfp.jpg')}
-                    style={styles.avatarImage}
-                    resizeMode="contain"
+        const userId = auth.currentUser?.uid;
+        return (
+            <View style={styles.avatarWrapper}>
+                <Avatar 
+                    size={80}
+                    style={styles.profileAvatar}
+                    userId={userId}
+                    // Force refresh with a key that changes when avatar updates
+                    key={avatar ? JSON.stringify(avatar) : 'no-avatar'}
                 />
-            );
-        } catch (error) {
-            console.error("Error rendering avatar:", error);
-            return (
-                <View style={styles.avatarPlaceholder}>
-                    <Ionicons name="person" size={40} color="#666" />
-                </View>
-            );
-        }
+            </View>
+        );
     };
 
     const renderStatItem = (statName, value) => {
@@ -865,6 +857,16 @@ const styles = StyleSheet.create({
         color: '#afe8ff',
         fontSize: 16,
         fontWeight: '600',
+    },
+    avatarWrapper: {
+        width: 80,
+        height: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    profileAvatar: {
+        borderWidth: 2,
+        borderColor: '#1c2d63',
     },
 });
 

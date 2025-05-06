@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../AvatarScreen/Avatar';
 
 const MessageListScreen = ({ navigation, route }) => {
     const [conversations, setConversations] = useState([]);
@@ -129,30 +130,15 @@ const MessageListScreen = ({ navigation, route }) => {
     };
     
     const renderAvatar = (userData) => {
-        try {
-            if (!userData || !userData.avatar) {
-                return (
-                    <View style={styles.avatarPlaceholder}>
-                        <Ionicons name="person" size={24} color="#666" />
-                    </View>
-                );
-            }
-            
-            return (
-                <Image
-                    source={require('../../../assets/avatars/default_pfp.jpg')}
-                    style={styles.avatarImage}
-                    resizeMode="contain"
+        return (
+            <View style={styles.avatarWrapper}>
+                <Avatar 
+                    size={50}
+                    style={styles.profileAvatar}
+                    userId={userData.id}
                 />
-            );
-        } catch (error) {
-            console.error("Error rendering avatar:", error);
-            return (
-                <View style={styles.avatarPlaceholder}>
-                    <Ionicons name="person" size={24} color="#666" />
-                </View>
-            );
-        }
+            </View>
+        );
     };
     
     const formatTimeAgo = (timestamp) => {
@@ -379,6 +365,16 @@ const styles = StyleSheet.create({
     lastMessage: {
         fontSize: 14,
         color: '#666',
+    },
+    avatarWrapper: {
+        width: 50,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    profileAvatar: {
+        borderWidth: 1,
+        borderColor: '#1c2d63',
     }
 });
 

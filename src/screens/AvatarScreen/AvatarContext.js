@@ -19,6 +19,7 @@ export const AvatarProvider = ({ children }) => {
       
       if (userSnap.exists() && userSnap.data().avatar) {
         setAvatar(userSnap.data().avatar);
+        console.log("Avatar data loaded:", userSnap.data().avatar);
       } else {
         console.log('No avatar data found for user:', userId);
         setAvatar(null);
@@ -36,9 +37,12 @@ export const AvatarProvider = ({ children }) => {
       if (user) {
         const userRef = doc(db, 'users', user.uid);
         
-        const unsubscribeSnapshot = onSnapshot(userRef, (doc) => {
-          if (doc.exists() && doc.data().avatar) {
-            setAvatar(doc.data().avatar);
+        // Use real-time listener for avatar changes
+        const unsubscribeSnapshot = onSnapshot(userRef, (docSnapshot) => {
+          if (docSnapshot.exists() && docSnapshot.data().avatar) {
+            const newAvatarData = docSnapshot.data().avatar;
+            console.log("Avatar data updated via snapshot:", newAvatarData);
+            setAvatar(newAvatarData);
           } else {
             setAvatar(null);
           }
@@ -61,6 +65,7 @@ export const AvatarProvider = ({ children }) => {
 
   const refreshAvatar = async () => {
     if (auth.currentUser) {
+      console.log("Manually refreshing avatar for user:", auth.currentUser.uid);
       await loadAvatarData(auth.currentUser.uid);
     }
   };
