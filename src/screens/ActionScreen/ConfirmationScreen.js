@@ -6,7 +6,7 @@ import { db } from '../../firebase/config';
 
 const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [visible, setVisible] = useState(false);
-    const { selectedFloor } = route.params || {};
+    const { selectedIndex } = route.params || {};
     const [numberArray, setNumberArray] = useState([]);
     const [mainWeapon, setMainWeapon] = useState(null);
     const [mainArmor, setMainAmor] = useState(null);
@@ -123,7 +123,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const handleNextScreen = () => {
       setVisible;
       console.log('next: ');
-      navigation.navigate('Adventure', { selectedFloor, extraData });
+      navigation.navigate('Adventure', { selectedIndex, extraData });
     };
 
     
@@ -222,7 +222,8 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
         <View style={styles.bottomView}> 
           <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
-          <Button title="Yes, Begin!" onPress={handleNextScreen}/>
+          <Button title="Yes, Begin!" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
+
         </View>
       
       </View>

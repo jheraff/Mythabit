@@ -20,7 +20,6 @@
     "@react-navigation/stack": "^7.0.0",
     "base-64": "1.0.0",
     "expo": "51.0.38",
-    "expo-image-picker": "~15.1.0",
     "firebase": "11.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
