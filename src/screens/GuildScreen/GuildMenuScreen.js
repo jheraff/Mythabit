@@ -25,6 +25,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { useFocusEffect } from '@react-navigation/native';
+import { globalStyles } from '../../../styles/globalStyles';
 
 const GuildMenuScreen = ({ navigation }) => {
     const [guilds, setGuilds] = useState([]);
@@ -327,7 +328,7 @@ const GuildMenuScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             <FlatList
                 data={filteredGuilds}
                 renderItem={renderGuildItem}
@@ -409,10 +410,6 @@ const GuildMenuScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',

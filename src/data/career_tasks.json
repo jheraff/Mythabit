@@ -2,9 +2,9 @@
   "tasks": [
     {
       "taskName": "Read a chapter of a Book",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 1,
-      "statType": "intellect",
+      "statType": ["intellect"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "career",
@@ -12,9 +12,9 @@
     },
     {
       "taskName": "Write a paragraph of an essay",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 15,
-      "statType": "intellect",
+      "statType": ["intellect"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "career",
@@ -22,9 +22,9 @@
     },
     {
       "taskName": "Finish Essay",
-      "difficulty": "hard",
+      "difficulty": "Hard",
       "duration": 90,
-      "statType": "intellect",
+      "statType": ["intellect"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "career",
@@ -32,9 +32,9 @@
     },
     {
       "taskName": "Study for Exam",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 60,
-      "statType": "intellect",
+      "statType": ["intellect"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "career",
@@ -42,9 +42,9 @@
     },
     {
       "taskName": "Complete Group Project",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 45,
-      "statType": "focus",
+      "statType": ["focus"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "career",
@@ -52,13 +52,73 @@
     },
     {
       "taskName": "Apply for a job",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 20,
-      "statType": "intellect",
+      "statType": ["intellect"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "career",
       "xpReward": 20
+    },
+    {
+      "taskName": "Finish Homework Assignment",
+      "difficulty": "Medium",
+      "duration": 30,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Update Your Resume or Portfolio",
+      "difficulty": "Medium",
+      "duration": 25,
+      "statType": ["intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 70
+    },
+    {
+      "taskName": "Practice Job Interview Questions",
+      "difficulty": "Medium",
+      "duration": 20,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 65
+    },
+    {
+      "taskName": "Write or Update Your LinkedIn Profile",
+      "difficulty": "Medium",
+      "duration": 30,
+      "statType": ["intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 90
+    },
+    {
+      "taskName": "Watch a Documentary and Take Notes",
+      "difficulty": "Medium",
+      "duration": 45,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 95
+    },
+    {
+      "taskName": "Build a Simple Website Portfolio",
+      "difficulty": "Hard",
+      "duration": 60,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "career",
+      "xpReward": 130
     }
   ]
 }

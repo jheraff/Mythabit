@@ -2,9 +2,9 @@
   "tasks": [
     {
       "taskName": "Count to 10 in Chinese",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "focus",
+      "statType": ["focus"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "mind",
@@ -12,9 +12,9 @@
     },
     {
       "taskName": "Don't Scroll TikTok",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "focus",
+      "statType": ["focus"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "mind",
@@ -22,9 +22,9 @@
     },
     {
       "taskName": "Touch Grass",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "focus",
+      "statType": ["focus"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "mind",
@@ -32,7 +32,7 @@
     },
     {
       "taskName": "Meditate",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 15,
       "statType": ["focus", "arcane"],
       "status": "pending",
@@ -42,7 +42,7 @@
     },
     {
       "taskName": "Spend time outside",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 20,
       "statType": ["focus"],
       "status": "pending",
@@ -52,7 +52,7 @@
     },
     {
       "taskName": "Learn a New Word in a Foreign Language of your choosing",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 10,
       "statType": ["focus", "intellect"],
       "status": "pending",
@@ -62,7 +62,7 @@
     },
     {
       "taskName": "Solve a Jigsaw Puzzle",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 20,
       "statType": ["intellect", "focus"],
       "status": "pending",
@@ -72,7 +72,7 @@
     },
     {
       "taskName": "Solve a Sudoku",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 20,
       "statType": ["focus", "intellect"],
       "status": "pending",
@@ -82,7 +82,7 @@
     },
     {
       "taskName": "Solve a Crossword",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 25,
       "statType": ["focus", "intellect"],
       "status": "pending",
@@ -92,7 +92,7 @@
     },
     {
       "taskName": "Solve a Wordle",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 10,
       "statType": ["intellect"],
       "status": "pending",
@@ -102,13 +102,143 @@
     },
     {
       "taskName": "Read an Article on a New Topic",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 30,
       "statType": ["focus", "intellect"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "mind",
       "xpReward": 75
+    },
+    {
+      "taskName": "Learn \"Hello\" in another language of your choosing",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 25
+    },
+    {
+      "taskName": "Memorize a Quote",
+      "difficulty": "Easy",
+      "duration": 10,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 40
+    },
+    {
+      "taskName": "Practice Mental Math on a website (ex mathsbot question generator)",
+      "difficulty": "Medium",
+      "duration": 15,
+      "statType": ["intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 70
+    },
+    {
+      "taskName": "Play Visual Memory on Human Benchmark",
+      "difficulty": "Medium",
+      "duration": 10,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 65
+    },
+    {
+      "taskName": "Listen to a podcast on a certain topic",
+      "difficulty": "Medium",
+      "duration": 30,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 85
+    },
+    {
+      "taskName": "Play Memory Game on Google",
+      "difficulty": "Easy",
+      "duration": 10,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 35
+    },
+    {
+      "taskName": "Play Number Memory on Human Benchmark",
+      "difficulty": "Medium",
+      "duration": 10,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 75
+    },
+    {
+      "taskName": "Play Reaction Time on Human Benchmark",
+      "difficulty": "Easy",
+      "duration": 5,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 30
+    },
+    {
+      "taskName": "Play Verbal Memory on Human Benchmark",
+      "difficulty": "Medium",
+      "duration": 10,
+      "statType": ["focus", "intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 80
+    },
+    {
+      "taskName": "Solve a Math Puzzle",
+      "difficulty": "Medium",
+      "duration": 20,
+      "statType": ["intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 90
+    },
+    {
+      "taskName": "Brain Teaser",
+      "difficulty": "Medium",
+      "duration": 15,
+      "statType": ["intellect"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 70
+    },
+    {
+      "taskName": "Write a Gratitude List (10 items)",
+      "difficulty": "Easy",
+      "duration": 10,
+      "statType": ["focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 40
+    },
+    {
+      "taskName": "Play Chess Match",
+      "difficulty": "Hard",
+      "duration": 30,
+      "statType": ["intellect", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "mind",
+      "xpReward": 115
     }
   ]
 }
