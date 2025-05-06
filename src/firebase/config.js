@@ -290,7 +290,41 @@ export const initializeUserProfile = async (userId, username) => {
         arcane: 1,
         focus: 1,
       },
-      inventory: [],
+      equippedItems: {
+        weaponSlot: {
+          name: 'tree branch',
+          id: "000",
+          stat: {
+            strength: 1,
+          }
+        },
+        armorSlot: {
+          name: 'shirt',
+          id: '100',
+          stat: {
+            agility: 1,
+          }
+        },
+        potionSlot: {
+          name: 'sprite',
+          id: '200',
+          stat: {
+            focus: 1,
+          }
+        },
+      },
+      inventory: {
+        weaponList: [
+          {name: 'tree branch', id: "000"}
+        ], 
+
+        armorList: [
+          {name: 'shirt', id: '100'}
+        ],
+        potionList: [
+          {name: 'sprite', id: '200'}
+        ],
+      },
       tasks: [],
       currency: 0,
       showcasedAchievements: [],
