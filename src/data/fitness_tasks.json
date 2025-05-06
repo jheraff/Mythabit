@@ -2,9 +2,9 @@
   "tasks": [
     {
       "taskName": "Run",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 30,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "fitness",
@@ -12,9 +12,9 @@
     },
     {
       "taskName": "Push Ups",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 10,
-      "statType": "strength",
+      "statType": ["strength"],
       "status": "pending",
       "taskAmount": 20,
       "taskType": "fitness",
@@ -22,7 +22,7 @@
     },
     {
       "taskName": "Jump Rope",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 15,
       "statType": ["agility", "focus"],
       "status": "pending",
@@ -32,9 +32,9 @@
     },
     {
       "taskName": "Plank Hold for a Minute", 
-      "difficulty": "easy", 
+      "difficulty": "Easy", 
       "duration": 1,
-      "statType": "strength",
+      "statType": ["strength"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "fitness",
@@ -42,9 +42,9 @@
     },
     {
       "taskName": "Plank Hold for a Minute Each", 
-      "difficulty": "medium", 
+      "difficulty": "Medium", 
       "duration": 3,
-      "statType": "strength",
+      "statType": ["strength"],
       "status": "pending",
       "taskAmount": 2,
       "taskType": "fitness",
@@ -52,9 +52,9 @@
     },
     {
       "taskName": "Plank Hold for a Minute Each(Adjust)", 
-      "difficulty": "hard", 
+      "difficulty": "Hard", 
       "duration": 5,
-      "statType": "strength",
+      "statType": ["strength"],
       "status": "pending",
       "taskAmount": 3,
       "taskType": "fitness",
@@ -62,7 +62,7 @@
     },
     {
       "taskName": "Burpees", 
-      "difficulty": "hard", 
+      "difficulty": "Hard", 
       "duration": 10,
       "statType": ["strength", "agility"],
       "status": "pending",
@@ -72,9 +72,9 @@
     },
     {
       "taskName": "Squats", 
-      "difficulty": "medium", 
+      "difficulty": "Medium", 
       "duration": 10,
-      "statType": "strength",
+      "statType": ["strength"],
       "status": "pending",
       "taskAmount": 30,
       "taskType": "fitness",
@@ -82,9 +82,9 @@
     },
     {
       "taskName": "Cycling", 
-      "difficulty": "medium", 
+      "difficulty": "Medium", 
       "duration": 45,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "fitness",
@@ -92,9 +92,9 @@
     },
     {
       "taskName": "Jumping Jacks", 
-      "difficulty": "easy", 
+      "difficulty": "Easy", 
       "duration": 5,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 50,
       "taskType": "fitness",
@@ -102,9 +102,9 @@
     },
     {
       "taskName": "Sit-ups", 
-      "difficulty": "medium", 
+      "difficulty": "Medium", 
       "duration": 10,
-      "statType": "strength",
+      "statType": ["strength"],
       "status": "pending",
       "taskAmount": 25,
       "taskType": "fitness",
@@ -112,7 +112,7 @@
     },
     {
       "taskName": "Yoga Streching", 
-      "difficulty": "easy", 
+      "difficulty": "Easy", 
       "duration": 20,
       "statType": ["focus", "agility"],
       "status": "pending",
@@ -122,7 +122,7 @@
     },
     {
       "taskName": "Shadow Boxing", 
-      "difficulty": "medium", 
+      "difficulty": "Medium", 
       "duration": 15,
       "statType": ["agility", "focus"],
       "status": "pending",
@@ -132,9 +132,9 @@
     },
     {
       "taskName": "Endurance Run", 
-      "difficulty": "hard", 
+      "difficulty": "Hard", 
       "duration": 60,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "fitness",
@@ -142,7 +142,7 @@
     },
     {
       "taskName": "Weight Lift of your choosing Bench Press, Squat, or Deadlift (# of reps)",
-      "difficulty": "hard",
+      "difficulty": "Hard",
       "duration": 15,
       "statType": ["strength", "focus"],
       "status": "pending",
@@ -152,7 +152,7 @@
     },
     {
       "taskName": "Swim",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 30,
       "statType": ["strength", "agility"],
       "status": "pending",
@@ -162,7 +162,7 @@
     },
     {
       "taskName": "Pull ups",
-      "difficulty": "hard",
+      "difficulty": "Hard",
       "duration": 5,
       "statType": ["strength", "focus"],
       "status": "pending",
@@ -172,9 +172,9 @@
     },
     {
       "taskName": "Take a walk",
-      "difficulty": "easy",
+      "difficulty": "Easy",
       "duration": 30,
-      "statType": "focus",
+      "statType": ["focus"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "fitness",
@@ -182,9 +182,9 @@
     },
     {
       "taskName": "Jog",
-      "difficulty": "medium",
+      "difficulty": "Medium",
       "duration": 25,
-      "statType": "agility",
+      "statType": ["agility"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "fitness",
@@ -192,7 +192,7 @@
     },
     {
       "taskName": "Sprint",
-      "difficulty": "hard",
+      "difficulty": "Hard",
       "duration": 10,
       "statType": ["agility", "strength"],
       "status": "pending",
@@ -202,13 +202,53 @@
     },
     {
       "taskName": "Bypass PR (Personal Record)",
-      "difficulty": "hard",
+      "difficulty": "Hard",
       "duration": 10,
       "statType": ["strength", "focus"],
       "status": "pending",
       "taskAmount": 1,
       "taskType": "fitness",
       "xpReward": 135
+    },
+    {
+      "taskName": "Bulgarian Split Squats",
+      "difficulty": "Hard",
+      "duration": 15,
+      "statType": ["strength", "agility"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 120
+    },
+    {
+      "taskName": "Sprint 100m Dash",
+      "difficulty": "Medium",
+      "duration": 5,
+      "statType": ["agility"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 60
+    },
+    {
+      "taskName": "High Knees",
+      "difficulty": "Medium",
+      "duration": 5,
+      "statType": ["agility", "focus"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 75
+    },
+    {
+      "taskName": "Dance Freestyle for 2 Minutes",
+      "difficulty": "Easy",
+      "duration": 2,
+      "statType": ["agility"],
+      "status": "pending",
+      "taskAmount": 1,
+      "taskType": "fitness",
+      "xpReward": 30
     }
   ]
 }

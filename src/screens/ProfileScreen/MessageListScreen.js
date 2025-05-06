@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
+import { globalStyles } from '../../../styles/globalStyles';
 import Avatar from '../AvatarScreen/Avatar';
 
 const MessageListScreen = ({ navigation, route }) => {
@@ -203,9 +204,9 @@ const MessageListScreen = ({ navigation, route }) => {
     }
     
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             {/* Header Container with updated styling */}
-            <View style={styles.headerContainer}>
+            <View style={globalStyles.headerContainer}>
                 {/* Top row of header with back button, title */}
                 <View style={styles.headerTopRow}>
                     <TouchableOpacity
@@ -245,21 +246,6 @@ const MessageListScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    headerContainer: {
-        backgroundColor: '#1c2d63', 
-        paddingVertical: 15,
-        borderBottomWidth: 4,
-        borderBottomColor: '#afe8ff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        elevation: 5,
-    },
     headerTopRow: {
         flexDirection: 'row',
         alignItems: 'center',

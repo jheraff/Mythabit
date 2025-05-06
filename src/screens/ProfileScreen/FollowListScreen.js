@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator }
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
+import { globalStyles } from '../../../styles/globalStyles';
 
 const FollowListScreen = ({ route, navigation }) => {
     const { type, userId } = route.params;
@@ -67,11 +68,11 @@ const FollowListScreen = ({ route, navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             {/* Header Container with updated styling */}
-            <View style={styles.headerContainer}>
+            <View style={globalStyles.headerContainer}>
                 {/* Top row of header with back button and title */}
-                <View style={styles.headerTopRow}>
+                <View style={globalStyles.headerTopRow}>
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => navigation.goBack()}
@@ -115,27 +116,6 @@ const FollowListScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    headerContainer: {
-        backgroundColor: '#1c2d63',
-        paddingVertical: 15,
-        borderBottomWidth: 4,
-        borderBottomColor: '#afe8ff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        elevation: 5,
-    },
-    headerTopRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 5,
-    },
     backButton: {
         padding: 5,
         marginRight: 10,

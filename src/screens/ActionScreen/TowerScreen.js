@@ -54,6 +54,7 @@ const TowerScreen = ({ navigation, extraData }) => {
             onPress={() => navigation.navigate('Confirmation',{selectedIndex})} 
             disabled ={!floorSelected}
           />    
+          <Button title="Go Back" onPress={() => navigation.navigate('Action', {screen: 'ActionMain'})}/>
         </View>
       </View>
     );
