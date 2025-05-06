@@ -12,8 +12,6 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [currSlot, setCurrSlot] = useState([]);
 
 
-
-
     const [tempItem, setTempItem] = useState(null);
 
     const [userStats, setUserStats] = useState({
