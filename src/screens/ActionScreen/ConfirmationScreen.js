@@ -228,7 +228,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
        
 
         <View style={styles.topView}> 
-          <Text style={styles.headTitle}> Daily </Text>
+          <Text style={styles.headTitle}> Items Equpped </Text>
         </View>
 
         
@@ -265,9 +265,9 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         </View>
 
         <View style={styles.bottomView}> 
-          <Text style={styles.title}>Are you sure you want to begin the adventure?</Text>
-          <Button title="Yes, Begin!" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
-
+          <Text style={styles.title}>Are these the items you want equipped?</Text>
+          <Button title="Yes" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
+          <Button title="Go Back" onPress={() => navigation.navigate('Tower', { selectedIndex })}/>
         </View>
       
       </View>

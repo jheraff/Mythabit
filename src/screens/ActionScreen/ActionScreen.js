@@ -6,8 +6,8 @@ import { db, auth } from '../../firebase/config';
 import { Ionicons } from '@expo/vector-icons';
 import { globalStyles } from '../../../styles/globalStyles';
 
-const ActionScreen = () => {
-    const navigation = useNavigation();
+const ActionScreen = ({ navigation }) => {
+    //const navigation = useNavigation();
     const primaryColor = 'black';
     const secondaryColor = 'white';
     const [userStats, setUserStats] = useState({
