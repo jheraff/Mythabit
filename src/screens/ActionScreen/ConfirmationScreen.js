@@ -12,14 +12,8 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     const [currSlot, setCurrSlot] = useState([]);
 
 
-    const [mainWeapon, setMainWeapon] = useState(null);
-    const [mainArmor, setMainAmor] = useState(null);
-    const [mainPotion, setMainPotion] = useState(null);
 
 
-    const [inventoryArmor, setInventoryArmor] = useState(null);
-    const [inventoryWeapon, setInventoryWeapon] = useState(null);
-    const [inventoryPotion, setInventoryPotion] = useState(null);
     const [tempItem, setTempItem] = useState(null);
 
     const [userStats, setUserStats] = useState({
@@ -111,10 +105,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
     
 
     useEffect(() => {
-      fetchEquipped();
-      fetchArmor();
-      fetchWeapon();
-      fetchPotion();
+      
       console.log('floor: ' + selectedIndex);
       
     }, []);
@@ -131,92 +122,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       }
     };
 
-    const fetchArmor = async () => {
-      try {
-        const armor = collection(db, 'inventory_armor');
-        const snapshot = await getDocs(armor);
-    
-        const armorItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-    
-        setInventoryArmor(armorItems);
-      } catch (error) {
-        console.error('Error loading armor:', error);
-      }
-    };
 
-    
-
-    const fetchWeapon = async () => {
-      try {
-        const weapon = collection(db, 'inventory_weapons');
-        const snapshot = await getDocs(weapon);
-    
-        const weaponItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-    
-        setInventoryWeapon(weaponItems);
-      } catch (error) {
-        console.error('Error loading weapons:', error);
-      }
-    };
-
-    const fetchPotion = async () => {
-      try {
-        const potion = collection(db, 'inventory_potions');
-        const snapshot = await getDocs(potion);
-    
-        const potionItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-    
-        setInventoryPotion(potionItems);
-      } catch (error) {
-        console.error('Error loading potions:', error);
-      }
-    };
-
-    const fetchEquipped = async () => {
-      try {
-        const slots = ['weaponSlot','potionSlot','armorSlot']
-        const promises = slots.map(slot => getDoc(doc(db,'equippedItems',slot)))
-        const docs = await Promise.all(promises);
-
-        
-        const equippedItems = docs.map((docSnap, index) => {
-          if (docSnap.exists()) {
-            if (docSnap.id === 'weaponSlot') {
-              setMainWeapon(docSnap.data());
-            } else if (docSnap.id === 'armorSlot') {
-              setMainAmor(docSnap.data());
-            }  else if (docSnap.id === 'potionSlot') {
-              setMainPotion(docSnap.data());
-            } 
-
-            return {
-              slot: slots[index],
-              ...docSnap.data()
-             
-            };
-          } else {
-            return {
-              slot: slots[index],
-              name: null
-            };
-          }
-        });
-    
-        return equippedItems; // [{slot: 'weapon', name: 'dagger'}, ...]
-      } catch (err) {
-        console.log('Error fetching equipped items:', err);
-        return [];
-      }
-    };
 
     const renderInventory = (category) => {
       if (category == 'weaponSlot') {
@@ -225,18 +131,10 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         setNumberArray(userStats.inventory.potionList);
         console.log('numberArraySGSGSGSGSGSG:', userStats.inventory.potionList);
       } else if (category == 'armorSlot') {
-        setNumberArray(inventoryArmor);
+        setNumberArray(userStats.inventory.armorList);
       
       }
     
-    };
-
-
-
-    const handleNextScreen = () => {
-      setVisible;
-      console.log('next: ');
-      navigation.navigate('Adventure', { selectedIndex, extraData });
     };
 
     
@@ -252,11 +150,6 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
       setTempItem(index);
 
     };
-
-    useEffect(() => {
-      //console.log('Updated inventory', inventoryWeapon);
-
-    }, [inventoryWeapon]);
 
     
     
@@ -348,7 +241,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
             style={styles.previewImageOne}/>
             <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
             <Text style={[styles.itemTitle]}> {userStats.equip.weaponS?.name || 'None equipped'} </Text>
-            <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {'+ ' + mainWeapon?.damage || 'None equipped'} </Text>
+            <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {''} </Text>
 
           </TouchableOpacity>
 
