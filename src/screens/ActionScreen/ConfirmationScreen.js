@@ -242,40 +242,45 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
         
 
 
-        <View style={styles.middleView}> 
-          
-          <TouchableOpacity style={[styles.slotOne, {top: 280}]} onPress={() => handleMenu('armorSlot')}> 
-            <Image source={require('../../../assets/avatars/placeholder.png')}
-            style={styles.previewImageOne}/>
-            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Armor </Text>
-            <Text style={styles.itemTitle}> {userStats.equip.armorS?.name || 'None equipped'} </Text>
-          </TouchableOpacity>
+              <View style={styles.middleView}>
+        <TouchableOpacity style={styles.slotOne} onPress={() => handleMenu('weaponSlot')}>
+          <Image source={require('../../../assets/avatars/placeholder.png')} style={styles.previewImageOne} />
+          <Text style={styles.itemTitle}>Weapon</Text>
+          <Text style={styles.equippedItemName}>{mainWeapon?.name || 'None equipped'}</Text>
+          <Text style={[styles.itemTitle, { color: 'darkgreen' }]}>{mainWeapon ? `+ ${mainWeapon.damage}` : ''}</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.slotOne, {top: 20}]} onPress={() => {handleMenu('weaponSlot')}}> 
-            <Image source={require('../../../assets/avatars/placeholder.png')}
-            style={styles.previewImageOne}/>
-            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Weapon </Text>
-            <Text style={[styles.itemTitle]}> {userStats.equip.weaponS?.name || 'None equipped'} </Text>
-            <Text style={[styles.itemTitle, {color: 'darkgreen'}]}> {''} </Text>
+        <TouchableOpacity style={styles.slotOne} onPress={() => handleMenu('armorSlot')}>
+          <Image source={require('../../../assets/avatars/placeholder.png')} style={styles.previewImageOne} />
+          <Text style={styles.itemTitle}>Armor</Text>
+          <Text style={styles.equippedItemName}>{mainArmor?.name || 'None equipped'}</Text>
+        </TouchableOpacity>
 
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.slotOne} onPress={() => handleMenu('potionSlot')}>
+          <Image source={require('../../../assets/avatars/placeholder.png')} style={styles.previewImageOne} />
+          <Text style={styles.itemTitle}>Potion</Text>
+          <Text style={styles.equippedItemName}>{mainPotion?.name || 'None equipped'}</Text>
+        </TouchableOpacity>
+      </View>
 
-
-          <TouchableOpacity style={[styles.slotOne, {bottom: 240,}]} onPress={() => handleMenu('potionSlot')}> 
-            <Image source={require('../../../assets/avatars/placeholder.png')}
-            style={styles.previewImageOne}/>
-            <Text style={[styles.itemTitle, {fontWeight: 'bold'}]}> Potion </Text>
-            <Text style={styles.itemTitle}>{(userStats.equip.potionS?.name || 'None equipped')}</Text>
-            
-
-          </TouchableOpacity>
-
-        </View>
 
         <View style={styles.bottomView}> 
           <Text style={styles.title}>Are these the items you want equipped?</Text>
-          <Button title="Yes" onPress={() => navigation.navigate('Adventure', { selectedIndex })}/>
-          <Button title="Go Back" onPress={() => navigation.navigate('Tower', { selectedIndex })}/>
+          <TouchableOpacity
+            style={styles.darkFantasyButton}
+            onPress={() => navigation.navigate('Adventure', { selectedIndex })}
+          >
+            <Text style={styles.darkFantasyButtonText}>Yes</Text>
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
+            style={[styles.darkFantasyButton, { marginTop: 10, backgroundColor: '#2e2e2e' }]}
+            onPress={() => navigation.navigate('Tower', { selectedIndex })}
+          >
+            <Text style={styles.darkFantasyButtonText}>Go Back</Text>
+          </TouchableOpacity>
+
         </View>
       
       </View>
@@ -283,135 +288,123 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
   };
 
   const styles = StyleSheet.create({
-    
-    itemBox: {
-      borderColor: '#ccc',
-      borderWidth: 5,
-      backgroundColor: 'white',
-      marginHorizontal: 10,
-      marginVertical: 8,
-      height: 70,
-      width: 70,
-      zIndex: 10,
-      
+    container: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: '#1a1a1a',
+    },
+    topView: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 100,
+      width: '100%',
+      backgroundColor: '#1a1a1a',
+      borderBottomWidth: 2,
+      borderColor: '#444',
+    },
+    headTitle: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: '#e0d8c3',
+      fontFamily: 'serif',
+    },
+    bottomView: {
+      padding: 16,
+      alignItems: 'center',
+      backgroundColor: '#1a1a1a',
+      width: '100%',
+      borderTopWidth: 2,
+      borderColor: '#444',
+    },
+    title: {
+      fontSize: 18,
+      color: '#e0d8c3',
+      fontFamily: 'serif',
+      marginBottom: 12,
+    },
+    middleView: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+      width: '90%',
+      paddingVertical: 20,
+    },
+    slotOne: {
+      backgroundColor: '#2b2b2b',
+      height: 120,
+      width: 300,
+      borderColor: '#666',
+      borderWidth: 2,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 10,
+      paddingTop: 10,
+    },
+    itemTitle: {
+      fontSize: 16,
+      fontFamily: 'serif',
+      color: '#d4af37', // for "Weapon", "Armor", etc.
+    },
+    equippedItemName: {
+      fontSize: 14,
+      color: '#e0d8c3', // for equipped item name
+      fontFamily: 'serif',
+      marginTop: -6,
+    },
+    previewImageOne: {
+      width: 45,
+      height: 45,
+      tintColor: '#c2baa6',
+      marginBottom: 5,
+    },
+    darkFantasyButton: {
+      backgroundColor: '#2e2e2e',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 6,
+      borderWidth: 1.5,
+      borderColor: '#888',
+      marginTop: 5,
+    },
+    darkFantasyButtonText: {
+      color: '#e0d8c3',
+      fontSize: 16,
+      fontFamily: 'serif',
+    },
+    menu: {
+      maxHeight: '70%',
+      backgroundColor: '#1a1a1a',
+      padding: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+    },
+    overlay: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
     },
     quickMenu: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      justifyContent: 'flex-start',
-      backgroundColor: 'white',
-      
-      
-      height: 500,
-      width: 390,
-      right: 19,
+      justifyContent: 'center',
+      marginTop: 10,
     },
-
-    updateButton: {
-      bottom: 175,
-    },
-
-    container: { 
-      flex: 1, 
-      alignItems: 'center',
-    },
-
-    topView: {
-      alignItems: 'center',
-      top: 20,
-      height: 100,
-      width: 400,
-      backgroundColor: '#1c2d63',
-    },
-
-    headTitle: {
-      top:10,
-      fontSize: 50,
-      fontWeight: 'bold',
-      color: 'white'
-    },
-
-    bottomView: {
-      padding: 16,
-      alignItems: 'center',
-      margin: 20,
-      backgroundColor: '#1c2d63',
-      width: 400,
-    },
-
-    middleView: {
+    itemBox: {
+      backgroundColor: '#2e2e2e',
+      borderWidth: 1,
+      borderColor: '#d4af37',
+      padding: 10,
+      margin: 6,
+      width: 70,
+      height: 70,
       justifyContent: 'center',
       alignItems: 'center',
-      height: 100,
-      width: 390,
-      flex: 1,
-      
     },
-
-    slotOne: {
-      backgroundColor: 'white',
-      height: 120,
-      width: 300,
-      borderColor: 'black',
-      borderWidth: 5,
-      borderRadius: 10,
+    updateButton: {
+      marginTop: 10,
       alignItems: 'center',
-     
     },
-
-    itemTitle: {
-      bottom: 75,
-      fontSize: 20,
-    },
-
-    previewImageOne: {
-      width: 55,
-      height: 55,
-      top: 25,
-      right: 100,
-      marginBottom: 30,
-    },
-
-    title: { 
-      fontSize: 20, 
-      marginBottom: 20,
-      color: 'white',
-      fontWeight: 'bold',
-      
-    },
-
-    equipIcon: {
-      borderColor: 'black',
-      width: 100,
-      height: 100,
-      alignItems: 'center',
-      
-    },
-
-    overlay: {
-      flex: 1,
-      justifyContent: 'flex-end',
-      backgroundColor: 'rgba(0, 0, 0, 0.3)',
-      maxHeight: '27%',
-    },
-
-    previewText: {
-      width: 20,
-      height: 20,
-    
-    },
-    menu: {
-      
-      maxHeight: '70%',
-      backgroundColor: '#1c2d63',
-      padding: 20,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      height: 75,
-    },
-
-  });
-
-  
+  });  
   
   export default ConfirmationScreen;
