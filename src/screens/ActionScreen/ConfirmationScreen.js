@@ -123,7 +123,7 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
     const updateEquippedSlot = async (slot, itemData) => {
       try {
-        await setDoc(doc(db, 'equippedItems', slot), itemData);
+        await setDoc(doc(db, 'users',userId, 'equippedItems', slot), itemData);
         console.log('Updated ${slot} with', itemData);
         fetchEquipped();
       } catch (err) {
@@ -308,7 +308,17 @@ const ConfirmationScreen = ({ navigation, route, extraData }) => {
 
             <View style ={[styles.itemBox ,{height: 100,width: 100, bottom: 275,left: 200,backgroundColor:'lightgrey'}]}>
               <Text> Current Item:</Text>
-              <Text> {mainWeapon?.name || 'None equipped'}</Text>
+              {currSlot === 'weaponSlot' && (
+                <Text>{userStats.equip.weaponS.name|| 'None equipped'}</Text>
+              )}
+              
+              {currSlot === 'armorSlot' && (
+                <Text>{userStats.equip.armorS.name || 'None equipped'}</Text>
+              )}
+
+              {currSlot === 'potionSlot' && (
+                <Text>{userStats.equip.potionS.name || 'None equipped'}</Text>
+              )}
             </View>
 
 
