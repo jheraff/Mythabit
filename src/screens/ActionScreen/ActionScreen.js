@@ -7,6 +7,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { globalStyles } from '../../../styles/globalStyles';
 
 const ActionScreen = ({ navigation }) => {
+    // You can use either the navigation prop or useNavigation hook
+    // const navigation = useNavigation(); // Alternative approach
+    
     const [userStats, setUserStats] = useState({
         username: '',
         level: 1,
@@ -69,6 +72,11 @@ const ActionScreen = ({ navigation }) => {
         { name: 'Shop', route: 'Shop', icon: 'cart' }
     ];
 
+    const handleNavigation = (route) => {
+        console.log(`Navigating to ${route}`); // Debug log
+        navigation.navigate(route);
+    };
+
     return (
         <View style={globalStyles.container}>
             <View style={globalStyles.headerContainer}>
@@ -115,6 +123,8 @@ const ActionScreen = ({ navigation }) => {
                         <TouchableOpacity
                             key={item.route}
                             style={styles.button}
+                            onPress={() => handleNavigation(item.route)} // Added onPress here
+                            activeOpacity={0.7} // Visual feedback on press
                         >
                             <Ionicons 
                                 name={item.icon} 
@@ -132,6 +142,7 @@ const ActionScreen = ({ navigation }) => {
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     contentContainer: {
