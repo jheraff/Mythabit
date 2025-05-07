@@ -28,8 +28,19 @@ const HomeScreen = () => {
       armor: null,
       weapon: null,
       gear: null,
-    }
+    },
+
+    equip: {
+      weaponS: null,
+      armorS: null,
+      potionS: null,
+    },
   });
+
+  useEffect(() => {
+    //console.log(userStats.equip);
+
+  }, [userStats])
 
   useEffect(() => {
     const userId = auth.currentUser?.uid;
@@ -42,24 +53,14 @@ const HomeScreen = () => {
           
           const userData = docSnapshot.data();
           console.log(userData);
-          console.log("it EXISTSSSSSSSS");
+         
           // Create complete user stats object, ensuring all fields exist
           // Handle legacy data structure or create new simplified structure
           let armorItem = userData.inventory?.armor;
           
           // If we're migrating from the old system, check if any armor pieces exist
           // and use the first one found as the armor item
-          if (!armorItem) {
-            if (userData.inventory?.helmet) {
-              armorItem = userData.inventory.helmet;
-            } else if (userData.inventory?.chestplate) {
-              armorItem = userData.inventory.chestplate;
-            } else if (userData.inventory?.leggings) {
-              armorItem = userData.inventory.leggings;
-            } else if (userData.inventory?.boots) {
-              armorItem = userData.inventory.boots;
-            }
-          }
+       
           
           const completeUserStats = {
             username: userData.username || auth.currentUser?.displayName || 'New User',
@@ -74,12 +75,13 @@ const HomeScreen = () => {
               arcane: userData.stats?.arcane || 1,
               focus: userData.stats?.focus || 1
             },
-            inventory: {
-              armor: "hi",
-              weapon: userData.inventory?.weapon || null,
-              gear: userData.inventory?.gear || null
+            equip: {
+              weaponS: userData.equippedItems?.weaponSlot || null,
+              armorS: userData.equippedItems?.armorSlot || null,
+              potionS: userData.equippedItems?.potionSlot || null,
             }
           };
+      
           setUserStats(completeUserStats);
         } else {
           initializeNewUser(userId);
@@ -193,9 +195,9 @@ const HomeScreen = () => {
   const renderEquipmentSlots = () => {
     // Only show the main equipment types (armor, weapon, gear)
     const equipmentTypes = [
-      { id: 'armor', name: 'Armor', icon: 'shield-outline' },
-      { id: 'weapon', name: 'Weapon', icon: 'flash-outline' },
-      { id: 'gear', name: 'Gear', icon: 'cog-outline' }
+      { id: 'armorS', name: 'Armor', icon: 'shield-outline' },
+      { id: 'weaponS', name: 'Weapon', icon: 'flash-outline' },
+      { id: 'potionS', name: 'Gear', icon: 'cog-outline' }
     ];
     
     return (
@@ -206,7 +208,8 @@ const HomeScreen = () => {
   };
 
   const renderInventorySlot = (slotType, slotName, iconName) => {
-    const item = userStats.inventory[slotType];
+    const item = userStats.equip[slotType];
+    console.log('show item',item);
     
     return (
       <TouchableOpacity 
@@ -317,7 +320,7 @@ const HomeScreen = () => {
           <Text style={styles.equipmentHeader}>Equipment</Text>
           <TouchableOpacity 
             style={styles.viewAllButton}
-            onPress={() => navigation.navigate('ItemScreen')}
+            onPress={() => navigation.navigate('Items')}
           >
             <Text style={styles.viewAllText}>View All Items</Text>
           </TouchableOpacity>
