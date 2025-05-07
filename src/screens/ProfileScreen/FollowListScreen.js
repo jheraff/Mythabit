@@ -176,12 +176,14 @@ const styles = StyleSheet.create({
         flex: 1
     },
     username: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 24,
+        fontFamily: 'morris-roman',
+        //fontWeight: '600',
         color: '#1c2d63',
     },
     level: {
-        fontSize: 14,
+        fontSize: 16,
+        fontFamily: 'morris-roman',
         color: '#666',
         marginTop: 2
     },

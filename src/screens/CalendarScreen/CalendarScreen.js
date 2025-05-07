@@ -265,27 +265,28 @@ const CalendarScreen = ({ navigation, extraData }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1a1a1a',
   },
   header: {
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgb(34, 119, 45)',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
     paddingHorizontal: 16,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    fontSize: 28,
+    //fontWeight: 'bold',
+    fontFamily: 'morris-roman',
+    color: '#f5f5f5',
   },
   scrollContainer: {
     flex: 1,
   },
   calendarContainer: {
     padding: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1a1a1a',
   },
   calendar: {
     borderRadius: 10,
@@ -301,13 +302,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   dateTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    //fontWeight: '600',
+    fontFamily: 'morris-roman',
     marginBottom: 16,
-    color: '#1f2937',
+    color: '#f5f5f5',
   },
   taskCard: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#d3d3d3',
     borderRadius: 10,
     padding: 16,
     marginBottom: 12,
